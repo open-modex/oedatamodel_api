@@ -17,7 +17,7 @@ install:
 
 # commands to run tests 
 script:
-  - flake8
+  - flakehell lint
   - pytest tests
 #jobs:
 #  include:
