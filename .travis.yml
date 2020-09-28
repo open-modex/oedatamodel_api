@@ -18,7 +18,6 @@ install:
 # commands to run tests 
 script:
   - flake8
-  - black --check . --exclude docs/
   - pytest tests
 #jobs:
 #  include:
