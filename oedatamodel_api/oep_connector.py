@@ -5,7 +5,11 @@ import requests
 OEP_URL = 'https://openenergy-platform.org'
 
 
-def get_scenario_response_from_oep(scenario_id=None, scenario_name=None):
+class ScenarioNotFoundError(Exception):
+    """Is raised if scenario could not be found in OEP"""
+
+
+def get_scenario_from_oep(scenario_id=None, scenario_name=None):
     if scenario_id is None and scenario_name is None:
         raise ValueError("You have to set either scenario ID or name")
     if scenario_id is not None and scenario_name is not None:
@@ -104,12 +108,10 @@ def get_scenario_response_from_oep(scenario_id=None, scenario_name=None):
         json=data,
     )
     if response.status_code != 200:
-        logging.error("Could not get scenario from OEP", scenario_id, scenario_name, response.text)
+        logging.error("Error in scenario request to OEP", scenario_id, scenario_name, response.text)
         raise ConnectionError(response.text)
-    return response.json()
-
-
-def get_scenario_data(scenario_json: dict):
-    if scenario_json["content"]["rowcount"] == 0:
-        return {"result": "Scenario not found"}
-    return scenario_json['data']
+    json = response.json()
+    if json["content"]["rowcount"] == 0:
+        logging.warning("Could not get scenario from OEP", scenario_id, scenario_name, response.text)
+        raise ScenarioNotFoundError("Scenario not found", scenario_id, scenario_name)
+    return json

@@ -5,7 +5,8 @@ from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from oedatamodel_api.oep_connector import get_scenario_response_from_oep, get_scenario_data
+from oedatamodel_api.oep_connector import get_scenario_from_oep, ScenarioNotFoundError
+from oedatamodel_api import transform
 
 app = FastAPI()
 
@@ -23,15 +24,21 @@ def index(request: Request) -> Response:
 
 
 @app.get('/scenario/id/{scenario_id}')
-def scenario_by_id(scenario_id: int):
-    scenario_json = get_scenario_response_from_oep(scenario_id=scenario_id)
-    return get_scenario_data(scenario_json)
+def scenario_by_id(scenario_id: int, data_format: transform.OedataFormat = transform.OedataFormat.raw):
+    try:
+        raw_scenario_json = get_scenario_from_oep(scenario_id=scenario_id)
+    except (ConnectionError, ScenarioNotFoundError) as e:
+        return {"error": e.args}
+    return transform.format_data(raw_scenario_json, data_format)
 
 
 @app.get('/scenario/name/{scenario_name}')
-def scenario_by_name(scenario_name: str):
-    scenario_json = get_scenario_response_from_oep(scenario_name=scenario_name)
-    return get_scenario_data(scenario_json)
+def scenario_by_name(scenario_name: str, data_format: transform.OedataFormat = transform.OedataFormat.raw):
+    try:
+        raw_scenario_json = get_scenario_from_oep(scenario_name=scenario_name)
+    except (ConnectionError, ScenarioNotFoundError) as e:
+        return {"error": e.args}
+    return transform.format_data(raw_scenario_json, data_format)
 
 
 if __name__ == "__main__":
