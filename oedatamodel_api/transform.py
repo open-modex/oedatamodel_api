@@ -1,3 +1,6 @@
+"""
+Oedatamodel transformations from OEP (raw format) into other supported formats
+"""
 
 from enum import Enum
 from typing import Optional
@@ -6,6 +9,7 @@ import jmespath
 
 
 class OedataFormat(str, Enum):
+    """Supplied oedatamodel response formats"""
     raw = 'raw'
     json_normalized = 'json_normalized'
     json_concrete = 'json_concrete'
@@ -14,8 +18,7 @@ class OedataFormat(str, Enum):
 
 
 def format_data(raw_json, data_format: OedataFormat):
-    """
-    Raw json is formatted according to given data format
+    """Raw json is formatted according to given data format.
 
     Parameters
     ----------
@@ -33,11 +36,13 @@ def format_data(raw_json, data_format: OedataFormat):
         return raw_json
     if data_format == OedataFormat.json_normalized:
         return get_normalized_json(raw_json)
+    if data_format == OedataFormat.json_concrete:
+        return get_concrete_json(raw_json)
+    return None
 
 
 def get_data_indexes(raw_json):
-    """
-    Finds indexes of "id" columns in raw json oedatamodel
+    """Finds indexes of "id" columns in raw json oedatamodel.
 
     Parameters
     ----------
@@ -53,8 +58,7 @@ def get_data_indexes(raw_json):
 
 
 def get_scenario_data(raw_json, scenario_columns: int):
-    """
-    Returns scenario data of given oedatamodel (raw)
+    """Returns scenario data of given oedatamodel (raw)
 
     Parameters
     ----------
@@ -77,8 +81,8 @@ def get_scenario_data(raw_json, scenario_columns: int):
 
 
 def get_multiple_rows_from_data(raw_json, start: int, end: Optional[int] = None):
-    """
-    Returns all data rows with given column names for given range in raw data
+    """Returns all data rows with given column names for given range in raw
+    data.
 
     Parameters
     ----------
@@ -97,7 +101,7 @@ def get_multiple_rows_from_data(raw_json, start: int, end: Optional[int] = None)
     column_names = [column[0] for column in raw_json['description'][start:end]]
     table_data = []
     for row in raw_json['data']:
-        # Skip rows, if "id" column is not set (empty scalars or timeseries):
+        # Skip rows, if "id" column is not set (empty scalars or timeseries)
         if row[start] is None:
             continue
         table_data.append(dict(zip(column_names, row[start:end])))
@@ -105,8 +109,7 @@ def get_multiple_rows_from_data(raw_json, start: int, end: Optional[int] = None)
 
 
 def get_normalized_json(raw_json):
-    """
-    Formats raw oedatamodel into normalized oedatamodel
+    """Formats raw oedatamodel into normalized json oedatamodel.
 
     Parameters
     ----------
@@ -121,8 +124,46 @@ def get_normalized_json(raw_json):
     table_indexes = get_data_indexes(raw_json)
     scenario = get_scenario_data(raw_json, table_indexes[1])
     data = get_multiple_rows_from_data(
-        raw_json, start=table_indexes[1], end=table_indexes[2])
+        raw_json, start=table_indexes[1], end=table_indexes[2],
+    )
     timeseries = get_multiple_rows_from_data(
-        raw_json, start=table_indexes[2], end=table_indexes[3])
+        raw_json, start=table_indexes[2], end=table_indexes[3],
+    )
     scalars = get_multiple_rows_from_data(raw_json, start=table_indexes[3])
-    return {'oed_scenario': scenario, 'oed_data': data, 'oed_scalars': scalars, 'oed_timeseries': timeseries}
+    return {
+        'oed_scenario': scenario,
+        'oed_data': data,
+        'oed_scalars': scalars,
+        'oed_timeseries': timeseries
+    }
+
+
+def get_concrete_json(raw_json):
+    """Formats raw oedatamodel into concrete json oedatamodel.
+
+    Parameters
+    ----------
+    raw_json : dict
+        Raw oedatamodel as json/dict from OEP
+
+    Returns
+    -------
+    dict
+        Concrete oedatamodel
+    """
+    normalized_json = get_normalized_json(raw_json)
+    concrete_json = {
+        'oed_scenario': normalized_json['oed_scenario'],
+        'oed_scalars': [],
+        'oed_timeseries': []
+    }
+    for data in normalized_json['oed_data']:
+        data_id = data['id']
+        entry_index = 'oed_scalars'
+        entry = jmespath.search(f'[?id==`{data_id}`] | [0]', normalized_json['oed_scalars'])
+        if entry is None:
+            entry_index = 'oed_timeseries'
+            entry = jmespath.search(f'[?id==`{data_id}`] | [0]', normalized_json['oed_timeseries'])
+        concrete_entry = {**data, **{k: v for k, v in entry.items() if k != 'id'}}
+        concrete_json[entry_index].append(concrete_entry)
+    return concrete_json
