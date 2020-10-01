@@ -1,15 +1,16 @@
-"""
-Oedatamodel transformations from OEP (raw format) into other supported formats
-"""
-
+"""Oedatamodel transformations from OEP (raw format) into other supported
+formats."""
+import csv
+import zipfile
 from enum import Enum
+from io import BytesIO, StringIO
 from typing import Optional
 
 import jmespath
 
 
 class OedataFormat(str, Enum):
-    """Supplied oedatamodel response formats"""
+    """Supplied oedatamodel response formats."""
     raw = 'raw'
     json_normalized = 'json_normalized'
     json_concrete = 'json_concrete'
@@ -38,6 +39,8 @@ def format_data(raw_json, data_format: OedataFormat):
         return get_normalized_json(raw_json)
     if data_format == OedataFormat.json_concrete:
         return get_concrete_json(raw_json)
+    if data_format == OedataFormat.csv_normalized:
+        return get_normalized_csv(raw_json)
     return None
 
 
@@ -134,7 +137,7 @@ def get_normalized_json(raw_json):
         'oed_scenario': scenario,
         'oed_data': data,
         'oed_scalars': scalars,
-        'oed_timeseries': timeseries
+        'oed_timeseries': timeseries,
     }
 
 
@@ -155,7 +158,7 @@ def get_concrete_json(raw_json):
     concrete_json = {
         'oed_scenario': normalized_json['oed_scenario'],
         'oed_scalars': [],
-        'oed_timeseries': []
+        'oed_timeseries': [],
     }
     for data in normalized_json['oed_data']:
         data_id = data['id']
@@ -167,3 +170,26 @@ def get_concrete_json(raw_json):
         concrete_entry = {**data, **{k: v for k, v in entry.items() if k != 'id'}}
         concrete_json[entry_index].append(concrete_entry)
     return concrete_json
+
+
+def get_normalized_csv(raw_json):
+    normalized_json = get_normalized_json(raw_json)
+    zipped_file = BytesIO()
+    with zipfile.ZipFile(zipped_file, 'a', zipfile.ZIP_DEFLATED) as zipped:
+        for name, data in normalized_json.items():
+            csv_data = StringIO()
+            writer = csv.writer(csv_data, delimiter=',')
+            if isinstance(data, dict):
+                writer.writerow(data.keys())
+                writer.writerow(data.values())
+            elif isinstance(data, list):
+                writer.writerow(data[0].keys())
+                for row in data:
+                    writer.writerow(row.values())
+            else:
+                raise TypeError("Unknown type to create csv from")
+            csv_data.seek(0)
+            csv_buffer = csv_data.read()
+            zipped.writestr(f"{name}.csv", csv_buffer)
+    zipped_file.seek(0)
+    return zipped_file
