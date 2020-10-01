@@ -2,7 +2,7 @@ import os
 import uvicorn
 
 from fastapi import FastAPI, Request, Response
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 

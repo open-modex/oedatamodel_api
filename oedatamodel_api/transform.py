@@ -41,6 +41,8 @@ def format_data(raw_json, data_format: OedataFormat):
         return get_concrete_json(raw_json)
     if data_format == OedataFormat.csv_normalized:
         return get_normalized_csv(raw_json)
+    if data_format == OedataFormat.csv_concrete:
+        return get_concrete_csv(raw_json)
     return None
 
 
@@ -174,9 +176,18 @@ def get_concrete_json(raw_json):
 
 def get_normalized_csv(raw_json):
     normalized_json = get_normalized_json(raw_json)
+    return create_zip_csv(normalized_json)
+
+
+def get_concrete_csv(raw_json):
+    concrete_json = get_concrete_json(raw_json)
+    return create_zip_csv(concrete_json)
+
+
+def create_zip_csv(json):
     zipped_file = BytesIO()
     with zipfile.ZipFile(zipped_file, 'a', zipfile.ZIP_DEFLATED) as zipped:
-        for name, data in normalized_json.items():
+        for name, data in json.items():
             csv_data = StringIO()
             writer = csv.writer(csv_data, delimiter=',')
             if isinstance(data, dict):
