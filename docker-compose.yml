@@ -2,8 +2,7 @@ version: "3"
 services:
   web:
     build:
-      # `context` should be a path to a directory containing a Dockerfile
-      context: ./fastapi_app # ./flask_app #
+      context: .
       dockerfile: Dockerfile
     restart: always
     ports:
