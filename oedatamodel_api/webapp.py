@@ -21,6 +21,7 @@ templates = Jinja2Templates(directory=os.path.join(SERVER_ROOT, 'templates'))
 
 @app.get('/')
 def index(request: Request) -> Response:
+    transform.apply_custom_mapping('technology')
     return templates.TemplateResponse('index.html', {'request': request})
 
 

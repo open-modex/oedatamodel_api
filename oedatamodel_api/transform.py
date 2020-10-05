@@ -5,8 +5,10 @@ import zipfile
 from enum import Enum
 from io import BytesIO, StringIO
 from typing import Optional
-
+import json
 import jmespath
+
+from oedatamodel_api.settings import MAPPINGS_DIR
 
 
 class OedataMapping(str, Enum):
@@ -174,10 +176,10 @@ def get_concrete_json(raw_json):
     return concrete_json
 
 
-def create_zip_csv(json):
+def create_zip_csv(data):
     zipped_file = BytesIO()
     with zipfile.ZipFile(zipped_file, 'a', zipfile.ZIP_DEFLATED) as zipped:
-        for name, data in json.items():
+        for name, data in data.items():
             csv_data = StringIO()
             writer = csv.writer(csv_data, delimiter=',')
             if isinstance(data, dict):
@@ -194,3 +196,14 @@ def create_zip_csv(json):
             zipped.writestr(f"{name}.csv", csv_buffer)
     zipped_file.seek(0)
     return zipped_file
+
+
+def load_custom_mapping(name):
+    filename = f'{name}.json'
+    with open(MAPPINGS_DIR / filename, 'r') as json_file:
+        json_data = json.load(json_file)
+    return json_data
+
+
+def apply_custom_mapping(name):
+    mapping = load_custom_mapping(name)
