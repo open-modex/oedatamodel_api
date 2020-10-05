@@ -24,33 +24,42 @@ def index(request: Request) -> Response:
     return templates.TemplateResponse('index.html', {'request': request})
 
 
-def prepare_response(raw_json, data_format):
-    transformed_data = transform.format_data(raw_json, data_format)
+def prepare_response(raw_json, mapping, output_format):
+    mapped_data = transform.map_data(raw_json, mapping)
 
-    if data_format in (transform.OedataFormat.csv_concrete, transform.OedataFormat.csv_normalized):
-        response = StreamingResponse(transformed_data, media_type="application/x-zip-compressed")
+    if output_format == transform.OutputFormat.csv:
+        zipped_data = transform.create_zip_csv(mapped_data)
+        response = StreamingResponse(zipped_data, media_type="application/x-zip-compressed")
         response.headers["Content-Disposition"] = f"attachment; filename=scenario.zip"
         return response
     else:
-        return transformed_data
+        return mapped_data
 
 
 @app.get('/scenario/id/{scenario_id}')
-def scenario_by_id(scenario_id: int, data_format: transform.OedataFormat = transform.OedataFormat.raw):
+def scenario_by_id(
+    scenario_id: int,
+    mapping: transform.OedataMapping = transform.OedataMapping.raw,
+    output: transform.OutputFormat = transform.OutputFormat.json
+):
     try:
         raw_scenario_json = get_scenario_from_oep(scenario_id=scenario_id)
     except (ConnectionError, ScenarioNotFoundError) as e:
         return {"error": e.args}
-    return prepare_response(raw_scenario_json, data_format)
+    return prepare_response(raw_scenario_json, mapping, output)
 
 
 @app.get('/scenario/name/{scenario_name}')
-def scenario_by_name(scenario_name: str, data_format: transform.OedataFormat = transform.OedataFormat.raw):
+def scenario_by_name(
+    scenario_name: str,
+    mapping: transform.OedataMapping = transform.OedataMapping.raw,
+    output: transform.OutputFormat = transform.OutputFormat.json
+):
     try:
         raw_scenario_json = get_scenario_from_oep(scenario_name=scenario_name)
     except (ConnectionError, ScenarioNotFoundError) as e:
         return {"error": e.args}
-    return prepare_response(raw_scenario_json, data_format)
+    return prepare_response(raw_scenario_json, mapping, output)
 
 
 if __name__ == "__main__":

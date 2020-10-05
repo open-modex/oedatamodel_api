@@ -9,23 +9,27 @@ from typing import Optional
 import jmespath
 
 
-class OedataFormat(str, Enum):
+class OedataMapping(str, Enum):
     """Supplied oedatamodel response formats."""
     raw = 'raw'
-    json_normalized = 'json_normalized'
-    json_concrete = 'json_concrete'
-    csv_normalized = 'csv_normalized'
-    csv_concrete = 'csv_concrete'
+    normalized = 'normalized'
+    concrete = 'concrete'
 
 
-def format_data(raw_json, data_format: OedataFormat):
+class OutputFormat(str, Enum):
+    """Supplied output formats."""
+    json = 'json'
+    csv = 'csv'
+
+
+def map_data(raw_json, mapping: OedataMapping):
     """Raw json is formatted according to given data format.
 
     Parameters
     ----------
     raw_json : dict
         Raw oedatamodel as json/dict from OEP
-    data_format : OedataFormat
+    mapping : OedataMapping
         One of possible data formats (json/csv, normalized/concrete)
 
     Returns
@@ -33,17 +37,13 @@ def format_data(raw_json, data_format: OedataFormat):
     dict
         Output json/dict formatted by given data format
     """
-    if data_format == OedataFormat.raw:
+    if mapping == OedataMapping.raw:
         return raw_json
-    if data_format == OedataFormat.json_normalized:
+    if mapping == OedataMapping.normalized:
         return get_normalized_json(raw_json)
-    if data_format == OedataFormat.json_concrete:
+    if mapping == OedataMapping.concrete:
         return get_concrete_json(raw_json)
-    if data_format == OedataFormat.csv_normalized:
-        return get_normalized_csv(raw_json)
-    if data_format == OedataFormat.csv_concrete:
-        return get_concrete_csv(raw_json)
-    return None
+    raise ValueError("Unknown mapping")
 
 
 def get_data_indexes(raw_json):
@@ -172,16 +172,6 @@ def get_concrete_json(raw_json):
         concrete_entry = {**data, **{k: v for k, v in entry.items() if k != 'id'}}
         concrete_json[entry_index].append(concrete_entry)
     return concrete_json
-
-
-def get_normalized_csv(raw_json):
-    normalized_json = get_normalized_json(raw_json)
-    return create_zip_csv(normalized_json)
-
-
-def get_concrete_csv(raw_json):
-    concrete_json = get_concrete_json(raw_json)
-    return create_zip_csv(concrete_json)
 
 
 def create_zip_csv(json):
