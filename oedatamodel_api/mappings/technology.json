@@ -2,6 +2,8 @@
 {
   "base_mapping": "concrete",
   "mapping": {
-    "technologies": "oed_scalars[*]"
+    "technologies": {
+      "scalars": "oed_scalars[*]"
+    }
   }
 }
