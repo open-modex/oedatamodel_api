@@ -1,4 +1,3 @@
-import os
 import uvicorn
 
 from fastapi import FastAPI, Request, Response
@@ -8,15 +7,14 @@ from fastapi.templating import Jinja2Templates
 
 from oedatamodel_api.oep_connector import get_scenario_from_oep, ScenarioNotFoundError
 from oedatamodel_api import mapping_custom, formatting
+from oedatamodel_api.settings import ROOT_DIR
 
 app = FastAPI()
 
-SERVER_ROOT = os.path.dirname(__file__)
-
 app.mount(
-    '/static', StaticFiles(directory=os.path.join(SERVER_ROOT, 'static')), name='static',
+    '/static', StaticFiles(directory=ROOT_DIR / "oedatamodel_api" / 'static'), name='static',
 )
-templates = Jinja2Templates(directory=os.path.join(SERVER_ROOT, 'templates'))
+templates = Jinja2Templates(directory=ROOT_DIR / "oedatamodel_api" / 'templates')
 
 
 @app.get('/')
