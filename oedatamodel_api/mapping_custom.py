@@ -31,6 +31,10 @@ class CustomFunctions(functions.Functions):
     def _func_unique(self, *args):
         return list(dict.fromkeys(*args))
 
+    @functions.signature({'types': ['object']}, {'types': ['array']})
+    def _func_exclude(self, arg, excludes):
+        return {k: v for k, v in arg.items() if k not in excludes}
+
     @functions.signature({'types': ['array']}, {'types': ['expref']})
     def _func_group_by(self, array_object, expref):
         if not array_object:
