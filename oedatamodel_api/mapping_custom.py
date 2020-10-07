@@ -31,32 +31,48 @@ class CustomFunctions(functions.Functions):
     def _func_unique(self, *args):
         return list(dict.fromkeys(*args))
 
-    @functions.signature({'types': ['array', 'object']}, {'types': ['expref']})
+    @functions.signature({'types': ['array']}, {'types': ['expref']})
     def _func_group_by(self, array_object, expref):
         if not array_object:
             return array_object
-        # sort_by allows for the expref to be either a number of
+        # group_by allows for the expref to be either a number of
         # a string, so we have some special logic to handle this.
         # We evaluate the first array element and verify that it's
         # either a string of a number.  We then create a key function
         # that validates that type, which requires that remaining array
         # elements resolve to the same type as the first element.
-        if isinstance(array_object, list):
-            lookup = array_object[0]
-            required_type = self._convert_to_jmespath_type(
-                type(expref.visit(expref.expression, lookup)).__name__)
-        else:
-            lookup = list(list(array_object.items())[0])
-            required_type = self._convert_to_jmespath_type(
-                type(expref.visit(expref.expression, lookup)).__name__)
+        lookup = array_object[0]
+        required_type = self._convert_to_jmespath_type(
+            type(expref.visit(expref.expression, lookup)).__name__)
         if required_type not in ['number', 'string']:
             raise exceptions.JMESPathTypeError(
                 'group_by', lookup, required_type, ['string', 'number'])
         keyfunc = self._create_key_func(expref, [required_type], 'group_by')
-        if isinstance(array_object, list):
-            return {k: list(g) for k, g in groupby(array_object, key=keyfunc)}
-        else:
-            return {k: list(g) for k, g in groupby([[k, v] for k, v in array_object.items()], key=keyfunc)}
+        return {k: list(g) for k, g in groupby(array_object, key=keyfunc)}
+
+    @functions.signature({'types': ['object']}, {'types': ['expref']})
+    def _func_group_dict_by(self, arg, expref):
+        if not arg:
+            return arg
+        # group_dict_by allows for the expref to be either a number of
+        # a string, so we have some special logic to handle this.
+        # We evaluate the first array element and verify that it's
+        # either a string of a number.  We then create a key function
+        # that validates that type, which requires that remaining array
+        # elements resolve to the same type as the first element.
+        lookup = list(list(arg.items())[0])
+        required_type = self._convert_to_jmespath_type(
+            type(expref.visit(expref.expression, lookup)).__name__)
+        if required_type not in ['number', 'string']:
+            raise exceptions.JMESPathTypeError(
+                'group_by', lookup, required_type, ['string', 'number'])
+        keyfunc = self._create_key_func(expref, [required_type], 'group_by')
+        # Jmespath works only on lists, not tuples:
+        unpacked_dict = [[k, v] for k, v in arg.items()]
+        return {
+            grouper: {k: v for k, v in list(grouping)}
+            for grouper, grouping in groupby(unpacked_dict, key=keyfunc)
+        }
 
 
 jmespath_options = jmespath.Options(custom_functions=CustomFunctions())
