@@ -1,8 +1,0 @@
-
-{
-  "base_mapping": "concrete",
-  "mapping": {
-    "scenario": "oed_scenario",
-    "technologies": "unique([oed_timeseries, oed_scalars][].technology)"
-  }
-}
