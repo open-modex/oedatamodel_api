@@ -1,3 +1,4 @@
 .idea
 *.pyc
 /oedatamodel_api.egg-info/
+/upload_data/

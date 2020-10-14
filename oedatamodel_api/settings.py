@@ -2,4 +2,13 @@
 import pathlib
 
 ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent
-MAPPINGS_DIR = ROOT_DIR / "oedatamodel_api" / "mappings"
+APP_DIR = ROOT_DIR / "oedatamodel_api"
+MAPPINGS_DIR = APP_DIR / "mappings"
+UPLOAD_DIR = ROOT_DIR / "upload_data"
+
+# OEDATAMODEL
+# -----------
+OEDATAMODEL_META_DIR = APP_DIR / "datamodel"
+OEDATAMODEL_SCHEMA = "model_draft"
+NORMALIZED_TABLES = ("oed_scenario", "oed_data", "oed_scalar", "oed_timeseries")
+CONCRETE_TABLES = ("oed_scenario", "oed_scalar", "oed_timeseries")
