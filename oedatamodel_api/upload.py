@@ -53,7 +53,10 @@ def read_in_excel_sheets(filename, sheets, sheet_table_map=None):
     for sheet in sheets:
         table = sheet_table_map.get(sheet, sheet)
         df = pandas.read_excel(UPLOAD_DIR / filename, sheet_name=sheet)
-        for column in oep_tables[table].columns:
+        columns = oep_tables[table].columns
+        if table in ("oed_scalar", "oed_timeseries"):
+            columns += oep_tables["oed_data"].columns
+        for column in columns:
             if repr(column.type) in TYPE_CONVERSION:
                 df[str(column.name)] = df[str(column.name)].apply(TYPE_CONVERSION[repr(column.type)])
         dfs[sheet] = df
