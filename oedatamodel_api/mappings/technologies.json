@@ -1,8 +1,9 @@
 
 {
-  "base_mapping": "concrete",
+  "base_mapping": "regions",
   "mapping": {
-    "scenario": "oed_scenario",
-    "technologies": "group_by(sort_by([oed_timeseries, oed_scalars][], &technology), &technology)"
+    "scenario": "scenario",
+    "technologies": "group_by(sort_by(scalars_with_regions, &technology), &technology)",
+    "timeseries": "timeseries"
   }
 }
