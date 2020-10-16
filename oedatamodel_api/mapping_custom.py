@@ -114,9 +114,9 @@ def load_custom_mapping(name):
     return json_data
 
 
-def apply_custom_mapping(raw_json, name):
+def apply_custom_mapping(raw_json: dict, name: str = None, mapping: str = None):
     """
-    Custom mapping is loaded and applied to raw json/dict.
+    Custom mapping is (loaded and) applied to raw json/dict.
 
     Custom mapping can depend on pre-mappings
     (custom or default, last iteration must depend on default mapping,
@@ -127,18 +127,26 @@ def apply_custom_mapping(raw_json, name):
     ----------
     raw_json: dict
         Result from OEP to perform custom mapping on.
-    name: str
+    name: Optional[str]
         Custom (must be present in mappings folder) or default
         ("normalized" or "concrete") mapping name.
+    mapping: json
+        Custom mapping which shall be applied
 
     Returns
     -------
     dict
         Resulting json/dict after applying all custom/default mappings.
     """
-    if name in (m for m in OedataMapping):
-        return map_data(raw_json, name)
-    mapping = load_custom_mapping(name)
+    if name is None and mapping is None:
+        raise AttributeError("No mapping defined - you either have to set mapping name or mapping itself")
+    if name is not None and mapping is not None:
+        raise AttributeError("Both, name and mapping, are given")
+
+    if name is not None:
+        if name in (m for m in OedataMapping):
+            return map_data(raw_json, name)
+        mapping = load_custom_mapping(name)
     # Recursively apply base mappings:
     pre_json = apply_custom_mapping(raw_json, mapping['base_mapping'])
     # Recursively apply custom mapping on pre json:

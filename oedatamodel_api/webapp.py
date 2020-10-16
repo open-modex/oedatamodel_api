@@ -1,4 +1,5 @@
 import uvicorn
+import json
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import StreamingResponse, HTMLResponse
@@ -22,9 +23,9 @@ def index(request: Request) -> Response:
     return templates.TemplateResponse('index.html', {'request': request})
 
 
-def prepare_response(raw_json, mapping, output_format):
+def prepare_response(raw_json, mapping_name, output_format):
     try:
-        mapped_data = mapping_custom.apply_custom_mapping(raw_json, mapping)
+        mapped_data = mapping_custom.apply_custom_mapping(raw_json, mapping_name)
     except mapping_custom.MappingNotFound as me:
         return HTMLResponse('<br>'.join(me.args))
 
@@ -68,6 +69,25 @@ def scenario_by_name(
     except (ConnectionError, ScenarioNotFoundError) as e:
         return {"error": e.args}
     return prepare_response(raw_scenario_json, mapping, output)
+
+
+@app.get('/mapping/id/{scenario_id}')
+def mapping_by_id(
+    scenario_id: int,
+    mapping: str,
+):
+    try:
+        raw_scenario_json = get_scenario_from_oep(scenario_id=scenario_id)
+    except (ConnectionError, ScenarioNotFoundError) as e:
+        return {"error": e.args}
+    try:
+        mapping_json = json.loads(mapping)
+    except json.decoder.JSONDecodeError as je:
+        return {"error": je.args}
+    try:
+        return mapping_custom.apply_custom_mapping(raw_scenario_json, mapping=mapping_json)
+    except mapping_custom.MappingNotFound as me:
+        return HTMLResponse('<br>'.join(me.args))
 
 
 if __name__ == "__main__":

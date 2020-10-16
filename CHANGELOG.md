@@ -6,6 +6,7 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 
 ## [Unreleased]
 ### Added
+- custom mapping via get request
 - caching of OEP scenario request
 
 ## [0.2.0] - 2020-10-01
