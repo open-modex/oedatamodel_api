@@ -26,8 +26,8 @@ def index(request: Request) -> Response:
 def prepare_response(raw_json, mapping, output_format):
     try:
         mapped_data = mapping_custom.apply_custom_mapping(raw_json, mapping)
-    except (mapping_custom.MappingNotFound, json.decoder.JSONDecodeError) as e:
-        return HTMLResponse('<br>'.join(e.args))
+    except Exception as e:
+        return HTMLResponse(str(e))
 
     if output_format == formatting.OutputFormat.csv:
         try:

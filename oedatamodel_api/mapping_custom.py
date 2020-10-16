@@ -109,7 +109,7 @@ def load_custom_mapping(name):
     try:
         with open(MAPPINGS_DIR / filename, 'r') as json_file:
             json_data = json.load(json_file)
-    except FileNotFoundError:
+    except (FileNotFoundError, OSError):
         raise MappingNotFound(f'Unknown mapping "{name}".')  # noqa: W0707
     return json_data
 
