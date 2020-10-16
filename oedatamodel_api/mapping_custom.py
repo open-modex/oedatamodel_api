@@ -3,7 +3,7 @@ Custom mappings are loaded and applied to oedatamodel results
 """
 
 import json
-from itertools import groupby
+from itertools import groupby, repeat
 
 import jmespath
 from jmespath import functions, exceptions
@@ -14,6 +14,10 @@ from oedatamodel_api.settings import MAPPINGS_DIR
 
 class CustomFunctions(functions.Functions):
     """From: https://github.com/jmespath/jmespath.site/issues/17#issuecomment-198111810"""
+
+    @functions.signature({'types': ['object', 'string']}, {'types': ['number']})
+    def _func_repeat(self, arg, times):
+        return list(repeat(arg, times))
 
     @functions.signature({'types': ['object']})
     def _func_items(self, arg):
