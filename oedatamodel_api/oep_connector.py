@@ -1,6 +1,7 @@
 
 import logging
 import requests
+from functools import lru_cache
 
 OEP_URL = 'https://openenergy-platform.org'
 
@@ -9,6 +10,7 @@ class ScenarioNotFoundError(Exception):
     """Is raised if scenario could not be found in OEP"""
 
 
+@lru_cache(maxsize=None)
 def get_scenario_from_oep(scenario_id=None, scenario_name=None):
     if scenario_id is None and scenario_name is None:
         raise ValueError("You have to set either scenario ID or name")
