@@ -18,29 +18,14 @@ Here is a template for new release sections
 ```
 ## [0.1.0] - 2020-05-21
 
+## [0.2.0] - 2020-10-01
 ### Added
-- docker-compose file (#1)
-- celery service (#1)
-- flask app (#1)
-- fastapi app (#1)
+- Upload of excel datapackage into OEP
 
-### Changed
-- requirements.txt (#2)
-- environment.yml (#2)
-
-### Removed
-- pylint dependency (#2)
-- setup.py (#2)
-
-## [Unreleased]
-
-### Added
-
-
-### Changed
-
-
-### Removed
+## [0.1.0] - 2020-09-01
+### Added 
+- Normalized, concrete and custom mapping of OEP request data
+- OEP oedatamodel request of scenario data 
 
 
 
