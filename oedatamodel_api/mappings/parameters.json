@@ -1,0 +1,8 @@
+{
+  "base_mapping": "regions",
+  "mapping": {
+    "scenario": "scenario",
+    "scalars": "map(&set(@, @.parameter_name, @.value), scalars)",
+    "timeseries": "map(&set(@, @.parameter_name, @.series), timeseries)"
+  }
+}

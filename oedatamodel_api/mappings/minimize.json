@@ -1,0 +1,9 @@
+
+{
+  "base_mapping": "parameters",
+  "mapping": {
+    "scenario": "scenario",
+    "scalars": "map(&exclude(@, ['id', 'scenario_id', 'type', 'method', 'tags', 'source', 'comment', 'parameter_name', 'value']), scalars)",
+    "timeseries": "map(&exclude(@, ['id', 'scenario_id', 'type', 'method', 'tags', 'source', 'comment', 'parameter_name', 'series']), timeseries)"
+  }
+}

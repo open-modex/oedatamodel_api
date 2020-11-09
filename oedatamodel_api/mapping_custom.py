@@ -31,6 +31,13 @@ class CustomFunctions(functions.Functions):
     def _func_to_object(self, pairs):
         return dict(pairs)
 
+    @functions.signature(
+        {'types': ['object']}, {'types': ['string']}, {'types': ['object', 'string', 'array', 'number']})
+    def _func_set(self, d, key, value):
+        d_new = d.copy()
+        d_new[key] = value
+        return d_new
+
     @functions.signature({'types': ['array']})
     def _func_unique(self, *args):
         return list(dict.fromkeys(*args))

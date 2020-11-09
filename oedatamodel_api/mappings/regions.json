@@ -2,7 +2,7 @@
   "base_mapping": "concrete",
   "mapping": {
     "scenario": "oed_scenario",
-    "scalars_with_regions": "map(&merge(@[0], @[1]), zip(zip(repeat('region', length(oed_scalars[])), map(&join('-', @), oed_scalars[].region)) | map(&to_object([@]), @), map(&exclude(@, ['id', 'scenario_id', 'region', 'method', 'type', 'unit', 'technology_type', 'tags', 'source', 'comment']), oed_scalars[])))",
-    "timeseries": "oed_timeseries"
+    "scalars": "map(&set(@[0], 'region', @[1]), zip(map(&repeat(@, length(@.region)), oed_scalars[])[], oed_scalars[].region[]))",
+    "timeseries": "map(&set(@[0], 'region', @[1]), zip(map(&repeat(@, length(@.region)), oed_timeseries[])[], oed_timeseries[].region[]))"
   }
 }
