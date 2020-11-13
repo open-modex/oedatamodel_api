@@ -1,0 +1,9 @@
+
+{
+  "base_mapping": "parameters",
+  "mapping": {
+    "scenario": "scenario",
+    "technologies": "group_by(sort_by(scalars, &technology), &technology)",
+    "timeseries": "timeseries"
+  }
+}
