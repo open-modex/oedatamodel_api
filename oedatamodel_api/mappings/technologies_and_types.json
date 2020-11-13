@@ -1,8 +1,0 @@
-
-{
-  "base_mapping": "concrete",
-  "mapping": {
-    "scenario": "oed_scenario",
-    "technologies": "group_dict_by(group_by(sort_by([oed_timeseries, oed_scalars][], &technology_type), &technology_type), &[1][0].technology)"
-  }
-}

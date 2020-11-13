@@ -1,0 +1,9 @@
+{
+  "base_mapping": "regions",
+  "mapping": {
+    "scenario": "scenario",
+    "process_commodity": "map(&exclude(@, ['id', 'scenario_id', 'input_energy_vector', 'output_energy_vector', 'region', 'unit', 'type', 'method', 'tags', 'source', 'comment', 'parameter_name', 'value']), map(&set(@, 'ratio', @.value), map(&set(@, 'Direction', 'In'), scalars[?parameter_name==`input ratio`])))",
+    "timeseries_o": "timeseries",
+    "timeseries": "to_object(zip(map(&join('.', [@.region, @.parameter_name]), timeseries), timeseries[].series))"
+  }
+}

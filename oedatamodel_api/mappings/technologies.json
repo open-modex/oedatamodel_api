@@ -1,9 +1,0 @@
-
-{
-  "base_mapping": "minimize",
-  "mapping": {
-    "scenario": "scenario",
-    "scalars": "group_by(sort_by(scalars, &technology), &technology)",
-    "timeseries": "timeseries"
-  }
-}

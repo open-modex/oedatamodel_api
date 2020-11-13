@@ -1,0 +1,7 @@
+{
+  "base_mapping": "urbs",
+  "mapping": {
+    "scenario": "scenario",
+    "process_commodity": "group_by(sort_by(process_commodity, &year), &year)"
+  }
+}
