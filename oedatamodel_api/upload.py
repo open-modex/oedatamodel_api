@@ -63,6 +63,23 @@ def read_in_excel_sheets(filename, sheets, sheet_table_map=None):
     return dfs
 
 
+def read_in_csv_files(folder):
+    oep_tables = get_oep_tables()
+    dfs = {}
+    fullpath = UPLOAD_DIR / folder
+    for file in fullpath.iterdir():
+        df = pandas.read_csv(file, sep=";", encoding="cp1250")
+        table = file.name[:-4]
+        columns = oep_tables[table].columns
+        if table in ("oed_scalar", "oed_timeseries"):
+            columns += oep_tables["oed_data"].columns
+        for column in columns:
+            if repr(column.type) in TYPE_CONVERSION:
+                df[str(column.name)] = df[str(column.name)].apply(TYPE_CONVERSION[repr(column.type)])
+        dfs[table] = df
+    return dfs
+
+
 def map_concrete_to_normalized_df(scalar_df, timeseries_df):
     norm = get_normalized_attributes()
     concrete_data_attrs = set(norm["oed_data"]) - {"type"}
