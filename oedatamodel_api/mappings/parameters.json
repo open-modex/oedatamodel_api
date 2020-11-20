@@ -2,6 +2,6 @@
 {
   "base_mapping": "grouped",
   "mapping": {
-    "scalars": "map(&merge(@[0], @[1]), zip(map(&exclude(@, ['parameter_name', 'value']), scalars.*[0]), map(&to_object(zip(@[].parameter_name, @[].value)), scalars.*)))"
+    "scalars": "map(&set(@[0], 'parameters', @[1]) , zip(map(&exclude(@, ['parameter_name', 'value', 'input_energy_vector', 'output_energy_vector']), scalars.*[0]), map(&map(&set(exclude(@, ['technology', 'technology_type', 'unit', 'year', 'region', 'parameter_name', 'value']), @.parameter_name, @.value), @), scalars.*)))"
   }
 }
