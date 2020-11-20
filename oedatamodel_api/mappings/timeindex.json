@@ -1,0 +1,7 @@
+
+{
+  "base_mapping": "grouped",
+  "mapping": {
+    "timeindex": "map(&timerange(@[0].timeindex_start, @[0].timeindex_stop, @[0].timeindex_resolution) , timeseries.*)"
+  }
+}
