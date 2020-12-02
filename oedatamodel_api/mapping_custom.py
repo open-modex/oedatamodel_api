@@ -37,6 +37,13 @@ class CustomFunctions(functions.Functions):
     def _func_to_object(self, pairs):
         return dict(pairs)
 
+    @functions.signature({'types': ['array']})
+    def _func_merge_array(self, array):
+        d = {}
+        for a in array:
+            d.update(a)
+        return d
+
     @functions.signature({'types': ['object']}, {'types': ['object', 'string', 'array', 'number']})
     def _func_fill_na(self, d, value):
         return {k: value if v is None else v for k, v in d.items()}
@@ -65,6 +72,14 @@ class CustomFunctions(functions.Functions):
         d_new = d.copy()
         d_new[key] = value
         return d_new
+
+    @functions.signature({'types': ['object']})
+    def _func_unpack_dict_series(self, d):
+        new_list = []
+        series_length = len(list(d.values())[0])
+        for i in range(series_length):
+            new_list.append({k: d[k][i] for k in d.keys()})
+        return new_list
 
     @functions.signature({'types': ['array']})
     def _func_unique(self, *args):

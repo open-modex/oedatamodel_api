@@ -2,6 +2,7 @@
 {
   "base_mapping": "grouped",
   "mapping": {
-    "timeindex": "map(&timerange(@[0].timeindex_start, @[0].timeindex_stop, @[0].timeindex_resolution) , timeseries.*)"
+    "series": "map(&merge_array(map(&to_object([[join('-', [@.region, @.parameter_name]), @.series]]), @)), timeseries.*)",
+    "timeindex": "to_object(zip(keys(timeseries), timeseries.*[0] | [].series))"
   }
 }
