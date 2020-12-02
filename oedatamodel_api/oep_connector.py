@@ -1,6 +1,7 @@
 import json
 import logging
 import requests
+from functools import lru_cache
 
 from oedatamodel_api.settings import SOURCES_DIR
 
@@ -15,7 +16,8 @@ class SourceNotFound(Exception):
     """Exception is thrown, if source is not found in folder "sources"."""
 
 
-def get_data_from_oep(source, params):
+@lru_cache(maxsize=None)
+def get_data_from_oep(source, **params):
     join = load_source(source, params)
     data = {'query': join}
     response = requests.post(

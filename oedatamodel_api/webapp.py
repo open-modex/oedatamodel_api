@@ -1,6 +1,5 @@
 
 import uvicorn
-from functools import lru_cache
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import StreamingResponse, HTMLResponse
@@ -46,15 +45,6 @@ def prepare_response(raw_json, mapping, output_format):
         return mapped_data
 
 
-@lru_cache(maxsize=None)
-def load_source(source, **params):
-    try:
-        raw_data = get_data_from_oep(source, params)
-    except (ConnectionError, OEPDataNotFoundError) as e:
-        return {"error": e.args}
-    return raw_data
-
-
 @app.get('/scenario/id/{scenario_id}')
 def scenario_by_id(
     scenario_id: int,
@@ -62,7 +52,10 @@ def scenario_by_id(
     mapping: str,
     output: formatting.OutputFormat = formatting.OutputFormat.json
 ):
-    raw_data = load_source(source, scenario_id=scenario_id)
+    try:
+        raw_data = get_data_from_oep(source, scenario_id=scenario_id)
+    except (ConnectionError, OEPDataNotFoundError) as e:
+        return {"error": e.args}
     return prepare_response(raw_data, mapping, output)
 
 
@@ -73,7 +66,10 @@ def scenario_by_name(
     mapping: str,
     output: formatting.OutputFormat = formatting.OutputFormat.json
 ):
-    raw_data = load_source(source, scenario_name=scenario_name)
+    try:
+        raw_data = get_data_from_oep(source, scenario_name=scenario_name)
+    except (ConnectionError, OEPDataNotFoundError) as e:
+        return {"error": e.args}
     return prepare_response(raw_data, mapping, output)
 
 
