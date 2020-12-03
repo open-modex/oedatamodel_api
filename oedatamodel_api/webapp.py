@@ -1,13 +1,13 @@
 
 import uvicorn
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, UploadFile, File
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from oedatamodel_api.oep_connector import get_data_from_oep, OEPDataNotFoundError
-from oedatamodel_api import mapping_custom, formatting
+from oedatamodel_api import mapping_custom, formatting, upload
 from oedatamodel_api.settings import ROOT_DIR
 
 app = FastAPI()
@@ -71,6 +71,31 @@ def scenario_by_name(
     except (ConnectionError, OEPDataNotFoundError) as e:
         return {"error": e.args}
     return prepare_response(raw_data, mapping, output)
+
+
+@app.get("/upload_csv/")
+async def main():
+    content = """
+<body>
+<form action="/upload_csv/" enctype="multipart/form-data" method="post">
+<input name="zip_file" type="file">
+<input type="submit">
+</form>
+</body>
+    """
+    return HTMLResponse(content=content)
+
+
+@app.post("/upload_csv/")
+async def create_upload_file(zip_file: UploadFile = File(...)):
+    try:
+        scenario_id = upload.upload_csv_from_zip(zip_file)
+    except Exception as e:
+        return {"error": str(e)}
+    return {
+        "success": f"Upload of file '{zip_file.filename}' successful!",
+        "scenario_id": scenario_id
+    }
 
 
 if __name__ == "__main__":

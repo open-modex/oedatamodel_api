@@ -57,20 +57,8 @@ def test_upload_normalized_dfs_from_excel():
     )
 
 
-def test_upload_normalized_dfs_from_csv():
-    dfs = upload.read_in_csv_files("base_scenario_less")
-    data, scalar, timeseries = upload.map_concrete_to_normalized_df(dfs["oed_scalar"], dfs["oed_timeseries"])
-    normalized_dfs = {
-            "oed_scenario": dfs["oed_scenario"],
-            "oed_data": data,
-            "oed_scalar": scalar,
-            "oed_timeseries": timeseries
-        }
-    filtered_normalized_dfs = upload.adapt_metadata_attributes_and_types(normalized_dfs)
-    upload.upload_normalized_dfs(
-        filtered_normalized_dfs,
-        schema="model_draft"
-    )
+def test_upload_from_csv_folder():
+    upload.upload_csv_from_folder("base_scenario_less")
 
 
 def test_adapt_metadata():

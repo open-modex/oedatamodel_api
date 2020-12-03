@@ -1,4 +1,7 @@
 
+import io
+import zipfile
+import tempfile
 import json
 import pandas
 import jmespath
@@ -63,21 +66,55 @@ def read_in_excel_sheets(filename, sheets, sheet_table_map=None):
     return dfs
 
 
-def read_in_csv_files(folder):
-    oep_tables = get_oep_tables()
+def upload_csv_from_folder(folder):
     dfs = {}
     fullpath = UPLOAD_DIR / folder
     for file in fullpath.iterdir():
-        df = pandas.read_csv(file, sep=";", encoding="cp1250")
         table = file.name[:-4]
-        columns = oep_tables[table].columns
-        if table in ("oed_scalar", "oed_timeseries"):
-            columns += oep_tables["oed_data"].columns
-        for column in columns:
-            if repr(column.type) in TYPE_CONVERSION:
-                df[str(column.name)] = df[str(column.name)].apply(TYPE_CONVERSION[repr(column.type)])
-        dfs[table] = df
-    return dfs
+        dfs[table] = read_in_csv_file(file, table)
+    return upload_dfs(dfs)
+
+
+def upload_csv_from_zip(zip_file):
+    tf = tempfile.TemporaryFile()
+    tf.write(zip_file.file.read())
+    tf.seek(0)
+    zfile = zipfile.ZipFile(tf, 'r')
+
+    dfs = {}
+    zip_folder_name = zfile.namelist()[0]
+    for filename in zfile.namelist()[1:]:
+        file = zfile.read(filename)
+        table = filename[len(zip_folder_name):-4]
+        dfs[table] = read_in_csv_file(io.BytesIO(file), table)
+    return upload_dfs(dfs)
+
+
+def upload_dfs(dfs):
+    data, scalar, timeseries = map_concrete_to_normalized_df(dfs["oed_scalar"], dfs["oed_timeseries"])
+    normalized_dfs = {
+            "oed_scenario": dfs["oed_scenario"],
+            "oed_data": data,
+            "oed_scalar": scalar,
+            "oed_timeseries": timeseries
+        }
+    filtered_normalized_dfs = adapt_metadata_attributes_and_types(normalized_dfs)
+    return upload_normalized_dfs(
+        filtered_normalized_dfs,
+        schema="model_draft"
+    )
+
+
+def read_in_csv_file(file, table):
+    oep_tables = get_oep_tables()
+    df = pandas.read_csv(file, sep=";", encoding="cp1250")
+    columns = oep_tables[table].columns
+    if table in ("oed_scalar", "oed_timeseries"):
+        columns += oep_tables["oed_data"].columns
+    for column in columns:
+        if repr(column.type) in TYPE_CONVERSION:
+            df[str(column.name)] = df[str(column.name)].apply(TYPE_CONVERSION[repr(column.type)])
+    return df
 
 
 def map_concrete_to_normalized_df(scalar_df, timeseries_df):
@@ -135,3 +172,4 @@ def upload_normalized_dfs(dfs: Dict[str, pandas.DataFrame], schema: str):
     timeseries = dfs["oed_timeseries"]
     timeseries["id"] = data[data["type"] == "timeseries"]["id"].reset_index(drop=True)
     upload_table("oed_timeseries", timeseries)
+    return scenario_id
