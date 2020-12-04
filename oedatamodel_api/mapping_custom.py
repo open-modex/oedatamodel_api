@@ -33,6 +33,10 @@ class CustomFunctions(functions.Functions):
     def _func_zip(self, *arguments):
         return list(map(list, zip(*arguments)))
 
+    @functions.signature({'types': ['array'], 'variadic': True})
+    def _func_zip_multi(self, *arguments):
+        return list(map(list, zip(*arguments)))
+
     @functions.signature({'types': ['array']})
     def _func_to_object(self, pairs):
         return dict(pairs)
@@ -67,12 +71,19 @@ class CustomFunctions(functions.Functions):
         return timeindex
 
     @functions.signature(
-        {'types': ['object']}, {'types': ['string']}, {'types': ['object', 'string', 'array', 'number']})
+        {'types': ['object']}, {'types': ['string']}, {'types': ['object', 'string', 'array', 'number','null']})
     def _func_set(self, d, key, value):
         d_new = d.copy()
         d_new[key] = value
         return d_new
 
+    @functions.signature(
+        {'types': ['object']}, {'types': ['string']}, {'types': ['object', 'string', 'array', 'number']}, {'types': ['object', 'string', 'array', 'number']})
+    def _func_set_combi(self, d, key, value1, value2):
+        d_new = d.copy()
+        d_new[key] = value1 + '_' + value2
+        return d_new
+        
     @functions.signature({'types': ['object']})
     def _func_unpack_dict_series(self, d):
         new_list = []
