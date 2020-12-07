@@ -3,6 +3,6 @@
   "base_mapping": "grouped",
   "mapping": {
     "series": "map(&merge_array(map(&to_object([[join('-', [@.region, @.parameter_name]), @.series]]), @)), timeseries.*)",
-    "timeindex": "to_object(zip(keys(timeseries), timeseries.*[0] | [].series))"
+    "timeindex": "to_object(zip(keys(timeseries), map(&timerange(timeindex_start, timeindex_stop, timeindex_resolution), timeseries.*[0])))"
   }
 }
