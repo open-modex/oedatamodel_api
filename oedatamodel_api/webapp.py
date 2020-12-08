@@ -74,7 +74,7 @@ def scenario_by_name(
 
 
 @app.get("/upload_csv/")
-async def main():
+async def upload_csv_file_view():
     content = """
 <body>
 <form action="/upload_csv/" enctype="multipart/form-data" method="post">
@@ -87,7 +87,7 @@ async def main():
 
 
 @app.post("/upload_csv/")
-async def create_upload_file(zip_file: UploadFile = File(...)):
+async def upload_csv_file(zip_file: UploadFile = File(...)):
     try:
         scenario_id = upload.upload_csv_from_zip(zip_file)
     except Exception as e:
