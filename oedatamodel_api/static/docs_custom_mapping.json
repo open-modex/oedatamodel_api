@@ -1,0 +1,28 @@
+{
+  "ClassDocs": [
+    {
+      "description": "From: https://github.com/jmespath/jmespath.site/issues/17#issuecomment-198111810\n----------------\nCustom functions extend jmespath core functionality. They help to process\njson data and enable to apply a custom mapping on the json data (See apply_custom_mapping).\n\nCurrently available custom functions are:\n- repeat\n- items\n- zip\n- to object\n- unique\n- exclude\n- group by\n    group_by allows for the expref to be either a number of\n    a string, so we have some special logic to handle this.\n    We evaluate the first array element and verify that it's\n    either a string of a number.  We then create a key function\n    that validates that type, which requires that remaining array\n    elements resolve to the same type as the first element.\n- group by dict\n     group_dict_by allows for the expref to be either a number of\n    a string, so we have some special logic to handle this.\n    We evaluate the first array element and verify that it's\n    either a string of a number.  We then create a key function\n    that validates that type, which requires that remaining array\n    elements resolve to the same type as the first element.",
+      "name": "CustomFunctions"
+    },
+    {
+      "description": "Exception is thrown, if custom mapping is not found in folder \"mappings\".",
+      "name": "MappingNotFound"
+    }
+  ],
+  "FunctionDocs": [
+    {
+      "description": "Custom mapping is (loaded and) applied to raw json/dict.\n\nCustom mapping can depend on pre-mappings\n(custom or default, last iteration must depend on default mapping,\ni.e. \"normalized\" or \"concrete\").\nDepending mappings are recursively applied before current mapping is applied.\n\nParameters\n----------\nraw_json: dict\n    Result from OEP to perform custom mapping on.\nmapping: str\n    Custom mapping (either name of predefined mapping or mapping json) which shall be applied\n\nReturns\n-------\ndict\n    Resulting json/dict after applying all custom/default mappings.",
+      "name": "apply_custom_mapping"
+    },
+    {
+      "description": "Recursive function to apply mappings down the mapping tree.\n\nParameters\n----------\nraw_json: dict\n    Scenario result or pre-mapped json.\nvalue: Union[dict, str]\n    Either a dict (then next, deeper iteration is done) or a str\n    (containing jmespath function to apply on given json).\n\nReturns\n-------\nUnion[dict, str, list]\n    Either dict containing next iteration or result from jmespath function\n    applied to given json.",
+      "name": "iterate_mapping"
+    },
+    {
+      "description": "Load custom mapping as json/dict from mappings folder.\n\nParameters\n----------\nname: str\n    Mapping name (searches for \"{name}.json\" in mappings folder.\n\nRaises\n------\nMappingNotFound\n    If custom mapping cannot be found in mappings folder.\n\nReturns\n-------\ndict\n    Custom mapping json/dict.",
+      "name": "load_custom_mapping"
+    }
+  ],
+  "ModuleGeneralDescription": "Custom mappings are loaded and applied to oedatamodel results",
+  "ModuleName": "mapping_custom"
+}
