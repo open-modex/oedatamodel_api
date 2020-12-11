@@ -1,0 +1,7 @@
+
+{
+  "base_mapping": "timeindex",
+  "mapping": {
+    "timeseries": "to_object(zip(keys(timeindex), map(&unpack_dict_series(set(@[0], 'timeindex', @[1][1])), zip(series, items(timeindex)))))"
+  }
+}

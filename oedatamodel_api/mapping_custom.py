@@ -2,7 +2,9 @@
 Custom mappings are loaded and applied to oedatamodel results
 """
 
+from parse import parse
 import json
+import datetime as dt
 from itertools import groupby, repeat
 
 import jmespath
@@ -10,6 +12,10 @@ from jmespath import functions, exceptions
 
 from oedatamodel_api.mapping_default import OedataMapping, map_data
 from oedatamodel_api.settings import MAPPINGS_DIR
+
+
+DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
+RESOLUTION_REGEX = "P{days:1d}DT{hours:2d}H{minutes:2d}M{seconds:2d}S"
 
 
 class CustomFunctions(functions.Functions):
@@ -54,9 +60,64 @@ class CustomFunctions(functions.Functions):
     def _func_zip(self, *arguments):
         return list(map(list, zip(*arguments)))
 
+    @functions.signature({'types': ['array'], 'variadic': True})
+    def _func_zip_multi(self, *arguments):
+        return list(map(list, zip(*arguments)))
+
     @functions.signature({'types': ['array']})
     def _func_to_object(self, pairs):
         return dict(pairs)
+
+    @functions.signature({'types': ['array']})
+    def _func_merge_array(self, array):
+        d = {}
+        for a in array:
+            d.update(a)
+        return d
+
+    @functions.signature({'types': ['object']}, {'types': ['object', 'string', 'array', 'number']})
+    def _func_fill_na(self, d, value):
+        return {k: value if v is None else v for k, v in d.items()}
+
+    @functions.signature({'types': ['string']}, {'types': ['string']}, {'types': ['string']})
+    def _func_timerange(self, start, end, resolution):
+        dt_start = dt.datetime.strptime(start, DATETIME_FORMAT)
+        dt_end = dt.datetime.strptime(end, DATETIME_FORMAT)
+        res_parsed = parse(RESOLUTION_REGEX, resolution)
+        delta = dt.timedelta(
+            days=res_parsed["days"],
+            hours=res_parsed["hours"],
+            minutes=res_parsed["minutes"],
+            seconds=res_parsed["seconds"]
+        )
+        timeindex = []
+        current_index = dt_start
+        while current_index <= dt_end:
+            timeindex.append(current_index)
+            current_index += delta
+        return timeindex
+
+    @functions.signature(
+        {'types': ['object']}, {'types': ['string']}, {'types': ['object', 'string', 'array', 'number','null']})
+    def _func_set(self, d, key, value):
+        d_new = d.copy()
+        d_new[key] = value
+        return d_new
+
+    @functions.signature(
+        {'types': ['object']}, {'types': ['string']}, {'types': ['object', 'string', 'array', 'number']}, {'types': ['object', 'string', 'array', 'number']})
+    def _func_set_combi(self, d, key, value1, value2):
+        d_new = d.copy()
+        d_new[key] = value1 + '_' + value2
+        return d_new
+        
+    @functions.signature({'types': ['object']})
+    def _func_unpack_dict_series(self, d):
+        new_list = []
+        series_length = len(list(d.values())[0])
+        for i in range(series_length):
+            new_list.append({k: d[k][i] for k in d.keys()})
+        return new_list
 
     @functions.signature({'types': ['array']})
     def _func_unique(self, *args):
