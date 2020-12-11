@@ -5,11 +5,82 @@
     <title>MODEX connector</title>
 </head>
 <body>
-Welcome to MODEX connector API
+<h1>Welcome to MODEX connector API</h1>
 
 {% block body %}
+<h3>Currently available mappings</h3>
+<table>
+
+    <tr>
+        <td>_________________________</td>
+        <td>___________________________________________________________</td>
+    </tr>
+    <tr>
+        <td>name</td>
+        <td>description</td>
+    </tr>
+    <tr>
+        <td>_________________________</td>
+        <td>___________________________________________________________</td>
+    </tr>
+    {% for mapping in mappings_docs.mapping_collection %}
+    <tr>
+        <td>{{mapping.name}}:</td>
+        <td>{{mapping.base_mapping}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Module documentation: {{module_docs.ModuleName}}</h3>
+
+<p>{{module_docs.ModuleGeneralDescription}}</p>
+
+<h4 >Classes reference:</h4>
+<table>
+    {% for class in module_docs.ClassDocs%}
+    <tr>
+        <td>_________________________</td>
+        <td>___________________________________________________________</td>
+    </tr>
+    <tr>
+        <td>name</td>
+        <td>description</td>
+    </tr>
+    <tr>
+        <td>_________________________</td>
+        <td>___________________________________________________________</td>
+    </tr>
+    <tr>
+        <td>{{class.name}}:</td>
+        <td>{{class.description | replace("\n", "<br>" | safe) }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h4>Functions reference:</h4>
+<table>
+    {% for class in module_docs.FunctionDocs%}
+    <tr>
+        <td>_________________________</td>
+        <td>___________________________________________________________</td>
+    </tr>
+    <tr>
+        <td>name</td>
+        <td>description</td>
+    </tr>
+    <tr>
+        <td>_________________________</td>
+        <td>___________________________________________________________</td>
+    </tr>
+    <tr>
+        <th>{{class.name}}:</th>
+        <td>{{ class.description | replace("\n", "<br>" | safe) }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+
 
 {% endblock body%}
-
 </body>
 </html>
