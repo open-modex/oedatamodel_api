@@ -8,7 +8,9 @@ from fastapi.templating import Jinja2Templates
 
 from oedatamodel_api.oep_connector import get_scenario_from_oep, ScenarioNotFoundError
 from oedatamodel_api import mapping_custom, formatting
-from oedatamodel_api.settings import ROOT_DIR
+from oedatamodel_api.settings import ROOT_DIR, APP_STATIC_DIR
+
+from oedatamodel_api.package_docs import loadFromJsonFile
 
 app = FastAPI()
 
@@ -20,7 +22,16 @@ templates = Jinja2Templates(directory=ROOT_DIR / "oedatamodel_api" / 'templates'
 
 @app.get('/')
 def index(request: Request) -> Response:
-    return templates.TemplateResponse('index.html', {'request': request})
+    try:
+        docs_coustom_mapping = loadFromJsonFile(APP_STATIC_DIR, "docs_custom_mapping.json")
+        docs_current_mappings = loadFromJsonFile(APP_STATIC_DIR, "docs_current_mappings.json")
+    except:
+        docs_coustom_mapping = [{}]
+        docs_current_mappings = [{}]
+
+    return templates.TemplateResponse('index.html', {'request': request,
+                                                     "module_docs": docs_coustom_mapping,
+                                                     "mappings_docs": docs_current_mappings})
 
 
 def prepare_response(raw_json, mapping, output_format):
