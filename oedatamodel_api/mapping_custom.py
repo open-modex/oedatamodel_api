@@ -13,7 +13,34 @@ from oedatamodel_api.settings import MAPPINGS_DIR
 
 
 class CustomFunctions(functions.Functions):
-    """From: https://github.com/jmespath/jmespath.site/issues/17#issuecomment-198111810"""
+    """
+    From: https://github.com/jmespath/jmespath.site/issues/17#issuecomment-198111810
+    ----------------
+    Custom functions extend jmespath core functionality. They help to process
+    json data and enable to apply a custom mapping on the json data (See apply_custom_mapping).
+
+    Currently available custom functions are:
+    - repeat
+    - items
+    - zip
+    - to object
+    - unique
+    - exclude
+    - group by
+        group_by allows for the expref to be either a number of
+        a string, so we have some special logic to handle this.
+        We evaluate the first array element and verify that it's
+        either a string of a number.  We then create a key function
+        that validates that type, which requires that remaining array
+        elements resolve to the same type as the first element.
+    - group by dict
+         group_dict_by allows for the expref to be either a number of
+        a string, so we have some special logic to handle this.
+        We evaluate the first array element and verify that it's
+        either a string of a number.  We then create a key function
+        that validates that type, which requires that remaining array
+        elements resolve to the same type as the first element.
+    """
 
     @functions.signature({'types': ['object', 'string']}, {'types': ['number']})
     def _func_repeat(self, arg, times):
