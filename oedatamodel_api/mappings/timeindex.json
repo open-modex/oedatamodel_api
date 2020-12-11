@@ -1,0 +1,8 @@
+
+{
+  "base_mapping": "grouped",
+  "mapping": {
+    "series": "map(&merge_array(map(&to_object([[fill_na(@, 'None') | join('-', [@.region, @.technology, @.technology_type, @.parameter_name]), @.series]]), @)), timeseries.*)",
+    "timeindex": "to_object(zip(keys(timeseries), map(&timerange(timeindex_start, timeindex_stop, timeindex_resolution), timeseries.*[0])))"
+  }
+}

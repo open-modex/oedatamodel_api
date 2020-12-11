@@ -1,0 +1,6 @@
+{
+  "base_mapping": "concrete",
+  "mapping": {
+    "all_regions": "unique(oed_scalars[*].region[])"
+  }
+}

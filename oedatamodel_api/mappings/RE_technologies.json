@@ -1,0 +1,6 @@
+{
+  "base_mapping": "technologies",
+  "mapping": {
+    "converters_genesys2": "zip(scalars.photovoltaics[*], scalars.geothermal[*], scalars.'wind turbine[*]')"
+  }
+}

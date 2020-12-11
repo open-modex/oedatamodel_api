@@ -30,9 +30,13 @@ def _iterate_zip_dirs(zipped, json_data, current_dir):
                 writer.writerow(data.keys())
                 writer.writerow(data.values())
             elif isinstance(data, list):
-                writer.writerow(data[0].keys())
-                for row in data:
-                    writer.writerow(row.values())
+                if isinstance(data[0], dict):
+                    writer.writerow(data[0].keys())
+                    for row in data:
+                        writer.writerow(row.values())
+                else:
+                    for value in data:
+                        writer.writerow([str(value)])
             else:
                 raise TypeError('Unknown type to create csv from')
             csv_data.seek(0)

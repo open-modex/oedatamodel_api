@@ -1,0 +1,14 @@
+{
+  "base_mapping": "urbs",
+  "mapping": {
+    "scenario": "scenario",
+    "process_commodity": "group_by(sort_by(process_commodity, &year), &year)",
+    "process": "group_by(sort_by(process, &year), &year)",
+    "storage":"group_by(sort_by(storage, &year), &year)",
+    "transmission":"group_by(sort_by(transmission, &year), &year)",
+    "sites": "sites",
+    "commodity": "commodity",
+    "timeseries_o": "timeseries_o",
+    "timeseries": "timeseries"
+  }
+}

@@ -31,7 +31,12 @@ def test_map_dfs():
     assert len(data.columns) == 14
 
 
-def test_upload_normalized_dfs():
+def test_read_in_csv_files():
+    dfs = upload.read_in_csv_files("base_scenario")
+    assert len(dfs) == 3
+
+
+def test_upload_normalized_dfs_from_excel():
     sheets = ("scenario", "scalar", "timeseries")
     dfs = upload.read_in_excel_sheets(
         "scenario_scalar_timeseries_less.xlsx",
@@ -50,6 +55,10 @@ def test_upload_normalized_dfs():
         filtered_normalized_dfs,
         schema="model_draft"
     )
+
+
+def test_upload_from_csv_folder():
+    upload.upload_csv_from_folder("base_scenario_less")
 
 
 def test_adapt_metadata():

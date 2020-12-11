@@ -1,0 +1,9 @@
+
+{
+  "base_mapping": "minimize",
+  "mapping": {
+    "scenario": "scenario",
+    "scalars": "group_by(sort_by(scalars, &join('-',[technology, technology_type, region])), &join('-',[technology, technology_type, region]))",
+    "timeseries": "group_by(sort_by(timeseries, &join('-',[timeindex_start, timeindex_stop, timeindex_resolution])), &join('-',[timeindex_start, timeindex_stop, timeindex_resolution]))"
+  }
+}

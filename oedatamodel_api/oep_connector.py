@@ -1,119 +1,53 @@
-
+import json
 import logging
 import requests
 from functools import lru_cache
 
+from oedatamodel_api.settings import SOURCES_DIR
+
 OEP_URL = 'https://openenergy-platform.org'
 
 
-class ScenarioNotFoundError(Exception):
-    """Is raised if scenario could not be found in OEP"""
+class OEPDataNotFoundError(Exception):
+    """Is raised if data could not be found in OEP"""
+
+
+class SourceNotFound(Exception):
+    """Exception is thrown, if source is not found in folder "sources"."""
 
 
 @lru_cache(maxsize=None)
-def get_scenario_from_oep(scenario_id=None, scenario_name=None):
-    if scenario_id is None and scenario_name is None:
-        raise ValueError("You have to set either scenario ID or name")
-    if scenario_id is not None and scenario_name is not None:
-        raise ValueError("Scenario name and ID given.")
-    if scenario_id is not None:
-        where_clause = {
-            "operands": [
-                {
-                    "type": "column",
-                    "table": "s",
-                    "column": "id",
-                },
-                scenario_id,
-            ],
-            "operator": "=",
-            "type": "operator",
-        }
-    else:
-        where_clause = {
-            "operands": [
-                {
-                    "type": "column",
-                    "table": "s",
-                    "column": "scenario",
-                },
-                scenario_name,
-            ],
-            "operator": "=",
-            "type": "operator",
-        }
-    join = {
-        "from": {
-            "type": "join",
-            "left": {
-                "type": "table",
-                "table": "oed_scenario",
-                "schema": "model_draft",
-                "alias": "s",
-            },
-            "right": {
-                "type": "join",
-                "is_full": True,
-                "left": {
-                    "type": "join",
-                    "is_full": True,
-                    "left": {
-                        "type": "table",
-                        "table": "oed_data",
-                        "schema": "model_draft",
-                        "alias": "d",
-                    },
-                    "right": {
-                        "type": "table",
-                        "table": "oed_timeseries",
-                        "schema": "model_draft",
-                        "alias": "ts",
-                    },
-                    "on": {
-                        "operands": [
-                            {"type": "column", "column": "id", "table": "d"},
-                            {"type": "column", "column": "id", "table": "ts"},
-                        ],
-                        "operator": "=",
-                        "type": "operator",
-                    },
-                },
-                "right": {
-                    "type": "table",
-                    "table": "oed_scalar",
-                    "schema": "model_draft",
-                    "alias": "sc",
-                },
-                "on": {
-                    "operands": [
-                        {"type": "column", "column": "id", "table": "d"},
-                        {"type": "column", "column": "id", "table": "sc"},
-                    ],
-                    "operator": "=",
-                    "type": "operator",
-                },
-            },
-            "on": {
-                "operands": [
-                    {"type": "column", "column": "id", "table": "s"},
-                    {"type": "column", "column": "scenario_id", "table": "d"},
-                ],
-                "operator": "=",
-                "type": "operator",
-            },
-        },
-        "where": where_clause,
-    }
+def get_data_from_oep(source, **params):
+    join = load_source(source, params)
     data = {'query': join}
     response = requests.post(
         OEP_URL + '/api/v0/advanced/search',
         json=data,
     )
     if response.status_code != 200:
-        logging.error("Error in scenario request to OEP", scenario_id, scenario_name, response.text)
+        logging.error("Error in data request to OEP", source, params, response.text)
         raise ConnectionError(response.text)
-    json = response.json()
-    if json["content"]["rowcount"] == 0:
-        logging.warning("Could not get scenario from OEP", scenario_id, scenario_name, response.text)
-        raise ScenarioNotFoundError("Scenario not found", scenario_id, scenario_name)
-    return json
+    response_json = response.json()
+    if response_json["content"]["rowcount"] == 0:
+        logging.warning("Could not get data from OEP", source, params, response.text)
+        raise OEPDataNotFoundError("Data not found", source, params)
+    return response_json
+
+
+def replace_json_placeholders(json_raw, values):
+    for k, v in values.items():
+        placeholder = "<%s>" % k
+        json_raw = json_raw.replace(placeholder, str(v))
+    return json_raw
+
+
+def load_source(name, params):
+    params = params or {}
+    filename = f'{name}.json'
+    try:
+        with open(SOURCES_DIR / filename, 'r') as json_file:
+            json_str = json_file.read()
+    except (FileNotFoundError, OSError):
+        raise SourceNotFound(f'Unknown source "{name}".')  # noqa: W0707
+    json_with_params = replace_json_placeholders(json_str, params)
+    return json.loads(json_with_params)

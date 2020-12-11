@@ -1,8 +1,0 @@
-
-{
-  "base_mapping": "concrete",
-  "mapping": {
-    "scenario": "oed_scenario",
-    "technologies": "map(&exclude(@, ['id', 'scenario_id', 'region', 'method', 'tags', 'source', 'comment']), [oed_timeseries, oed_scalars][]) | sort_by(@, &technology) | group_by(@, &technology)"
-  }
-}
