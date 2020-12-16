@@ -1,0 +1,24 @@
+{
+  "mapping_collection": [
+    {
+      "base_mapping": "technologies",
+      "name": "oemof"
+    },
+    {
+      "base_mapping": "concrete",
+      "name": "regions"
+    },
+    {
+      "base_mapping": "regions",
+      "name": "technologies"
+    },
+    {
+      "base_mapping": "concrete",
+      "name": "technologies_and_types"
+    },
+    {
+      "base_mapping": "concrete",
+      "name": "technologies_reduced"
+    }
+  ]
+}
