@@ -1,7 +1,8 @@
 
 import uvicorn
+import pandas
 
-from fastapi import FastAPI, Request, Response, UploadFile, File
+from fastapi import FastAPI, Request, Response, UploadFile, File, Form
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -103,6 +104,46 @@ async def upload_csv_file(zip_file: UploadFile = File(...)):
         scenario_id = upload.upload_csv_from_zip(zip_file)
     except Exception as e:
         return {"error": str(e)}
+    return {
+        "success": f"Upload of file '{zip_file.filename}' successful!",
+        "scenario_id": scenario_id
+    }
+
+
+@app.get("/upload_csv_mapping/")
+async def upload_csv_file_via_mapping_view():
+    content = """
+<body>
+<form action="/upload_csv_mapping/" enctype="multipart/form-data" method="post">
+<input name="zip_file" type="file">
+<input name="mapping" type="text">
+<input name="show_json" type="checkbox" id="show_json" checked>
+<label for="show_json">Show JSON</label>
+<input type="submit">
+</form>
+</body>
+    """
+    return HTMLResponse(content=content)
+
+
+@app.post("/upload_csv_mapping/")
+async def upload_csv_file_via_mapping(
+        zip_file: UploadFile = File(...),
+        mapping: str = Form(...),
+        show_json: bool = Form(False)
+):
+    try:
+        mapped_json = upload.get_mapped_json_from_zip(zip_file, mapping)
+    except Exception as e:
+        return {"error in mapping": str(e)}
+    if show_json:
+        return mapped_json
+
+    dfs = upload.create_dfs_from_json(mapped_json)
+    try:
+        scenario_id = upload.upload_dfs(dfs)
+    except Exception as e:
+        return {"error on upload": str(e)}
     return {
         "success": f"Upload of file '{zip_file.filename}' successful!",
         "scenario_id": scenario_id

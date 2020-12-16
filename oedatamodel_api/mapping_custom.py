@@ -233,8 +233,11 @@ def apply_custom_mapping(raw_json: dict, mapping: str):
         mapping_json = load_custom_mapping(mapping)
     except MappingNotFound:
         mapping_json = json.loads(mapping)
-    # Recursively apply base mappings:
-    pre_json = apply_custom_mapping(raw_json, mapping_json['base_mapping'])
+    # Recursively apply base mappings if one exists:
+    if mapping_json['base_mapping'] == "":
+        pre_json = raw_json
+    else:
+        pre_json = apply_custom_mapping(raw_json, mapping_json['base_mapping'])
     # Recursively apply custom mapping on pre json:
     return iterate_mapping(pre_json, mapping_json['mapping'])
 

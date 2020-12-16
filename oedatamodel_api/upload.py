@@ -1,4 +1,5 @@
 
+import csv
 import io
 import zipfile
 import tempfile
@@ -12,6 +13,7 @@ from sqlalchemy.dialects.postgresql import ARRAY, JSON, FLOAT, TEXT
 
 from oem2orm.oep_oedialect_oem2orm import setup_db_connection, collect_tables_from_oem, load_json
 
+from oedatamodel_api.mapping_custom import apply_custom_mapping
 from oedatamodel_api.settings import OEDATAMODEL_META_DIR, UPLOAD_DIR, NORMALIZED_TABLES, OEDATAMODEL_SCHEMA
 
 
@@ -79,18 +81,70 @@ def upload_csv_from_folder(folder):
     return upload_dfs(dfs)
 
 
-def upload_csv_from_zip(zip_file):
+def read_zip(zip_file):
     tf = tempfile.TemporaryFile()
     tf.write(zip_file.file.read())
     tf.seek(0)
-    zfile = zipfile.ZipFile(tf, 'r')
+    return zipfile.ZipFile(tf, 'r')
 
+
+def upload_csv_from_zip(zip_file):
+    zfile = read_zip(zip_file)
     dfs = {}
     for filename in zfile.namelist():
-        file = zfile.read(filename)
+        csvfile = zfile.read(filename)
         table = filename[:-4]
-        dfs[table] = read_in_csv_file(io.BytesIO(file), table)
+        dfs[table] = read_in_csv_file(io.BytesIO(csvfile), table)
     return upload_dfs(dfs)
+
+
+def get_mapped_json_from_zip(zip_file, mapping):
+    def read_value(raw_str):
+        try:
+            return json.loads(raw_str)
+        except json.JSONDecodeError:
+            if raw_str.startswith("[") and raw_str.endswith("]"):
+                return raw_str.strip("""[]"'""").split(",")
+            else:
+                return raw_str
+
+    zfile = read_zip(zip_file)
+    json_data = {}
+    for filename in zfile.namelist():
+        table = filename[:-4]
+        with zfile.open(filename, 'r') as csvfile:
+            reader = csv.DictReader(io.TextIOWrapper(csvfile), delimiter=";")
+            json_data[table] = [{k: read_value(v) for k, v in row.items()} for row in reader]
+    return apply_custom_mapping(json_data, mapping)
+
+
+def create_dfs_from_json(json_data):
+    def dump_json(d):
+        if d == "":
+            return None
+        else:
+            json.dumps(d)
+
+    oep_tables = get_oep_tables()
+    dfs = {}
+    for table, data in json_data.items():
+        columns = oep_tables[table].columns
+        if table in ("oed_scalar", "oed_timeseries"):
+            columns += oep_tables["oed_data"].columns
+        elif table in ("oed_scalar_output", "oed_timeseries_output"):
+            columns += oep_tables["oed_data_output"].columns
+        columns = [column for column in columns if str(column.name) != "type"]
+        dfs[table] = pandas.DataFrame(
+            [
+                {
+                    str(column.name): dump_json(row[str(column.name)])
+                    if repr(column.type) == "JSON()" else row[str(column.name)]
+                    for column in columns
+                }
+                for row in data
+            ]
+        )
+    return dfs
 
 
 def upload_dfs(dfs):
