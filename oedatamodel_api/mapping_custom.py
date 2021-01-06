@@ -120,8 +120,10 @@ class CustomFunctions(functions.Functions):
         return new_list
 
     @functions.signature({'types': ['array']})
-    def _func_unique(self, *args):
-        return list(dict.fromkeys(*args))
+    def _func_unique(self, args):
+        if len(args) > 0 and isinstance(args[0], dict):
+            return [dict(s) for s in set(frozenset(d.items()) for d in args)]
+        return list(dict.fromkeys(args))
 
     @functions.signature({'types': ['object']}, {'types': ['array']})
     def _func_exclude(self, arg, excludes):
