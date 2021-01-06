@@ -8,6 +8,8 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 ### Added
 - custom mapping via get request
 - caching of OEP scenario request
+- Build docs as json file, including module docs and mappings.
+- Display mapping_custom module docs and available mappings on index.html.
 
 ## [0.2.0] - 2020-10-01
 ### Added

@@ -4,7 +4,6 @@
   "mapping": {
     "scenario": "scenario",
     "scalars": "map(&exclude(@, ['id', 'scenario_id', 'type', 'method', 'tags', 'source', 'comment']), scalars)",
-    "timeseries": "map(&exclude(@, ['id', 'scenario_id', 'type', 'method', 'tags', 'source', 'comment']), timeseries)",
-    "scalars_tra": "map(&exclude(@, ['id', 'scenario_id', 'type', 'method', 'tags', 'source', 'comment']), scalars_tra)"
+    "timeseries": "map(&exclude(@, ['id', 'scenario_id', 'type', 'method', 'tags', 'source', 'comment']), timeseries)"
   }
 }

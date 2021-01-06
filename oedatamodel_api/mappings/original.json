@@ -1,0 +1,8 @@
+{
+  "base_mapping": "",
+  "mapping": {
+    "oed_scenario_output": "oed_scenario_output",
+    "oed_scalar_output": "oed_scalar_output",
+    "oed_timeseries_output": "oed_timeseries_output"
+  }
+}
