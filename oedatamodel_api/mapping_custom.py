@@ -19,7 +19,34 @@ RESOLUTION_REGEX = "P{days:1d}DT{hours:2d}H{minutes:2d}M{seconds:2d}S"
 
 
 class CustomFunctions(functions.Functions):
-    """From: https://github.com/jmespath/jmespath.site/issues/17#issuecomment-198111810"""
+    """
+    From: https://github.com/jmespath/jmespath.site/issues/17#issuecomment-198111810
+    ----------------
+    Custom functions extend jmespath core functionality. They help to process
+    json data and enable to apply a custom mapping on the json data (See apply_custom_mapping).
+
+    Currently available custom functions are:
+    - repeat
+    - items
+    - zip
+    - to object
+    - unique
+    - exclude
+    - group by
+        group_by allows for the expref to be either a number of
+        a string, so we have some special logic to handle this.
+        We evaluate the first array element and verify that it's
+        either a string of a number.  We then create a key function
+        that validates that type, which requires that remaining array
+        elements resolve to the same type as the first element.
+    - group by dict
+         group_dict_by allows for the expref to be either a number of
+        a string, so we have some special logic to handle this.
+        We evaluate the first array element and verify that it's
+        either a string of a number.  We then create a key function
+        that validates that type, which requires that remaining array
+        elements resolve to the same type as the first element.
+    """
 
     @functions.signature({'types': ['object', 'string']}, {'types': ['number']})
     def _func_repeat(self, arg, times):
@@ -206,8 +233,11 @@ def apply_custom_mapping(raw_json: dict, mapping: str):
         mapping_json = load_custom_mapping(mapping)
     except MappingNotFound:
         mapping_json = json.loads(mapping)
-    # Recursively apply base mappings:
-    pre_json = apply_custom_mapping(raw_json, mapping_json['base_mapping'])
+    # Recursively apply base mappings if one exists:
+    if mapping_json['base_mapping'] == "":
+        pre_json = raw_json
+    else:
+        pre_json = apply_custom_mapping(raw_json, mapping_json['base_mapping'])
     # Recursively apply custom mapping on pre json:
     return iterate_mapping(pre_json, mapping_json['mapping'])
 
