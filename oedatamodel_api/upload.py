@@ -24,6 +24,10 @@ TYPE_CONVERSION = {
 }
 
 
+class UploadError(Exception):
+    """Exception if upload to OEP fails"""
+
+
 def get_oep_tables(db=None):
     db = db or setup_db_connection()
     tables = collect_tables_from_oem(db, OEDATAMODEL_META_DIR)
@@ -245,22 +249,35 @@ def upload_normalized_dfs(dfs: Dict[str, pandas.DataFrame], schema: str, input_d
     scenario_id = get_next_id(db, oep_tables[table_names["scenario"]])
     scenario = dfs[table_names["scenario"]]
     set_ids(scenario, scenario_id)
-    upload_table(table_names["scenario"], scenario)
+    try:
+        upload_table(table_names["scenario"], scenario)
+    except Exception as e:
+        raise UploadError(f"Error when uploading table 'scenario' to OEP: {e}")
 
     # Upload data:
     next_id = get_next_id(db, oep_tables[table_names["data"]])
     data = dfs[table_names["data"]]
     data["scenario_id"] = scenario_id
     set_ids(data, next_id)
-    upload_table(table_names["data"], data)
+    try:
+        upload_table(table_names["data"], data)
+    except Exception as e:
+        raise UploadError(f"Error when uploading table 'data' to OEP: {e}")
 
     # Upload scalar:
     scalar = dfs[table_names["scalar"]]
     scalar["id"] = data[data["type"] == "scalar"]["id"]
-    upload_table(table_names["scalar"], scalar)
+    try:
+        upload_table(table_names["scalar"], scalar)
+    except Exception as e:
+        raise UploadError(f"Error when uploading table 'scalar' to OEP: {e}")
 
     # Upload timeseries:
     timeseries = dfs[table_names["timeseries"]]
     timeseries["id"] = data[data["type"] == "timeseries"]["id"].reset_index(drop=True)
-    upload_table(table_names["timeseries"], timeseries)
+    try:
+        upload_table(table_names["timeseries"], timeseries)
+    except Exception as e:
+        raise UploadError(f"Error when uploading table 'timeseries' to OEP: {e}")
+
     return scenario_id
