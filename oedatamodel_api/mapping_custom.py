@@ -122,7 +122,8 @@ class CustomFunctions(functions.Functions):
     @functions.signature({'types': ['array']})
     def _func_unique(self, args):
         if len(args) > 0 and isinstance(args[0], dict):
-            return [dict(s) for s in set(frozenset(d.items()) for d in args)]
+            seen = set()
+            return [d for d in args if not (frozenset(d.items()) in seen or seen.add(frozenset(d.items())))]
         return list(dict.fromkeys(args))
 
     @functions.signature({'types': ['object']}, {'types': ['array']})
