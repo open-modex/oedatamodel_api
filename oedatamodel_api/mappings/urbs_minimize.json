@@ -1,0 +1,11 @@
+
+{
+  "base_mapping": "urbs_regions",
+  "mapping": {
+    "scenario": "scenario",
+    "scalars": "map(&exclude(@, ['id', 'scenario_id', 'type', 'method', 'tags', 'source', 'comment']), scalars)",
+    "timeseries": "map(&exclude(@, ['id', 'scenario_id', 'type', 'method', 'tags', 'source', 'comment']), timeseries)",
+    "scalars_tra": "map(&exclude(@, ['id', 'scenario_id', 'type', 'method', 'tags', 'source', 'comment']), scalars_tra)",
+    "scalars_tra_general" :"map(&exclude(@, ['id', 'scenario_id', 'type', 'method', 'tags', 'source', 'comment']), scalars_tra_general)"
+  }
+}
