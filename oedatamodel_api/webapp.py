@@ -1,6 +1,5 @@
 
 import uvicorn
-import pandas
 
 from fastapi import FastAPI, Request, Response, UploadFile, File, Form
 from fastapi.responses import StreamingResponse, HTMLResponse
@@ -10,8 +9,8 @@ from fastapi.templating import Jinja2Templates
 from oedatamodel_api.oep_connector import get_data_from_oep, OEPDataNotFoundError
 from oedatamodel_api import mapping_custom, formatting, upload
 from oedatamodel_api.settings import ROOT_DIR, APP_STATIC_DIR
-
 from oedatamodel_api.package_docs import loadFromJsonFile
+from oedatamodel_api.validation import get_and_validate_datapackage, DatapackageNotValid
 
 app = FastAPI()
 
@@ -100,6 +99,10 @@ async def upload_csv_file_view():
 
 @app.post("/upload_csv/")
 async def upload_csv_file(zip_file: UploadFile = File(...)):
+    try:
+        package = get_and_validate_datapackage(zip_file)
+    except DatapackageNotValid as de:
+        return {"Datapackage is not valid": de.args[0]}
     try:
         scenario_id = upload.upload_csv_from_zip(zip_file)
     except Exception as e:
