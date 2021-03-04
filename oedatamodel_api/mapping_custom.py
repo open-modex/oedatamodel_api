@@ -79,6 +79,10 @@ class CustomFunctions(functions.Functions):
     def _func_fill_na(self, d, value):
         return {k: value if v is None else v for k, v in d.items()}
 
+    @functions.signature({'types': ['number']}, {'types': ['number']})
+    def _func_range(self, start, stop):
+        return list(range(start, stop))
+
     @functions.signature({'types': ['string']}, {'types': ['string']}, {'types': ['string']})
     def _func_timerange(self, start, end, resolution):
         dt_start = dt.datetime.strptime(start, DATETIME_FORMAT)
@@ -98,7 +102,7 @@ class CustomFunctions(functions.Functions):
         return timeindex
 
     @functions.signature(
-        {'types': ['object']}, {'types': ['string']}, {'types': ['object', 'string', 'array', 'number','null']})
+        {'types': ['object']}, {'types': ['string']}, {'types': ['object', 'string', 'array', 'number', 'null']})
     def _func_set(self, d, key, value):
         d_new = d.copy()
         d_new[key] = value
@@ -129,6 +133,10 @@ class CustomFunctions(functions.Functions):
     @functions.signature({'types': ['object']}, {'types': ['array']})
     def _func_exclude(self, arg, excludes):
         return {k: v for k, v in arg.items() if k not in excludes}
+
+    @functions.signature({'types': ['object']}, {'types': ['array']})
+    def _func_filter(self, arg, filter_items):
+        return {k: v for k, v in arg.items() if k in filter_items}
 
     @functions.signature({'types': ['array']}, {'types': ['expref']})
     def _func_group_by(self, array_object, expref):
