@@ -9,6 +9,10 @@ MAPPINGS_DIR = APP_DIR / "mappings"
 UPLOAD_DIR = ROOT_DIR / "upload_data"
 ZIP_UPLOAD_FILEPATH = ROOT_DIR / "files" / "datapackage.zip"
 
+# OEP
+# ---
+OEP_URL = "https://openenergy-platform.org"
+
 # OEDATAMODEL
 # -----------
 OEDATAMODEL_META_DIR = APP_DIR / "datamodel"

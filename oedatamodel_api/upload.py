@@ -5,16 +5,19 @@ import zipfile
 import tempfile
 import json
 import pandas
+import requests
 import jmespath
+import warnings
 from typing import Dict
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import desc
 from sqlalchemy.dialects.postgresql import ARRAY, JSON, FLOAT, TEXT
+from frictionless import validate_resource, Resource
 
 from oem2orm.oep_oedialect_oem2orm import setup_db_connection, collect_tables_from_oem, load_json
 
 from oedatamodel_api.mapping_custom import apply_custom_mapping
-from oedatamodel_api.settings import OEDATAMODEL_META_DIR, UPLOAD_DIR, NORMALIZED_TABLES, OEDATAMODEL_SCHEMA
+from oedatamodel_api.settings import OEP_URL, OEDATAMODEL_META_DIR, UPLOAD_DIR, NORMALIZED_TABLES, OEDATAMODEL_SCHEMA
 
 
 TYPE_CONVERSION = {
@@ -22,6 +25,19 @@ TYPE_CONVERSION = {
     repr(ARRAY(TEXT)): lambda x: json.loads(x.replace('"', '"""').replace("'", '"')),
     repr(JSON): lambda x: json.loads(x.replace('"', '"""').replace("'", '"'))
 }
+
+OEP_TO_FRICTIONLESS_CONVERSION = {
+    "bigint": "integer",
+    "text": "string",
+    "json": "object",
+    "decimal": "number",
+    "interval": "any",
+    "timestamp": "datetime"
+}
+
+
+class ValidationError(Exception):
+    """Exception if validation of datapackage fails"""
 
 
 class UploadError(Exception):
@@ -281,3 +297,47 @@ def upload_normalized_dfs(dfs: Dict[str, pandas.DataFrame], schema: str, input_d
         raise UploadError(f"Error when uploading table 'timeseries' to OEP: {e}")
 
     return scenario_id
+
+
+def validate_upload_data(data, schema):
+    errors = []
+    for table, data_dict in data.items():
+        # Get datapackage format for each table in data
+        meta_url = f"{OEP_URL}/api/v0/schema/{schema}/tables/{table}/meta/"
+        metadata = json.loads(requests.get(meta_url).content)
+        try:
+            oep_schema = metadata["resources"][0]["schema"]
+        except (KeyError, IndexError):
+            warnings.warn(
+                f"Metadata for OEP table '{schema}.{table}' not found or invalid. "
+                f"Thus, data could not be validated against table format"
+            )
+            continue
+
+        # Rewrite datapackage format and validate json (instead of postgresql):
+        fl_table_schema = reformat_oep_to_frictionless_schema(oep_schema)
+        resource = Resource(
+            name=table, profile="tabular-data-resource", data=data_dict, schema=fl_table_schema
+        )
+        report = validate_resource(resource)
+        if report["stats"]["errors"] != 0:
+            errors.append(report.to_dict())
+
+    if len(errors) > 0:
+        raise ValidationError(errors)
+
+
+def reformat_oep_to_frictionless_schema(schema):
+    # Ignore other fields than 'fields' and 'primaryKey' (i.e. "foreignKeys")
+    fields = []
+    for field in schema["fields"]:
+        if "array" in field["type"]:
+            type_ = "array"
+        else:
+            type_ = OEP_TO_FRICTIONLESS_CONVERSION.get(field["type"], field["type"])
+        fields.append({"name": field["name"], "type": type_})
+    fl_schema = {
+        "fields": fields,
+        "primaryKey": schema["primaryKey"]
+    }
+    return fl_schema

@@ -1,5 +1,6 @@
 
 import uvicorn
+import warnings
 
 from fastapi import FastAPI, Request, Response, UploadFile, File, Form
 from fastapi.responses import StreamingResponse, HTMLResponse
@@ -118,11 +119,20 @@ async def upload_csv_file_via_mapping_view():
     content = """
 <body>
 <form action="/upload_csv_mapping/" enctype="multipart/form-data" method="post">
-<input name="zip_file" type="file">
-<input name="mapping" type="text">
-<input name="show_json" type="checkbox" id="show_json" checked>
-<label for="show_json">Show JSON</label>
-<input type="submit">
+    <p><input name="zip_file" type="file"></p>
+    <p>
+        <label for="schema">Schema</label>
+        <input name="schema" type="text" value="model_draft">
+    </p>
+    <p>
+        <label for="mapping">Mapping (optional)</label>
+        <input name="mapping" type="text">
+    </p>
+    <p>
+        <label for="show_json">Show JSON</label>
+        <input name="show_json" type="checkbox" id="show_json" checked>
+    </p>
+    <p><input type="submit"></p>
 </form>
 </body>
     """
@@ -132,24 +142,50 @@ async def upload_csv_file_via_mapping_view():
 @app.post("/upload_csv_mapping/")
 async def upload_csv_file_via_mapping(
         zip_file: UploadFile = File(...),
-        mapping: str = Form(...),
+        schema: str = Form(...),
+        mapping: str = Form(None),
         show_json: bool = Form(False)
 ):
-    try:
-        mapped_json = upload.get_mapped_json_from_zip(zip_file, mapping)
-    except Exception as e:
-        return {"error in mapping": str(e)}
-    if show_json:
-        return mapped_json
+    upload_warnings = []
 
-    dfs = upload.create_dfs_from_json(mapped_json)
+    # Validate and extract data from uploaded datapackage
+    try:
+        package = get_and_validate_datapackage(zip_file)
+    except DatapackageNotValid as de:
+        return {"Datapackage is not valid": de.args[0]}
+    data_json = {resource.name: [row.to_dict() for row in resource.read_rows()] for resource in package.resources}
+
+    # Apply mappings (optional)
+    if mapping:
+        try:
+            data_json = mapping_custom.apply_custom_mapping(data_json, mapping)
+        except Exception as e:
+            return {"Mapping error": str(e)}
+
+    # Return mapped data (optional)
+    if show_json:
+        return data_json
+
+    # Validate extracted (mapped) data against OEP table formats
+    with warnings.catch_warnings(record=True) as w:
+        try:
+            upload.validate_upload_data(data_json, schema)
+        except upload.ValidationError as ve:
+            return {"OEP data validation error": ve.args[0]}
+        upload_warnings.extend(w)
+
+    exit()
+
+    # Finally, upload data to OEP
+    dfs = upload.create_dfs_from_json(data_json)
     try:
         scenario_id = upload.upload_dfs(dfs)
     except Exception as e:
         return {"error on upload": str(e)}
     return {
         "success": f"Upload of file '{zip_file.filename}' successful!",
-        "scenario_id": scenario_id
+        "scenario_id": scenario_id,
+        "warnings": [str(warning.message) for warning in upload_warnings]
     }
 
 
