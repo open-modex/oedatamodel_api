@@ -100,8 +100,12 @@ async def upload_datapackage_view():
         <input name="mapping" type="text">
     </p>
     <p>
+        <label for="adapt_foreign_keys">Adapt foreign keys (Foreign keys are automatically set)</label>
+        <input name="adapt_foreign_keys" type="checkbox" id="adapt_foreign_keys">
+    </p>
+    <p>
         <label for="show_json">Show JSON</label>
-        <input name="show_json" type="checkbox" id="show_json" checked>
+        <input name="show_json" type="checkbox" id="show_json">
     </p>
     <p><input type="submit"></p>
 </form>
@@ -115,7 +119,8 @@ async def upload_datapackage(
         zipped_datapackage: UploadFile = File(...),
         schema: str = Form(...),
         mapping: str = Form(None),
-        show_json: bool = Form(False)
+        show_json: bool = Form(False),
+        adapt_foreign_keys: bool = Form(False),
 ):
     upload_warnings = []
 
@@ -145,14 +150,15 @@ async def upload_datapackage(
             return {"OEP data validation error": ve.args[0]}
         upload_warnings.extend(w)
 
-    exit()
+    # Adapt foreign keys (Modex-specific)
+    if adapt_foreign_keys:
+        data_json = upload.adapt_foreign_keys(data_json, schema)
 
     # Finally, upload data to OEP
-    dfs = upload.create_dfs_from_json(data_json)
     try:
-        scenario_id = upload.upload_dfs(dfs)
-    except Exception as e:
-        return {"error on upload": str(e)}
+        scenario_id = upload.upload_data_to_oep(data_json, schema)
+    except upload.UploadError as ue:
+        return {"error on upload": str(ue)}
     return {
         "success": f"Upload of file '{zipped_datapackage.filename}' successful!",
         "scenario_id": scenario_id,

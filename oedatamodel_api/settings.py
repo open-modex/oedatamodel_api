@@ -1,4 +1,5 @@
 
+import os
 import pathlib
 
 ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent
@@ -12,6 +13,7 @@ ZIP_UPLOAD_FILEPATH = ROOT_DIR / "files" / "datapackage.zip"
 # OEP
 # ---
 OEP_URL = "https://openenergy-platform.org"
+OEP_TOKEN = os.environ["OEP_TOKEN"]
 
 # OEDATAMODEL
 # -----------
