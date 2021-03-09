@@ -15,7 +15,7 @@ class DatapackageNotValid(Exception):
     """Exception is raised if datapackage is not valid"""
 
 
-def get_and_validate_datapackage(zip_file):
+def create_and_validate_datapackage(zip_file):
     # Save and load zip datapackage (remove saved zipfile afterwards)
     with open(ZIP_UPLOAD_FILEPATH, "wb+") as file_object:
         file_object.write(zip_file.file.read())

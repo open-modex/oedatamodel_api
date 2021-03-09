@@ -11,7 +11,7 @@ from oedatamodel_api.oep_connector import get_data_from_oep, OEPDataNotFoundErro
 from oedatamodel_api import mapping_custom, formatting, upload
 from oedatamodel_api.settings import ROOT_DIR, APP_STATIC_DIR
 from oedatamodel_api.package_docs import loadFromJsonFile
-from oedatamodel_api.validation import get_and_validate_datapackage, DatapackageNotValid
+from oedatamodel_api.validation import create_and_validate_datapackage, DatapackageNotValid
 
 app = FastAPI()
 
@@ -85,41 +85,12 @@ def scenario_by_name(
     return prepare_response(raw_data, mapping, output)
 
 
-@app.get("/upload_csv/")
-async def upload_csv_file_view():
+@app.get("/upload_datapackage/")
+async def upload_datapackage_view():
     content = """
 <body>
-<form action="/upload_csv/" enctype="multipart/form-data" method="post">
-<input name="zip_file" type="file">
-<input type="submit">
-</form>
-</body>
-    """
-    return HTMLResponse(content=content)
-
-
-@app.post("/upload_csv/")
-async def upload_csv_file(zip_file: UploadFile = File(...)):
-    try:
-        package = get_and_validate_datapackage(zip_file)
-    except DatapackageNotValid as de:
-        return {"Datapackage is not valid": de.args[0]}
-    try:
-        scenario_id = upload.upload_csv_from_zip(zip_file)
-    except Exception as e:
-        return {"error": str(e)}
-    return {
-        "success": f"Upload of file '{zip_file.filename}' successful!",
-        "scenario_id": scenario_id
-    }
-
-
-@app.get("/upload_csv_mapping/")
-async def upload_csv_file_via_mapping_view():
-    content = """
-<body>
-<form action="/upload_csv_mapping/" enctype="multipart/form-data" method="post">
-    <p><input name="zip_file" type="file"></p>
+<form action="/upload_datapackage/" enctype="multipart/form-data" method="post">
+    <p><input name="zipped_datapackage" type="file"></p>
     <p>
         <label for="schema">Schema</label>
         <input name="schema" type="text" value="model_draft">
@@ -139,9 +110,9 @@ async def upload_csv_file_via_mapping_view():
     return HTMLResponse(content=content)
 
 
-@app.post("/upload_csv_mapping/")
-async def upload_csv_file_via_mapping(
-        zip_file: UploadFile = File(...),
+@app.post("/upload_datapackage/")
+async def upload_datapackage(
+        zipped_datapackage: UploadFile = File(...),
         schema: str = Form(...),
         mapping: str = Form(None),
         show_json: bool = Form(False)
@@ -150,7 +121,7 @@ async def upload_csv_file_via_mapping(
 
     # Validate and extract data from uploaded datapackage
     try:
-        package = get_and_validate_datapackage(zip_file)
+        package = create_and_validate_datapackage(zipped_datapackage)
     except DatapackageNotValid as de:
         return {"Datapackage is not valid": de.args[0]}
     data_json = {resource.name: [row.to_dict() for row in resource.read_rows()] for resource in package.resources}
@@ -183,7 +154,7 @@ async def upload_csv_file_via_mapping(
     except Exception as e:
         return {"error on upload": str(e)}
     return {
-        "success": f"Upload of file '{zip_file.filename}' successful!",
+        "success": f"Upload of file '{zipped_datapackage.filename}' successful!",
         "scenario_id": scenario_id,
         "warnings": [str(warning.message) for warning in upload_warnings]
     }
