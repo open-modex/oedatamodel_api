@@ -96,7 +96,7 @@ def adapt_foreign_keys(data, schema):
     for id_, timeseries_row in enumerate(data[timeseries_table]):
         timeseries_row["id"] = data_id_mapping[timeseries_row["id"]]
 
-    return data
+    return data, scenario_id
 
 
 def upload_data_to_oep(data, schema):

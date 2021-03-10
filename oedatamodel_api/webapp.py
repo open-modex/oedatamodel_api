@@ -150,20 +150,24 @@ async def upload_datapackage(
             return {"OEP data validation error": ve.args[0]}
         upload_warnings.extend(w)
 
+    # Prepare success response
+    success_response = {
+        "success": f"Upload of file '{zipped_datapackage.filename}' successful!",
+        "warnings": [str(warning.message) for warning in upload_warnings]
+    }
+
     # Adapt foreign keys (Modex-specific)
     if adapt_foreign_keys:
-        data_json = upload.adapt_foreign_keys(data_json, schema)
+        data_json, scenario_id = upload.adapt_foreign_keys(data_json, schema)
+        success_response["scenario_id"] = scenario_id
 
     # Finally, upload data to OEP
     try:
-        scenario_id = upload.upload_data_to_oep(data_json, schema)
+        upload.upload_data_to_oep(data_json, schema)
     except upload.UploadError as ue:
         return {"error on upload": str(ue)}
-    return {
-        "success": f"Upload of file '{zipped_datapackage.filename}' successful!",
-        "scenario_id": scenario_id,
-        "warnings": [str(warning.message) for warning in upload_warnings]
-    }
+
+    return success_response
 
 
 if __name__ == "__main__":
