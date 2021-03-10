@@ -10,6 +10,7 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 - caching of OEP scenario request
 - Build docs as json file, including module docs and mappings.
 - Display mapping_custom module docs and available mappings on index.html.
+- datapackage upload (removed legacy upload of zip files)
 
 ## [0.2.0] - 2020-10-01
 ### Added
