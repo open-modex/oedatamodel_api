@@ -1,4 +1,5 @@
 
+import datetime as dt
 import json
 import requests
 import warnings
@@ -99,12 +100,20 @@ def adapt_foreign_keys(data, schema):
 
 
 def upload_data_to_oep(data, schema):
+    def default_serialization(item):
+        if isinstance(item, (dt.date, dt.datetime)):
+            return item.isoformat()
+        return item
+
     for table, table_data in data.items():
         table_url = f"{OEP_URL}/api/v0/schema/{schema}/tables/{table}/rows/new"
         response = requests.post(
             url=table_url,
-            json={"query": table_data},
-            headers={'Authorization': 'Token %s' % OEP_TOKEN}
+            data=json.dumps({"query": table_data}, default=default_serialization),
+            headers={
+                'Authorization': 'Token %s' % OEP_TOKEN,
+                'Content-type': 'application/json',
+            }
         )
         if response.status_code != 201:
             raise UploadError(response.text)
