@@ -1,5 +1,5 @@
 {
-  "base_mapping": "regions_urbs",
+  "base_mapping": "regions",
   "mapping": {
     "scenario": "scenario",
     "process_commodity": "[map(&exclude(@, ['technology','technology_type','id', 'scenario_id', 'input_energy_vector', 'output_energy_vector', 'region', 'unit', 'type', 'method', 'tags', 'source', 'comment', 'parameter_name', 'value']), map(&set(@, 'Ratio', @.value), map(&set(@, 'Commodity', @.input_energy_vector), map(&set_combi(@, 'Process', @.technology, @.technology_type), map(&set(@, 'Direction', 'In'), scalars[?technology!=`transmission`&&technology!=`storage`&&parameter_name=='input ratio']))))),map(&exclude(@, ['technology','technology_type','id', 'scenario_id', 'input_energy_vector', 'output_energy_vector', 'region', 'unit', 'type', 'method', 'tags', 'source', 'comment', 'parameter_name', 'value']), map(&set(@, 'Ratio', @.value), map(&set(@, 'Commodity', @.output_energy_vector), map(&set_combi(@, 'Process', @.technology, @.technology_type), map(&set(@, 'Direction', 'Out'), scalars[?technology!=`transmission`&&technology!=`storage`&&parameter_name=='output ratio'])))))][]",
