@@ -100,12 +100,12 @@ async def upload_datapackage_view():
         <input name="mapping" type="text">
     </p>
     <p>
-        <label for="adapt_foreign_keys">Adapt foreign keys (Foreign keys are automatically set)</label>
-        <input name="adapt_foreign_keys" type="checkbox" id="adapt_foreign_keys">
+        <label for="show_json">Show data after mapping (instead of upload)</label>
+        <input name="show_json" type="checkbox" id="show_json">
     </p>
     <p>
-        <label for="show_json">Show JSON</label>
-        <input name="show_json" type="checkbox" id="show_json">
+        <label for="adapt_foreign_keys">Adapt foreign keys (foreign keys are automatically set)</label>
+        <input name="adapt_foreign_keys" type="checkbox" id="adapt_foreign_keys">
     </p>
     <p><input type="submit"></p>
 </form>
