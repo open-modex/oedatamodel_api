@@ -93,6 +93,8 @@ def get_concrete_json(raw_json):
         if entry is None:
             entry_index = 'oed_timeseries'
             entry = jmespath.search(f'[?id==`{data_id}`] | [0]', normalized_json['oed_timeseries'])
+        if entry is None:
+            continue
         concrete_entry = {**data, **{k: v for k, v in entry.items() if k != 'id'}}
         concrete_json[entry_index].append(concrete_entry)
     return concrete_json
