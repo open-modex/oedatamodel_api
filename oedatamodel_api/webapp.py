@@ -1,6 +1,7 @@
 
 import uvicorn
 import warnings
+import logging
 
 from fastapi import FastAPI, Request, Response, UploadFile, File, Form
 from fastapi.responses import StreamingResponse, HTMLResponse
@@ -14,11 +15,12 @@ from oedatamodel_api.package_docs import loadFromJsonFile
 from oedatamodel_api.validation import create_and_validate_datapackage, DatapackageNotValid
 
 app = FastAPI()
-
 app.mount(
     '/static', StaticFiles(directory=ROOT_DIR / "oedatamodel_api" / 'static'), name='static',
 )
 templates = Jinja2Templates(directory=ROOT_DIR / "oedatamodel_api" / 'templates')
+
+logger = logging.getLogger("uvicorn")
 
 
 @app.get('/')
@@ -111,6 +113,7 @@ async def upload_datapackage_view():
 </form>
 </body>
     """
+    logger.info("Validating datapackage...")
     return HTMLResponse(content=content)
 
 
@@ -125,10 +128,12 @@ async def upload_datapackage(
     upload_warnings = []
 
     # Validate and extract data from uploaded datapackage
+    logger.debug("Validating datapackage...")
     try:
         package = create_and_validate_datapackage(zipped_datapackage)
     except DatapackageNotValid as de:
         return {"Datapackage is not valid": de.args[0]}
+    logger.info(f"Successfully validated datapackage '{package.name}'")
     data_json = {resource.name: [row.to_dict() for row in resource.read_rows()] for resource in package.resources}
 
     # Apply mappings (optional)
@@ -137,6 +142,7 @@ async def upload_datapackage(
             data_json = mapping_custom.apply_custom_mapping(data_json, mapping)
         except Exception as e:
             return {"Mapping error": str(e)}
+        logger.debug(f"Successfully applied mapping")
 
     # Return mapped data (optional)
     if show_json:
@@ -149,6 +155,7 @@ async def upload_datapackage(
         except upload.ValidationError as ve:
             return {"OEP data validation error": ve.args[0]}
         upload_warnings.extend(w)
+    logger.debug(f"Successfully validated upload data with OEP metadata")
 
     # Prepare success response
     success_response = {
@@ -160,15 +167,17 @@ async def upload_datapackage(
     if adapt_foreign_keys:
         data_json, scenario_id = upload.adapt_foreign_keys(data_json, schema)
         success_response["scenario_id"] = scenario_id
+        logger.debug(f"Successfully adapted foreign keys")
 
     # Finally, upload data to OEP
     try:
         upload.upload_data_to_oep(data_json, schema)
     except upload.UploadError as ue:
         return {"error on upload": str(ue)}
+    logger.info(f"Successfully uploaded datapackage '{package.name}' to OEP")
 
     return success_response
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")

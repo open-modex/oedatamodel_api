@@ -3,10 +3,14 @@ import datetime as dt
 import json
 import requests
 import warnings
+import logging
 from frictionless import validate_resource, Resource
 
 
 from oedatamodel_api.settings import OEP_URL, OEP_TOKEN
+
+
+logger = logging.getLogger("uvicorn")
 
 
 OEP_TO_FRICTIONLESS_CONVERSION = {
@@ -115,6 +119,7 @@ def upload_data_to_oep(data, schema):
                 'Content-type': 'application/json',
             }
         )
+        logger.debug(f"Successfully uploaded table '{table}'")
         if response.status_code != 201:
             raise UploadError(response.text)
 
