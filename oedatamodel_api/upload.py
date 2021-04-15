@@ -10,7 +10,7 @@ from frictionless import validate_resource, Resource
 from oedatamodel_api.settings import OEP_URL, OEP_TOKEN
 
 
-logger = logging.getLogger("uvicorn")
+logger = logging.getLogger("uvicorn.error")
 
 
 OEP_TO_FRICTIONLESS_CONVERSION = {
