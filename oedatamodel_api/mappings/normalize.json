@@ -3,7 +3,7 @@
   "mapping": {
     "oed_scenario": "oed_scenario",
     "oed_data": "[map(&exclude(@, ['year', 'value']) | set(@, 'type', 'scalar'), oed_scalar), map(&exclude(@, ['timeindex_start', 'timeindex_stop', 'timeindex_resolution', 'series']) | set(@, 'type', 'timeseries'), oed_timeseries)][] | map(&set(@[1], 'id', @[0]), zip(range(`1`, length(@)), @))",
-    "oed_scalar": "map(&filter(@, ['year', 'value']), oed_scalar) | map(&set(@[1], 'id', @[0]), zip(range(`1`, length(@)), @))",
-    "oed_timeseries": "map(&set(filter(@[1], ['timeindex_start', 'timeindex_stop', 'timeindex_resolution', 'series']), 'id', @[0]), zip(range(length(oed_scalar), sum([length(oed_scalar), length(oed_timeseries)])), oed_timeseries))"
+    "oed_scalar": "map(&filter(@, ['year', 'value']), oed_scalar) | map(&set(@[1], 'id', @[0]), zip(range(`1`, sum([length(@), `1`])), @))",
+    "oed_timeseries": "map(&set(filter(@[1], ['timeindex_start', 'timeindex_stop', 'timeindex_resolution', 'series']), 'id', @[0]), zip(range(sum([length(oed_scalar), `1`]), sum([length(oed_scalar), length(oed_timeseries)])), oed_timeseries))"
   }
 }
