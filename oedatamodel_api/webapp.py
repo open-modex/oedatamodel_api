@@ -20,7 +20,7 @@ app.mount(
 )
 templates = Jinja2Templates(directory=ROOT_DIR / "oedatamodel_api" / 'templates')
 
-logger = logging.getLogger("uvicorn")
+logger = logging.getLogger("uvicorn.error")
 
 
 @app.get('/')
@@ -113,7 +113,7 @@ async def upload_datapackage_view():
 </form>
 </body>
     """
-    logger.info("Validating datapackage...")
+    logger.debug("Validating datapackage...")
     return HTMLResponse(content=content)
 
 
