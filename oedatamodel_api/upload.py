@@ -119,9 +119,9 @@ def upload_data_to_oep(data, schema):
                 'Content-type': 'application/json',
             }
         )
-        logger.debug(f"Successfully uploaded table '{table}'")
         if response.status_code != 201:
             raise UploadError(response.text)
+        logger.debug(f"Successfully uploaded table '{table}'")
 
 
 def validate_upload_data(data, schema):
