@@ -1,0 +1,8 @@
+{
+  "base_mapping": "concrete",
+  "mapping": {
+    "oed_scenario": "oed_scenario",
+    "oed_scalars": "map(&set(@, 'region', join(',', @.region)), oed_scalars)",
+    "oed_timeseries": "map(&set(@, 'region', join(',', @.region)), oed_timeseries)"
+  }
+}
