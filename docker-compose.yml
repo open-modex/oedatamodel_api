@@ -1,9 +1,22 @@
 version: "3"
+
 services:
   web:
     build:
       context: .
       dockerfile: Dockerfile
-    restart: always
+    restart: unless-stopped
     ports:
      - "5001:5001"
+    networks:
+     - oedatamodel
+    env_file:
+      - ./.envs/.local/.fastapi
+
+  redis:
+    image: redis:6.2
+    networks:
+      - oedatamodel
+
+networks:
+  oedatamodel:

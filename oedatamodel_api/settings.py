@@ -18,6 +18,12 @@ OEP_TOKEN = os.environ.get("OEP_TOKEN")
 if OEP_TOKEN is None:
     warnings.warn("No OEP token given - some functionality may not work")
 
+
+# REDIS CACHE
+# -----------
+REDIS_URL = os.environ.get("REDIS_URL")
+
+
 # OEDATAMODEL
 # -----------
 OEDATAMODEL_META_DIR = APP_DIR / "datamodel"

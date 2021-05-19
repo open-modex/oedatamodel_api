@@ -1,11 +1,13 @@
 import json
 import logging
 import requests
-from functools import lru_cache
+from redis import Redis
 
-from oedatamodel_api.settings import SOURCES_DIR
+from oedatamodel_api.settings import SOURCES_DIR, REDIS_URL
 
 OEP_URL = 'https://openenergy-platform.org'
+
+redis = Redis.from_url(REDIS_URL)
 
 
 class OEPDataNotFoundError(Exception):
@@ -16,8 +18,11 @@ class SourceNotFound(Exception):
     """Exception is thrown, if source is not found in folder "sources"."""
 
 
-@lru_cache(maxsize=None)
 def get_data_from_oep(source, **params):
+    cache_key = source + '_'.join(f"({k},{v})" for k, v in params.items())
+    cached_data = redis.get(cache_key)
+    if cached_data:
+        return json.loads(cached_data)
     join = load_source(source, params)
     data = {'query': join}
     response = requests.post(
@@ -31,6 +36,7 @@ def get_data_from_oep(source, **params):
     if response_json["content"]["rowcount"] == 0:
         logging.warning("Could not get data from OEP", source, params, response.text)
         raise OEPDataNotFoundError("Data not found", source, params)
+    redis.set(cache_key, json.dumps(response_json))
     return response_json
 
 
