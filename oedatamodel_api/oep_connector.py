@@ -36,7 +36,7 @@ def get_data_from_oep(source, **params):
     if response_json["content"]["rowcount"] == 0:
         logging.warning("Could not get data from OEP", source, params, response.text)
         raise OEPDataNotFoundError("Data not found", source, params)
-    redis.set(cache_key, json.dumps(response_json))
+    redis.set(cache_key, response.text)
     return response_json
 
 
