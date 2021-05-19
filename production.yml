@@ -11,7 +11,7 @@ services:
     networks:
      - oedatamodel
     env_file:
-      - ./.envs/.prodcution/.fastapi
+      - ./.envs/.production/.fastapi
 
   redis:
     image: redis:6.2
