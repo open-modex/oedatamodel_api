@@ -3,7 +3,7 @@ import os
 import sys
 import csv
 import logging
-from frictionless import Package, validate_resource, Report
+from frictionless import Package, validate_resource, Report, FrictionlessException
 
 from oedatamodel_api.settings import ZIP_UPLOAD_FILEPATH
 
@@ -23,7 +23,10 @@ def create_and_validate_datapackage(zip_file):
     with open(ZIP_UPLOAD_FILEPATH, "wb+") as file_object:
         file_object.write(zip_file.file.read())
     logger.debug("Successfully unzipped datapackage to temp folder")
-    package = Package.from_zip(ZIP_UPLOAD_FILEPATH)
+    try:
+        package = Package.from_zip(ZIP_UPLOAD_FILEPATH)
+    except FrictionlessException as fe:
+        raise DatapackageNotValid(str(fe))
     logger.debug("Successfully loaded datapackage")
     os.remove(ZIP_UPLOAD_FILEPATH)
     report = create_report(package)
