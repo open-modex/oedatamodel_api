@@ -1,0 +1,9 @@
+{
+    "base_mapping": "regions",
+    "mapping": {
+      "scenario": "scenario",
+      "timeseries": "map(&exclude(@, ['input_energy_vector', 'output_energy_vector', 'type', 'tags', 'method', 'comment']), timeseries)"
+    }
+}
+
+
