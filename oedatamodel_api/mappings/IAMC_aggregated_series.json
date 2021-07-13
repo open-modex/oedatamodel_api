@@ -1,0 +1,9 @@
+{
+    "base_mapping": "IAMC_names",
+    "mapping": {
+      "scenario": "scenario",
+      "IAMC_timeseries": "timeseries_properties[*].{id:id, scenario:scenario, region:region, variable: variable, unit: unit, year: year, source: source, series: sum(@.series)}"
+    }
+}
+
+
