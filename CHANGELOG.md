@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2021-08-31
+### Fixed
+- csv output uses semicolons and double quotes
+- removed column "type" from concrete mapping (scalars and timeseries)
+
+## [0.4.0] - 2021-05-19
+### Changed
+- caching via redis (instead of mem_cache)
+
 ## [0.3.0] - 2021-03-10
 ### Added
 - custom mapping via get request
