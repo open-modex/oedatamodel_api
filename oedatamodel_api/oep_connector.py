@@ -2,6 +2,7 @@ import json
 import logging
 import requests
 from redis import Redis
+from redis.exceptions import ConnectionError as RedisConnectionError
 
 from oedatamodel_api.settings import SOURCES_DIR, REDIS_URL
 
@@ -20,7 +21,10 @@ class SourceNotFound(Exception):
 
 def get_data_from_oep(source, **params):
     cache_key = source + '_'.join(f"({k},{v})" for k, v in params.items())
-    cached_data = redis.get(cache_key)
+    try:
+        cached_data = redis.get(cache_key)
+    except RedisConnectionError:
+        cached_data = None
     if cached_data:
         return json.loads(cached_data)
     join = load_source(source, params)
@@ -36,7 +40,10 @@ def get_data_from_oep(source, **params):
     if response_json["content"]["rowcount"] == 0:
         logging.warning("Could not get data from OEP", source, params, response.text)
         raise OEPDataNotFoundError("Data not found", source, params)
-    redis.set(cache_key, response.text)
+    try:
+        redis.set(cache_key, response.text)
+    except RedisConnectionError:
+        pass
     return response_json
 
 
