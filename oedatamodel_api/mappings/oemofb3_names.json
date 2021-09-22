@@ -1,0 +1,9 @@
+{
+    "base_mapping": "oemofb3_minimize",
+    "mapping": {
+      "scenario": "scenario",
+      "scalars": "@.scalars[*].{id_scal:id, scenario:scenario_id, name:'', var_name:parameter_name, carrier:input_energy_vector, region:region, tech:technology_type, type:technology, var_value:value, var_unit:unit, reference:source, comment:comment}",
+      "timeseries": "@.timeseries[*].{id_ts:id, region:region, timeindex_start:timeindex_start, timeindex_stop:timeindex_stop, timeindex_resolution:timeindex_resolution, series:series, var_unit:unit, source:source, comment:comment}"
+    }
+  }
+  
