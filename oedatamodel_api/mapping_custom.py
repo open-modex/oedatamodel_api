@@ -238,6 +238,8 @@ def apply_custom_mapping(raw_json: dict, mapping: str):
     dict
         Resulting json/dict after applying all custom/default mappings.
     """
+    print(mapping)
+    # print(raw_json)
     if mapping in (m for m in OedataMapping):
         return map_data(raw_json, mapping)
     try:
@@ -247,9 +249,12 @@ def apply_custom_mapping(raw_json: dict, mapping: str):
     # Recursively apply base mappings if one exists:
     if mapping_json['base_mapping'] == "":
         pre_json = raw_json
+        print(pre_json)
     else:
-        pre_json = apply_custom_mapping(raw_json, mapping_json['base_mapping'])
+        pre_json = apply_custom_mapping(raw_json, mapping_json['base_mapping'])   
+        print(pre_json)
     # Recursively apply custom mapping on pre json:
+    print(iterate_mapping(pre_json, mapping_json['mapping']))
     return iterate_mapping(pre_json, mapping_json['mapping'])
 
 
@@ -271,6 +276,8 @@ def iterate_mapping(raw_json, value):
         Either dict containing next iteration or result from jmespath function
         applied to given json.
     """
+    print(raw_json)
+    print(value)
     if isinstance(value, dict):
         return {key: iterate_mapping(raw_json, mapping) for key, mapping in value.items()}
     return jmespath.search(value, raw_json, options=jmespath_options)

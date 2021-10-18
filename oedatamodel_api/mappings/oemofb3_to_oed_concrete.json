@@ -1,0 +1,9 @@
+{
+  "base_mapping": "",
+  "mapping": {
+    "oed_scenario": "oemofb3_oed_scenario",
+    "oed_data": "[map(&exclude(@, ['var_value']) | set(@, 'type', 'scalar'), oemofb3_oed_scalar), map(&exclude(@, ['timeindex_start', 'timeindex_stop', 'timeindex_resolution', 'series']) | set(@, 'type', 'timeseries'), oemofb3_oed_timeseries)][] | map(&set(@[1], 'id', @[0]), zip(range(`1`, sum([length(@), `1`])), @))",
+    "oed_scalar": "@.oemofb3_oed_scalar[*].{id:id, scenario_id:scenario, parameter_name:var_name, input_energy_vector:carrier, region:region, technology_type:tech, technology:type, value:var_value, unit:var_unit, source:source, comment:comment}",
+    "oed_timeseries": "@.oemofb3_oed_timeseries[*].{id:id, scenario_id:scenario, region:region, timeindex_start:timeindex_start, timeindex_stop:timeindex_stop, timeindex_resolution:timeindex_resolution, series:to_array(series), unit:var_unit, source:source, comment:comment}"
+  }
+}

@@ -131,6 +131,7 @@ def validate_upload_data(data, schema):
     for table, data_dict in data.items():
         # Get datapackage format for each table in data
         meta_url = f"{OEP_URL}/api/v0/schema/{schema}/tables/{table}/meta/"
+        print(meta_url)
         metadata = json.loads(requests.get(meta_url).content)
         try:
             oep_schema = metadata["resources"][0]["schema"]
