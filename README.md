@@ -3,7 +3,7 @@
 This API works as a connector between the OEP and energy system modelling frameworks from MODEX project.
 Scenario data stored in the OEP can be requested by the API and will be parsed and provided for requesting framework.
 
-## Get started (from scratch)
+# Get started (from scratch)
 
 ### Setup Python
 
@@ -94,7 +94,8 @@ $ export OEP_TOKEN="1234567890ABCD"
 # run the oedatamodel api
 $ python oedatamodel_api/webapp.py
 ```
-### Usage
+# Usage
+
 The homepage of the oedatamodel api shows some basic documentation and list a overview of currently available mappings.
 
 To acess data from the oep you have to provide a OEP api token as described above.
@@ -106,11 +107,26 @@ For example, to retrieve data from the API with a locally installed version of t
 `http://0.0.0.0:8000/scenario/id/39?source=modex&mapping=concrete`
 
 
-### Mappings
+## Mappings
 New mappings can be created as a simple JSON file that maps data structures (input/output data) to or from the oedatamodel. These files are stored and developed under `oedatamodel_api/mappings`. The file `mappingname.json` contains a query language developed as JMESPath. Mappings are often stacked, since each mapping can have a base mapping. Therefore, it is obvious that one has to take several "processing steps" to develop a new mapping. 
 
+## Tutorial - Upload data
+1. install the oedatamodel_api loacally.
+2. Geo to oedatamodel and download the datapackage zip archive
+3. run the oedatamodel_api and open the datapackage upload page
+4. Upload form:
+    - selecht the datapackage zip arciv
+    - insert 'normalize' into the mapping fild
+    - check adapt forign keys
+    - check shwo mapped data
+5. Click 'okay' and look at the resulting page
+    - the datapackage should be valid
+6. Klick "back" to go back to the upload page and uncheck show data before upload and klick "okay" again
+7. Open the oep table and see the result
+    - data should be uploaded
+8. run the table reset script
 
-## Get started (docker)
+# Get started (docker)
 
 Run `sudo docker-compose up -d --build` to run the task queue and the webapp simulaneously.
 
