@@ -1,0 +1,97 @@
+{
+    "from": {
+        "type": "join",
+        "left": {
+            "type": "table",
+            "table": "oed_scenario_example",
+            "schema": "model_draft",
+            "alias": "s"
+        },
+        "right": {
+            "type": "join",
+            "is_full": true,
+            "left": {
+                "type": "join",
+                "is_full": true,
+                "left": {
+                    "type": "table",
+                    "table": "oed_data_example",
+                    "schema": "model_draft",
+                    "alias": "d"
+                },
+                "right": {
+                    "type": "table",
+                    "table": "oed_timeseries_example",
+                    "schema": "model_draft",
+                    "alias": "ts"
+                },
+                "on": {
+                    "operands": [
+                        {
+                            "type": "column",
+                            "column": "id",
+                            "table": "d"
+                        },
+                        {
+                            "type": "column",
+                            "column": "id",
+                            "table": "ts"
+                        }
+                    ],
+                    "operator": "=",
+                    "type": "operator"
+                }
+            },
+            "right": {
+                "type": "table",
+                "table": "oed_scalar_example",
+                "schema": "model_draft",
+                "alias": "sc"
+            },
+            "on": {
+                "operands": [
+                    {
+                        "type": "column",
+                        "column": "id",
+                        "table": "d"
+                    },
+                    {
+                        "type": "column",
+                        "column": "id",
+                        "table": "sc"
+                    }
+                ],
+                "operator": "=",
+                "type": "operator"
+            }
+        },
+        "on": {
+            "operands": [
+                {
+                    "type": "column",
+                    "column": "id",
+                    "table": "s"
+                },
+                {
+                    "type": "column",
+                    "column": "scenario_id",
+                    "table": "d"
+                }
+            ],
+            "operator": "=",
+            "type": "operator"
+        }
+    },
+    "where": {
+        "operands": [
+            {
+                "type": "column",
+                "table": "s",
+                "column": "id"
+            },
+            "<scenario_id>"
+        ],
+        "operator": "=",
+        "type": "operator"
+    }
+}
