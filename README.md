@@ -148,7 +148,7 @@ Navigate to the tutorial directory:
 
 `cd tutorial`
 
-Run the [script to create]() the tables from metadata that is provided in the tutorials/metadata directory:
+Run the [script to create](https://github.com/open-modex/oedatamodel_api/blob/main/tutorial/create_oed.py) the tables from metadata that is provided in the tutorials/metadata directory:
 
 `python create_oed.py`
 
@@ -175,7 +175,7 @@ https://openenergy-platform.org/dataedit/view/model_draft/oed_scalar_example
 
 https://openenergy-platform.org/dataedit/view/model_draft/oed_timeseries_example
 
-9. run the table reset script to delete the tables so that the next user can go through the tutorial:
+9. run the [table reset script](https://github.com/open-modex/oedatamodel_api/blob/main/tutorial/delete_oed.py) to delete the tables so that the next user can go through the tutorial:
 (Insert into Terminal)
 
 `python delete_oed.py`
