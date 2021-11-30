@@ -96,15 +96,38 @@ $ python oedatamodel_api/webapp.py
 ```
 # Usage
 
-The homepage of the oedatamodel api shows some basic documentation and list a overview of currently available mappings.
+## Sources
+The oedatamodel_api cannot be used automatically for all tables created in the oedatamodel format on the oep. To configure whether a table can be used with the oedatamodel_api, the concept of sources was introduced. All sources can be found in the [sources directory](https://github.com/open-modex/oedatamodel_api/tree/main/oedatamodel_api/sources).
 
-To acess data from the oep you have to provide a OEP api token as described above.
+A source is technically a table join, through which it is possible to receive the data of the tables as a JSON file from the OEP. In simple terms, a source establishes the connection to newly created tables. 
 
-The api serves data in `JSON` format which can be queryed using HTTP query parameters. For each framework that is already supported by the oedatamodel_api there is a mapping provided.
+**Note:** To create tables on the OEP the python tool [oem2orm](https://github.com/OpenEnergyPlatform/oem2orm) can be used. Follow this [Jupyter Guide](https://github.com/OpenEnergyPlatform/tutorial/blob/develop/upload/OEP_Upload_Process_Data_and_Metadata_oem2orm.ipynb).
+
+## API Website
+After the successful installation and the start of the locally installed oedatamodel_api instance (as described above) the home page of the oedatamodel_api can be reached under the following address (use a internet browser of your choice):
+
+`http://0.0.0.0:8000/`
+
+The homepage of the oedatamodel api shows some basic documentation and list a overview of currently available mappings. This part is still in **developement**.
+
+### Upload data to the OEP
+To upload data to the OEP, the tables must be available in the sources. Only data that is available as a [frictionless datapackage](https://specs.frictionlessdata.io/data-package/) can be uploaded. An example of this can be found [here](https://github.com/OpenEnergyPlatform/oedatamodel/tree/develop/examples). 
+
+To simplify the process, the oedatamodel_api provides another web page to upload the datapackage. 
+
+`http://0.0.0.0:8000/upload_datapackage`
+
+There it is also possible to apply a mapping to the data before it is uploaded. This allows data to be uploaded in any format as long as a suitable mapping is first created that converts the data structure into the oedatamodel normalization format. 
+
+### Get data from the OEP 
+
+To acess data from the oep using the API you have to provide an OEP API token as described above. If you followed the installation instructions, this token should be available.
+
+The API serves data in `JSON` format which can be queryed using HTTP query parameters. For each framework that is already supported by the oedatamodel_api there is a mapping provided.
 
 For example, to retrieve data from the API with a locally installed version of the oedatamodel_api, the URL is:
 
-`http://0.0.0.0:8000/scenario/id/39?source=modex&mapping=concrete`
+`http://0.0.0.0:8000/scenario/id/55?source=modex&mapping=concrete`
 
 
 ## Mappings
