@@ -87,6 +87,7 @@ def get_concrete_json(raw_json):
         'oed_timeseries': [],
     }
     for data in normalized_json['oed_data']:
+        data.pop("type")
         data_id = data['id']
         entry_index = 'oed_scalars'
         entry = jmespath.search(f'[?id==`{data_id}`] | [0]', normalized_json['oed_scalars'])

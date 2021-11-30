@@ -43,20 +43,19 @@ def prepare_response(raw_json, mapping, output_format):
     except Exception as e:
         return HTMLResponse(str(e))
 
-    if output_format == formatting.OutputFormat.csv:
-        try:
-            zipped_data = formatting.create_zip_csv(mapped_data)
-        except TypeError as te:
-            return HTMLResponse(
-                'Error while creating zip file from result json:<br>"' +
-                '<br>'.join(te.args) +
-                '"<br>Maybe mapping is not supported for chosen output format?'
-            )
-        response = StreamingResponse(zipped_data, media_type="application/x-zip-compressed")
-        response.headers["Content-Disposition"] = f"attachment; filename=scenario.zip"
-        return response
-    else:
+    if output_format != formatting.OutputFormat.csv:
         return mapped_data
+    try:
+        zipped_data = formatting.create_zip_csv(mapped_data)
+    except TypeError as te:
+        return HTMLResponse(
+            'Error while creating zip file from result json:<br>"' +
+            '<br>'.join(te.args) +
+            '"<br>Maybe mapping is not supported for chosen output format?'
+        )
+    response = StreamingResponse(zipped_data, media_type="application/x-zip-compressed")
+    response.headers["Content-Disposition"] = f"attachment; filename=scenario.zip"
+    return response
 
 
 @app.get('/scenario/id/{scenario_id}')

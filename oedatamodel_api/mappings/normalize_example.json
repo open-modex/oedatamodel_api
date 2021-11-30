@@ -1,0 +1,9 @@
+{
+  "base_mapping": "",
+  "mapping": {
+    "oed_scenario_example": "oed_scenario_example",
+    "oed_data_example": "[map(&exclude(@, ['year', 'value']) | set(@, 'type', 'scalar'), oed_scalar_example), map(&exclude(@, ['timeindex_start', 'timeindex_stop', 'timeindex_resolution', 'series']) | set(@, 'type', 'timeseries'), oed_timeseries_example)][] | map(&set(@[1], 'id', @[0]), zip(range(`1`, sum([length(@), `1`])), @))",
+    "oed_scalar_example": "map(&filter(@, ['year', 'value']), oed_scalar_example) | map(&set(@[1], 'id', @[0]), zip(range(`1`, sum([length(@), `1`])), @))",
+    "oed_timeseries_example": "map(&set(filter(@[1], ['timeindex_start', 'timeindex_stop', 'timeindex_resolution', 'series']), 'id', @[0]), zip(range(sum([length(oed_scalar_example), `1`]), sum([length(oed_scalar_example), length(oed_timeseries_example), `1`])), oed_timeseries_example))"
+  }
+}
