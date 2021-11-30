@@ -57,6 +57,7 @@ credit for this step by step guide goes to:
 https://tech.serhatteker.com/post/2020-09/how-to-install-python39-on-ubuntu/#method-1-install-it-from-source-code
 
 ### Install the oedatamodel_api
+**For windows users we recommend to use docker or docker desktop, because there have been installation problems in the past. However, even when installing docker on windows, there may be problems with the installation of docker itself.**
 
 To install the oedatamodel api, you need to clone this repository to your local machine (assuming you have git installed on your machine):
 ```
@@ -134,20 +135,50 @@ For example, to retrieve data from the API with a locally installed version of t
 New mappings can be created as a simple JSON file that maps data structures (input/output data) to or from the oedatamodel. These files are stored and developed under `oedatamodel_api/mappings`. The file `mappingname.json` contains a query language developed as JMESPath. Mappings are often stacked, since each mapping can have a base mapping. Therefore, it is obvious that one has to take several "processing steps" to develop a new mapping. 
 
 ## Tutorial - Upload data
-1. install the oedatamodel_api loacally.
-2. Geo to oedatamodel and download the datapackage zip archive
-3. run the oedatamodel_api and open the datapackage upload page
-4. Upload form:
-    - selecht the datapackage zip arciv
-    - insert 'normalize' into the mapping fild
-    - check adapt forign keys
-    - check shwo mapped data
-5. Click 'okay' and look at the resulting page
+1. Install the oedatamodel_api and launch it. For windows users we recommend to use docker or docker desktop, because there have been installation problems in the past. However, even when installing docker on windows, there may be problems with the installation of docker itself.
+
+2. Go to oedatamodel and download the example datapackage zip archive. [Click to download form github.](https://github.com/OpenEnergyPlatform/oedatamodel/blob/develop/examples/Datapackage.zip?raw=true)
+
+3. Create the example tables on the OEP that will be used to uplad  example data. 
+
+Assuming you have still activated your Python environment.
+
+Navigate to the tutorial directory:
+(Open a terminal)
+
+`cd tutorial`
+
+Run the [script to create]() the tables from metadata that is provided in the tutorials/metadata directory:
+
+`python create_oed.py`
+
+4. run the oedatamodel_api and open the datapackage upload page. Insert this URL in any browser:
+`http://0.0.0.0:8000/upload_datapackage`
+
+5. Setup the upload form:
+    - select the datapackage zip archive
+    - insert 'normalize_example' into the 'Mapping (optional)' field
+    - click the checkbox 'Show data after mapping (instead of upload)'
+
+6. Click 'Senden' and look at the resulting page
     - the datapackage should be valid
-6. Klick "back" to go back to the upload page and uncheck show data before upload and klick "okay" again
-7. Open the oep table and see the result
-    - data should be uploaded
-8. run the table reset script
+
+7. Klick "back" to go back to the upload page and uncheck 'Show data after mapping (instead of upload)'and klick 'Senden' again to finally upload the example data to the example oed tables.
+
+8. Open the oep example table and see the result
+Data should be uploaded to all of the following tables:
+https://openenergy-platform.org/dataedit/view/model_draft/oed_scenario_example
+
+https://openenergy-platform.org/dataedit/view/model_draft/oed_data_example
+
+https://openenergy-platform.org/dataedit/view/model_draft/oed_scalar_example
+
+https://openenergy-platform.org/dataedit/view/model_draft/oed_timeseries_example
+
+9. run the table reset script to delete the tables so that the next user can go through the tutorial:
+(Insert into Terminal)
+
+`python delete_oed.py`
 
 # Get started (docker)
 
