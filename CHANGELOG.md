@@ -5,7 +5,7 @@ The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.
 and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased]
+## [0.5.0] - 2022-06-09
 ### Changed
 - OEP token must be provided by user
 - redis is optional
