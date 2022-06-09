@@ -87,11 +87,6 @@ $ poetry install
 Now you should have an executable version of oedatamodel_api installed locally. You can run it with the following commands:
 
 ```
-# If you alraedy have a oep api token set 
-# a environment virable on you machine. 
-# Else you have to sign up to https://openenergy-platform.org/user/login/?next=/
-$ export OEP_TOKEN="1234567890ABCD"
-
 # run the oedatamodel api
 $ python oedatamodel_api/webapp.py
 ```

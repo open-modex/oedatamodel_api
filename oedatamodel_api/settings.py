@@ -1,7 +1,6 @@
 
 import os
 import pathlib
-import warnings
 
 ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent
 APP_DIR = ROOT_DIR / "oedatamodel_api"
@@ -14,9 +13,6 @@ ZIP_UPLOAD_FILEPATH = ROOT_DIR / "files" / "datapackage.zip"
 # OEP
 # ---
 OEP_URL = "https://openenergy-platform.org"
-OEP_TOKEN = os.environ.get("OEP_TOKEN")
-if OEP_TOKEN is None:
-    warnings.warn("No OEP token given - some functionality may not work")
 
 
 # REDIS CACHE

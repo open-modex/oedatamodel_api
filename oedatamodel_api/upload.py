@@ -7,7 +7,7 @@ import logging
 from frictionless import validate_resource, Resource
 
 
-from oedatamodel_api.settings import OEP_URL, OEP_TOKEN
+from oedatamodel_api.settings import OEP_URL
 
 
 logger = logging.getLogger("uvicorn.error")
@@ -103,7 +103,7 @@ def adapt_foreign_keys(data, schema):
     return data, scenario_id
 
 
-def upload_data_to_oep(data, schema):
+def upload_data_to_oep(data, schema, token):
     def default_serialization(item):
         if isinstance(item, (dt.date, dt.datetime)):
             return item.isoformat()
@@ -117,7 +117,7 @@ def upload_data_to_oep(data, schema):
             url=table_url,
             data=json.dumps({"query": table_data}, default=default_serialization),
             headers={
-                'Authorization': 'Token %s' % OEP_TOKEN,
+                'Authorization': 'Token %s' % token,
                 'Content-type': 'application/json',
             }
         )

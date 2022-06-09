@@ -91,6 +91,10 @@ async def upload_datapackage_view():
     content = """
 <body>
 <form action="/upload_datapackage/" enctype="multipart/form-data" method="post">
+    <p>
+        <label for="token">OEP Token</label>
+        <input name="token" type="text">
+    </p>
     <p><input name="zipped_datapackage" type="file"></p>
     <p>
         <label for="schema">Schema</label>
@@ -123,8 +127,10 @@ async def upload_datapackage(
         mapping: str = Form(None),
         show_json: bool = Form(False),
         adapt_foreign_keys: bool = Form(False),
+        token: str = Form(None)
 ):
-    upload_warnings = []
+    if not token:
+        return HTMLResponse("Invalid token - you must provide a valid OEP Token")
 
     # Validate and extract data from uploaded datapackage
     logger.debug("Validating datapackage...")
@@ -148,6 +154,7 @@ async def upload_datapackage(
         return data_json
 
     # Validate extracted (mapped) data against OEP table formats
+    upload_warnings = []
     with warnings.catch_warnings(record=True) as w:
         try:
             upload.validate_upload_data(data_json, schema)
@@ -170,7 +177,7 @@ async def upload_datapackage(
 
     # Finally, upload data to OEP
     try:
-        upload.upload_data_to_oep(data_json, schema)
+        upload.upload_data_to_oep(data_json, schema, token)
     except upload.UploadError as ue:
         return {"error on upload": str(ue)}
     logger.info(f"Successfully uploaded datapackage '{package.name}' to OEP")
