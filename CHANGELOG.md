@@ -7,7 +7,8 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 
 ## [Unreleased]
 ### Changed
--  redis is optional
+- OEP token must be provided by user
+- redis is optional
 
 ## [0.4.1] - 2021-08-31
 ### Fixed
