@@ -95,15 +95,32 @@ $ export OEP_TOKEN="1234567890ABCD"
 # run the oedatamodel api
 $ python oedatamodel_api/webapp.py
 ```
+
+# About
+
+The oedatamodel_api was developed in order to download/upload data from/to the OEP.
+As the OEP already offers different ways to download and upload data 
+(i.e. [Advanced API](https://oep-data-interface.readthedocs.io/en/latest/api/advanced.html) and [OEDialect](https://github.com/OpenEnergyPlatform/oedialect)), 
+the question is *"Why to add another option?"*.
+
+The answer is, that we had requirements not met by the options mentioned above. We wanted to offer an API which:
+1. is framework-agnostic (in opposite to OEDialect, which needs a python environment),
+2. output can be formatted "on-the-fly" into user-specific output formats,
+3. allows for accessing multiple tables at once.
+
+In order to fulfill those requirements, the oedatamodel is build in the following way:
+
+1. user starts request to oedatamodel_api,
+2. oedatamodel_api requests data from (multiple) tables from the OEP via the *Advanced API* (see [Sources](#Sources)),
+3. raw data is formatted using [Jmespath](https://jmespath.org/) (see [Mappings](#Mappings))
+4. formatted data is returned to user as JSON or CSV (see [Get data from the OEP](#Get data from the OEP)).
+
 # Usage
 
 ## Sources
-The oedatamodel_api cannot be used automatically for all tables created in the oedatamodel format on the oep. 
-To configure whether a table can be used with the oedatamodel_api, the concept of sources was introduced. 
+To configure which tables can be used with the oedatamodel_api, the concept of sources was introduced.
+A source is technically a table join, through which it is possible to receive the data from multiple tables as a (raw) JSON from the OEP.
 All sources can be found in the [sources directory](https://github.com/open-modex/oedatamodel_api/tree/main/oedatamodel_api/sources).
-
-A source is technically a table join, through which it is possible to receive the data of the tables as a JSON file from the OEP. 
-In simple terms, a source establishes the connection to newly created tables. 
 
 **Note:** To create tables on the OEP the python tool [oem2orm](https://github.com/OpenEnergyPlatform/oem2orm) can be used. 
 Follow this [Jupyter Guide](https://github.com/OpenEnergyPlatform/tutorial/blob/develop/upload/OEP_Upload_Process_Data_and_Metadata_oem2orm.ipynb).
