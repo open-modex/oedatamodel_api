@@ -1,13 +1,12 @@
-
 {
   "base_mapping": "urbs_minimize",
   "mapping": {
-    "scenario": "scenario",
-    "scalars": "group_by(sort_by(scalars, &join('-',[technology, technology_type, region])), &join('-',[technology, technology_type, region]))",
-    "timeseries": "group_by(sort_by(timeseries, &join('-',[timeindex_start, timeindex_stop, timeindex_resolution])), &join('-',[timeindex_start, timeindex_stop, timeindex_resolution]))",
-    "scalars_tra": "group_by(sort_by(scalars_tra, &join('-',[technology, technology_type, region[0], region[1]])), &join('-',[technology, technology_type, region[0], region[1]]))",
-    "scalars_tra_general":  "group_by(sort_by(scalars_tra_general, &join('-',[technology, technology_type])), &join('-',[technology, technology_type]))",
+    "cfseries": "group_by(sort_by(timeseries[?input_energy_vector!=`electricity`], &join('-',[timeindex_start, timeindex_stop, timeindex_resolution])), &join('-',[timeindex_start, timeindex_stop, timeindex_resolution]))",
     "demandseries": "group_by(sort_by(timeseries[?input_energy_vector==`electricity`], &join('-',[timeindex_start, timeindex_stop, timeindex_resolution])), &join('-',[timeindex_start, timeindex_stop, timeindex_resolution]))",
-    "cfseries": "group_by(sort_by(timeseries[?input_energy_vector!=`electricity`], &join('-',[timeindex_start, timeindex_stop, timeindex_resolution])), &join('-',[timeindex_start, timeindex_stop, timeindex_resolution]))"
+    "scalars": "group_by(sort_by(scalars, &join('-',[technology, technology_type, region])), &join('-',[technology, technology_type, region]))",
+    "scalars_tra": "group_by(sort_by(scalars_tra, &join('-',[technology, technology_type, region[0], region[1]])), &join('-',[technology, technology_type, region[0], region[1]]))",
+    "scalars_tra_general": "group_by(sort_by(scalars_tra_general, &join('-',[technology, technology_type])), &join('-',[technology, technology_type]))",
+    "scenario": "scenario",
+    "timeseries": "group_by(sort_by(timeseries, &join('-',[timeindex_start, timeindex_stop, timeindex_resolution])), &join('-',[timeindex_start, timeindex_stop, timeindex_resolution]))"
   }
 }

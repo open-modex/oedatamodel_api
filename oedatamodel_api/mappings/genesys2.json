@@ -1,7 +1,7 @@
 {
   "base_mapping": "concrete",
   "mapping": {
-    "scenario": "oed_scenario",
-    "regions": "map(&to_object([@]), zip(repeat('region', length(unique(oed_scalars[*].region[]))), unique(oed_scalars[*].region[])))"
+    "regions": "map(&to_object([@]), zip(repeat('region', length(unique(oed_scalars[*].region[]))), unique(oed_scalars[*].region[])))",
+    "scenario": "oed_scenario"
   }
 }

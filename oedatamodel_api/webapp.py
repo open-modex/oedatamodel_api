@@ -1,41 +1,54 @@
-
-import uvicorn
-import warnings
 import logging
+import warnings
 from typing import List
 
-from fastapi import FastAPI, Request, Response, UploadFile, File, Form
-from fastapi.responses import StreamingResponse, HTMLResponse
+import uvicorn
+from fastapi import FastAPI, Request, Response, UploadFile
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from oedatamodel_api.oep_connector import get_data_from_oep, OEPDataNotFoundError
-from oedatamodel_api import mapping_custom, formatting, upload
-from oedatamodel_api.settings import ROOT_DIR, APP_STATIC_DIR
+from oedatamodel_api import formatting, mapping_custom, upload
+from oedatamodel_api.oep_connector import OEPDataNotFoundError, get_data_from_oep
 from oedatamodel_api.package_docs import loadFromJsonFile
-from oedatamodel_api.validation import create_and_validate_datapackage, DatapackageNotValid
+from oedatamodel_api.settings import APP_STATIC_DIR, ROOT_DIR
+from oedatamodel_api.validation import (
+    DatapackageNotValid,
+    create_and_validate_datapackage,
+)
 
 app = FastAPI()
 app.mount(
-    '/static', StaticFiles(directory=ROOT_DIR / "oedatamodel_api" / 'static'), name='static',
+    "/static",
+    StaticFiles(directory=ROOT_DIR / "oedatamodel_api" / "static"),
+    name="static",
 )
-templates = Jinja2Templates(directory=ROOT_DIR / "oedatamodel_api" / 'templates')
+templates = Jinja2Templates(directory=ROOT_DIR / "oedatamodel_api" / "templates")
 
 logger = logging.getLogger("uvicorn.error")
 
 
-@app.get('/')
+@app.get("/")
 def index(request: Request) -> Response:
     try:
-        docs_coustom_mapping = loadFromJsonFile(APP_STATIC_DIR, "docs_custom_mapping.json")
-        docs_current_mappings = loadFromJsonFile(APP_STATIC_DIR, "docs_current_mappings.json")
-    except:
+        docs_coustom_mapping = loadFromJsonFile(
+            APP_STATIC_DIR, "docs_custom_mapping.json"
+        )
+        docs_current_mappings = loadFromJsonFile(
+            APP_STATIC_DIR, "docs_current_mappings.json"
+        )
+    except FileNotFoundError:
         docs_coustom_mapping = [{}]
         docs_current_mappings = [{}]
 
-    return templates.TemplateResponse('index.html', {'request': request,
-                                                     "module_docs": docs_coustom_mapping,
-                                                     "mappings_docs": docs_current_mappings})
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "module_docs": docs_coustom_mapping,
+            "mappings_docs": docs_current_mappings,
+        },
+    )
 
 
 def prepare_response(raw_json, mapping, output_format):
@@ -50,21 +63,19 @@ def prepare_response(raw_json, mapping, output_format):
         zipped_data = formatting.create_zip_csv(mapped_data)
     except TypeError as te:
         return HTMLResponse(
-            'Error while creating zip file from result json:<br>"' +
-            '<br>'.join(te.args) +
-            '"<br>Maybe mapping is not supported for chosen output format?'
+            f'Error while creating zip file from result json:<br>{"<br>".join(te.args)}<br>Maybe mapping is not supported for chosen output format?',
         )
     response = StreamingResponse(zipped_data, media_type="application/x-zip-compressed")
-    response.headers["Content-Disposition"] = f"attachment; filename=scenario.zip"
+    response.headers["Content-Disposition"] = "attachment; filename=scenario.zip"
     return response
 
 
-@app.get('/scenario/id/{scenario_id}')
+@app.get("/scenario/id/{scenario_id}")
 def scenario_by_id(
     scenario_id: int,
     source: str,
     mapping: str,
-    output: formatting.OutputFormat = formatting.OutputFormat.json
+    output: formatting.OutputFormat = formatting.OutputFormat.json,
 ):
     try:
         raw_data = get_data_from_oep(source, scenario_id=scenario_id)
@@ -73,12 +84,12 @@ def scenario_by_id(
     return prepare_response(raw_data, mapping, output)
 
 
-@app.get('/scenario/name/{scenario_name}')
+@app.get("/scenario/name/{scenario_name}")
 def scenario_by_name(
     scenario_name: str,
     source: str,
     mapping: str,
-    output: formatting.OutputFormat = formatting.OutputFormat.json
+    output: formatting.OutputFormat = formatting.OutputFormat.json,
 ):
     try:
         raw_data = get_data_from_oep(source, scenario_name=scenario_name)
@@ -125,14 +136,15 @@ async def upload_datapackage_view():
 
 
 @app.post("/upload_datapackage/")
-async def upload_datapackage(
-        datapackage_files: List[UploadFile] = None,
-        schema: str = Form(...),
-        mapping: str = Form(None),
-        show_json: bool = Form(False),
-        adapt_foreign_keys: bool = Form(False),
-        token: str = Form(None)
+async def upload_datapackage(  # noqa: C901
+    datapackage_files: List[UploadFile] = None,
+    schema: str = "",
+    mapping: str = "",
+    show_json: bool = False,
+    adapt_foreign_keys: bool = False,
+    token: str = None,
 ):
+    # TODO: Too Complex
     if not token:
         return HTMLResponse("Invalid token - you must provide a valid OEP Token")
 
@@ -143,7 +155,10 @@ async def upload_datapackage(
     except DatapackageNotValid as de:
         return {"Datapackage is not valid": de.args[0]}
     logger.info(f"Successfully validated datapackage '{package.name}'")
-    data_json = {resource.name: [row.to_dict() for row in resource.read_rows()] for resource in package.resources}
+    data_json = {
+        resource.name: [row.to_dict() for row in resource.read_rows()]
+        for resource in package.resources
+    }
 
     # Apply mappings (optional)
     if mapping:
@@ -151,7 +166,7 @@ async def upload_datapackage(
             data_json = mapping_custom.apply_custom_mapping(data_json, mapping)
         except Exception as e:
             return {"Mapping error": str(e)}
-        logger.debug(f"Successfully applied mapping")
+        logger.debug("Successfully applied mapping")
 
     # Return mapped data (optional)
     if show_json:
@@ -165,19 +180,19 @@ async def upload_datapackage(
         except upload.ValidationError as ve:
             return {"OEP data validation error": ve.args[0]}
         upload_warnings.extend(w)
-    logger.debug(f"Successfully validated upload data with OEP metadata")
+    logger.debug("Successfully validated upload data with OEP metadata")
 
     # Prepare success response
     success_response = {
-        "success": f"Upload of file '{zipped_datapackage.filename}' successful!",
-        "warnings": [str(warning.message) for warning in upload_warnings]
+        "success": "Upload of datapackage successful!",
+        "warnings": [str(warning.message) for warning in upload_warnings],
     }
 
     # Adapt foreign keys (Modex-specific)
     if adapt_foreign_keys:
         data_json, scenario_id = upload.adapt_foreign_keys(data_json, schema)
         success_response["scenario_id"] = scenario_id
-        logger.debug(f"Successfully adapted foreign keys")
+        logger.debug("Successfully adapted foreign keys")
 
     # Finally, upload data to OEP
     try:
@@ -190,4 +205,4 @@ async def upload_datapackage(
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")  # noqa: S104

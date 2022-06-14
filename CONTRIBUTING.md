@@ -7,10 +7,10 @@
 
 ### Philosophy
 
-Development of a feature for this repository should follow the workflow described 
+Development of a feature for this repository should follow the workflow described
 by [Vincent Driessen](https://nvie.com/posts/a-successful-git-branching-model/).
 
-Here are the minimal procedure you should follow : 
+Here are the minimal procedure you should follow :
 
 #### Step 1: Describe the issue on github
 
@@ -30,9 +30,9 @@ it through first).
     If you are fixing and error you can replace `feature/` by `fix/`.
 2. Try to follow [these conventions](https://chris.beams.io/posts/git-commit) for commit messages:
     - Keep the subject line [short](https://chris.beams.io/posts/git-commit/#limit-50) (i.e. do not commit more than a few changes at the time)
-    - Use [imperative](https://chris.beams.io/posts/git-commit/#imperative) for commit messages 
-    - Do not end the commit message with a [period](https://chris.beams.io/posts/git-commit/#end) 
-        You can use 
+    - Use [imperative](https://chris.beams.io/posts/git-commit/#imperative) for commit messages
+    - Do not end the commit message with a [period](https://chris.beams.io/posts/git-commit/#end)
+        You can use
         ```bash
         git commit --amend
         ```
@@ -48,12 +48,12 @@ it through first).
 
 #### Step 3: Run tests locally
 
-To run tests locally, install the dependencies 
-```bash 
-pip install -r tests/test_requirements.txt 
+To run tests locally, install the dependencies
+```bash
+pip install -r tests/test_requirements.txt
 ```
 
-1. Integration/unit tests 
+1. Integration/unit tests
     ```bash
     pytest tests
     ```
@@ -67,7 +67,7 @@ pip install -r tests/test_requirements.txt
     ```
     You can fix the linting errors either manually or with the packages
     `autopep8` or `black` for example.
-    
+
 #### Step 4: Submit a pull request (PR)
 
 Follow the [steps](https://help.github.com/en/articles/creating-a-pull-request) of the github help to create the PR.
@@ -112,7 +112,7 @@ Your `CHANGELOG.md` file could look like this before the release
 ### Added
 - feature 1
 - feature 2
-### Changed 
+### Changed
 - thing 1
 - thing 2
 ### Removed
@@ -126,7 +126,7 @@ Simply replace `unreleased` by `X.Y.Z` and add the date of release in [ISO forma
 
 ### Added
 -
-### Changed 
+### Changed
 -
 ### Removed
 -
@@ -135,7 +135,7 @@ Simply replace `unreleased` by `X.Y.Z` and add the date of release in [ISO forma
 ### Added
 - feature 1
 - feature 2
-### Changed 
+### Changed
 - thing 1
 - thing 2
 ### Removed
@@ -152,7 +152,7 @@ git checkout release/vX.Y.Z
 ```
 git pull
 ```
-    
+
 ```
 git checkout dev
 ```

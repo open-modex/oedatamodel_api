@@ -1,13 +1,13 @@
 {
   "base_mapping": "urbs_grouped",
   "mapping": {
-    "scenario": "scenario",
+    "cfseries": "map(&merge_array(map(&to_object([[fill_na(@, 'None') | join('-', [@.region, @.technology, @.technology_type, @.parameter_name]), @.series]]), @)), cfseries.*)",
+    "demandseries": "map(&merge_array(map(&to_object([[fill_na(@, 'None') | join('-', [@.region, @.technology, @.technology_type, @.parameter_name]), @.series]]), @)), demandseries.*)",
     "scalars": "map(&merge(@[0], @[1]), zip(map(&exclude(@, ['parameter_name', 'value']), scalars.*[0]), map(&to_object(zip(@[].parameter_name, @[].value)), scalars.*)))",
     "scalars_tra": "map(&merge(@[0], @[1]), zip(map(&exclude(@, ['parameter_name', 'value']), scalars_tra.*[0]), map(&to_object(zip(@[].parameter_name, @[].value)), scalars_tra.*)))",
-    "timeseries": "timeseries",
     "scalars_tra_general": "map(&merge(@[0], @[1]), zip(map(&exclude(@, ['parameter_name', 'value']), scalars_tra_general.*[0]), map(&to_object(zip(@[].parameter_name, @[].value)), scalars_tra_general.*)))",
-     "timeindex": "to_object(zip(keys(timeseries), map(&timerange(timeindex_start, timeindex_stop, timeindex_resolution), timeseries.*[0])))",
-     "demandseries": "map(&merge_array(map(&to_object([[fill_na(@, 'None') | join('-', [@.region, @.technology, @.technology_type, @.parameter_name]), @.series]]), @)), demandseries.*)",
-     "cfseries": "map(&merge_array(map(&to_object([[fill_na(@, 'None') | join('-', [@.region, @.technology, @.technology_type, @.parameter_name]), @.series]]), @)), cfseries.*)"
+    "scenario": "scenario",
+    "timeindex": "to_object(zip(keys(timeseries), map(&timerange(timeindex_start, timeindex_stop, timeindex_resolution), timeseries.*[0])))",
+    "timeseries": "timeseries"
   }
 }

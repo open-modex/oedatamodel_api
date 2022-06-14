@@ -1,7 +1,7 @@
-
 from oem2orm.oep_oedialect_oem2orm import setup_db_connection
-from oedatamodel_api.settings import NORMALIZED_TABLES, CONCRETE_TABLES
+
 from oedatamodel_api import upload
+from oedatamodel_api.settings import CONCRETE_TABLES, NORMALIZED_TABLES
 
 
 def test_oep_tables():
@@ -19,10 +19,12 @@ def test_next_id():
 def test_map_dfs():
     dfs = upload.read_in_excel_sheets(
         "scenario_scalar_timeseries_less.xlsx",
-        sheets=("scenario", "scalar", "timeseries")
+        sheets=("scenario", "scalar", "timeseries"),
     )
     assert len(dfs) == 3
-    data, scalar, timeseries = upload.map_concrete_to_normalized_df(dfs["scalar"], dfs["timeseries"])
+    data, scalar, timeseries = upload.map_concrete_to_normalized_df(
+        dfs["scalar"], dfs["timeseries"]
+    )
     assert len(scalar) == 71
     assert len(scalar.columns) == 3
     assert len(timeseries) == 10
@@ -41,19 +43,21 @@ def test_upload_normalized_dfs_from_excel():
     dfs = upload.read_in_excel_sheets(
         "scenario_scalar_timeseries_less.xlsx",
         sheets=sheets,
-        sheet_table_map=dict(zip(sheets, CONCRETE_TABLES))
+        sheet_table_map=dict(zip(sheets, CONCRETE_TABLES)),
     )
-    data, scalar, timeseries = upload.map_concrete_to_normalized_df(dfs["scalar"], dfs["timeseries"])
+    data, scalar, timeseries = upload.map_concrete_to_normalized_df(
+        dfs["scalar"], dfs["timeseries"]
+    )
     normalized_dfs = {
-            "oed_scenario": dfs["scenario"],
-            "oed_data": data,
-            "oed_scalar": scalar,
-            "oed_timeseries": timeseries
-        }
+        "oed_scenario": dfs["scenario"],
+        "oed_data": data,
+        "oed_scalar": scalar,
+        "oed_timeseries": timeseries,
+    }
     filtered_normalized_dfs = upload.adapt_metadata_attributes_and_types(normalized_dfs)
     upload.upload_normalized_dfs(
         filtered_normalized_dfs,
-        schema="model_draft"
+        schema="model_draft",
     )
 
 
@@ -66,14 +70,16 @@ def test_adapt_metadata():
     dfs = upload.read_in_excel_sheets(
         "scenario_scalar_timeseries_less.xlsx",
         sheets=sheets,
-        sheet_table_map=dict(zip(sheets, CONCRETE_TABLES))
+        sheet_table_map=dict(zip(sheets, CONCRETE_TABLES)),
     )
-    data, scalar, timeseries = upload.map_concrete_to_normalized_df(dfs["scalar"], dfs["timeseries"])
+    data, scalar, timeseries = upload.map_concrete_to_normalized_df(
+        dfs["scalar"], dfs["timeseries"]
+    )
     normalized_dfs = {
         "oed_scenario": dfs["scenario"],
         "oed_data": data,
         "oed_scalar": scalar,
-        "oed_timeseries": timeseries
+        "oed_timeseries": timeseries,
     }
     filtered_dfs = upload.adapt_metadata_attributes_and_types(normalized_dfs)
     region = filtered_dfs["oed_scenario"]["region"][0]

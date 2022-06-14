@@ -9,10 +9,10 @@ Scenario data stored in the OEP can be requested by the API and will be parsed a
 
 Ideally you install the oedatamodel_api on a (Linux) Ubuntu 18.04 machine or you have a virtual machine like Oracle VirtualBox installed where you can set up a new Ubuntu 18.04 machine.
 
-We assume that you are using a Python version >= Python3.8. You can check the Python version by opening a terminal and typing the following: 
+We assume that you are using a Python version >= Python3.8. You can check the Python version by opening a terminal and typing the following:
 ```
 $ python --version
-``` 
+```
 
 If you need to install or upgrade Python on your machine, you can use these steps to build Python from source and not affect other Python versions that are already installed:
 
@@ -65,7 +65,7 @@ $ mkdir ~/github
 $ cd github
 $ git clone https://github.com/open-modex/oedatamodel_api.git
 cd oedatamodel_api
-``` 
+```
 
 Setup a [python virtual environment](https://docs.python.org/3/tutorial/venv.html):
 
@@ -94,8 +94,8 @@ $ python oedatamodel_api/webapp.py
 # About
 
 The oedatamodel_api was developed in order to download/upload data from/to the OEP.
-As the OEP already offers different ways to download and upload data 
-(i.e. [Advanced API](https://oep-data-interface.readthedocs.io/en/latest/api/advanced.html) and [OEDialect](https://github.com/OpenEnergyPlatform/oedialect)), 
+As the OEP already offers different ways to download and upload data
+(i.e. [Advanced API](https://oep-data-interface.readthedocs.io/en/latest/api/advanced.html) and [OEDialect](https://github.com/OpenEnergyPlatform/oedialect)),
 the question is *"Why to add another option?"*.
 
 The answer is, that we had requirements not met by the options mentioned above. We wanted to offer an API which:
@@ -117,37 +117,37 @@ To configure which tables can be used with the oedatamodel_api, the concept of s
 A source is technically a table join, through which it is possible to receive the data from multiple tables as a (raw) JSON from the OEP.
 All sources can be found in the [sources directory](https://github.com/open-modex/oedatamodel_api/tree/main/oedatamodel_api/sources).
 
-**Note:** To create tables on the OEP the python tool [oem2orm](https://github.com/OpenEnergyPlatform/oem2orm) can be used. 
+**Note:** To create tables on the OEP the python tool [oem2orm](https://github.com/OpenEnergyPlatform/oem2orm) can be used.
 Follow this [Jupyter Guide](https://github.com/OpenEnergyPlatform/tutorial/blob/develop/upload/OEP_Upload_Process_Data_and_Metadata_oem2orm.ipynb).
 
 ## API Website
-After the successful installation and the start of the locally installed oedatamodel_api instance (as described above) 
+After the successful installation and the start of the locally installed oedatamodel_api instance (as described above)
 the home page of the oedatamodel_api can be reached under the following address (use an internet browser of your choice):
 
 `http://0.0.0.0:8000/`
 
-The homepage of the oedatamodel api shows some basic documentation and list a overview of currently available mappings. 
+The homepage of the oedatamodel api shows some basic documentation and list a overview of currently available mappings.
 This part is still in **developement**.
 
 ### Upload data to the OEP
-To upload data to the OEP, the tables must be available in the sources. 
-Only data that is available as a [frictionless datapackage](https://specs.frictionlessdata.io/data-package/) can be uploaded. 
-An example of this can be found [here](https://github.com/OpenEnergyPlatform/oedatamodel/tree/develop/examples). 
+To upload data to the OEP, the tables must be available in the sources.
+Only data that is available as a [frictionless datapackage](https://specs.frictionlessdata.io/data-package/) can be uploaded.
+An example of this can be found [here](https://github.com/OpenEnergyPlatform/oedatamodel/tree/develop/examples).
 
-To simplify the process, the oedatamodel_api provides another web page to upload the datapackage. 
+To simplify the process, the oedatamodel_api provides another web page to upload the datapackage.
 
 `http://0.0.0.0:8000/upload_datapackage`
 
-There it is also possible to apply a mapping to the data before it is uploaded. 
-This allows data to be uploaded in any format as long as a suitable mapping is first created 
-that converts the data structure into the oedatamodel normalization format. 
+There it is also possible to apply a mapping to the data before it is uploaded.
+This allows data to be uploaded in any format as long as a suitable mapping is first created
+that converts the data structure into the oedatamodel normalization format.
 
-### Get data from the OEP 
+### Get data from the OEP
 
-To acess data from the oep using the API you have to provide an OEP API token as described above. 
+To acess data from the oep using the API you have to provide an OEP API token as described above.
 If you followed the installation instructions, this token should be available.
 
-The API serves data in `JSON` format which can be queryed using HTTP query parameters. 
+The API serves data in `JSON` format which can be queryed using HTTP query parameters.
 For each framework that is already supported by the oedatamodel_api there is a mapping provided.
 
 For example, to retrieve data from the API with a locally installed version of the oedatamodel_api, the URL is:
@@ -156,17 +156,17 @@ For example, to retrieve data from the API with a locally installed version of t
 
 
 ## Mappings
-New mappings can be created as a simple JSON file that maps data structures (input/output data) to or from the oedatamodel. 
-These files are stored and developed under `oedatamodel_api/mappings`. The file `mappingname.json` contains a query language developed as JMESPath. 
-Mappings are often stacked, since each mapping can have a base mapping. 
-Therefore, it is obvious that one has to take several "processing steps" to develop a new mapping. 
+New mappings can be created as a simple JSON file that maps data structures (input/output data) to or from the oedatamodel.
+These files are stored and developed under `oedatamodel_api/mappings`. The file `mappingname.json` contains a query language developed as JMESPath.
+Mappings are often stacked, since each mapping can have a base mapping.
+Therefore, it is obvious that one has to take several "processing steps" to develop a new mapping.
 
 ## Tutorial - Upload data
 1. Install the oedatamodel_api and launch it. For windows users we recommend to use docker or docker desktop, because there have been installation problems in the past. However, even when installing docker on windows, there may be problems with the installation of docker itself.
 
 2. Go to oedatamodel and download the example datapackage zip archive. [Click to download form github.](https://github.com/OpenEnergyPlatform/oedatamodel/blob/develop/examples/Datapackage.zip?raw=true)
 
-3. Create the example tables on the OEP that will be used to uplad  example data. 
+3. Create the example tables on the OEP that will be used to uplad  example data.
 
 Assuming you have still activated your Python environment.
 

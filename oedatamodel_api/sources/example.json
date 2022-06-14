@@ -1,97 +1,97 @@
 {
-    "from": {
-        "type": "join",
-        "left": {
-            "type": "table",
-            "table": "oed_scenario_example",
-            "schema": "model_draft",
-            "alias": "s"
+  "from": {
+    "left": {
+      "alias": "s",
+      "schema": "model_draft",
+      "table": "oed_scenario_example",
+      "type": "table"
+    },
+    "on": {
+      "operands": [
+        {
+          "column": "id",
+          "table": "s",
+          "type": "column"
         },
-        "right": {
-            "type": "join",
-            "is_full": true,
-            "left": {
-                "type": "join",
-                "is_full": true,
-                "left": {
-                    "type": "table",
-                    "table": "oed_data_example",
-                    "schema": "model_draft",
-                    "alias": "d"
-                },
-                "right": {
-                    "type": "table",
-                    "table": "oed_timeseries_example",
-                    "schema": "model_draft",
-                    "alias": "ts"
-                },
-                "on": {
-                    "operands": [
-                        {
-                            "type": "column",
-                            "column": "id",
-                            "table": "d"
-                        },
-                        {
-                            "type": "column",
-                            "column": "id",
-                            "table": "ts"
-                        }
-                    ],
-                    "operator": "=",
-                    "type": "operator"
-                }
-            },
-            "right": {
-                "type": "table",
-                "table": "oed_scalar_example",
-                "schema": "model_draft",
-                "alias": "sc"
-            },
-            "on": {
-                "operands": [
-                    {
-                        "type": "column",
-                        "column": "id",
-                        "table": "d"
-                    },
-                    {
-                        "type": "column",
-                        "column": "id",
-                        "table": "sc"
-                    }
-                ],
-                "operator": "=",
-                "type": "operator"
-            }
+        {
+          "column": "scenario_id",
+          "table": "d",
+          "type": "column"
+        }
+      ],
+      "operator": "=",
+      "type": "operator"
+    },
+    "right": {
+      "is_full": true,
+      "left": {
+        "is_full": true,
+        "left": {
+          "alias": "d",
+          "schema": "model_draft",
+          "table": "oed_data_example",
+          "type": "table"
         },
         "on": {
-            "operands": [
-                {
-                    "type": "column",
-                    "column": "id",
-                    "table": "s"
-                },
-                {
-                    "type": "column",
-                    "column": "scenario_id",
-                    "table": "d"
-                }
-            ],
-            "operator": "=",
-            "type": "operator"
-        }
-    },
-    "where": {
-        "operands": [
+          "operands": [
             {
-                "type": "column",
-                "table": "s",
-                "column": "id"
+              "column": "id",
+              "table": "d",
+              "type": "column"
             },
-            "<scenario_id>"
+            {
+              "column": "id",
+              "table": "ts",
+              "type": "column"
+            }
+          ],
+          "operator": "=",
+          "type": "operator"
+        },
+        "right": {
+          "alias": "ts",
+          "schema": "model_draft",
+          "table": "oed_timeseries_example",
+          "type": "table"
+        },
+        "type": "join"
+      },
+      "on": {
+        "operands": [
+          {
+            "column": "id",
+            "table": "d",
+            "type": "column"
+          },
+          {
+            "column": "id",
+            "table": "sc",
+            "type": "column"
+          }
         ],
         "operator": "=",
         "type": "operator"
-    }
+      },
+      "right": {
+        "alias": "sc",
+        "schema": "model_draft",
+        "table": "oed_scalar_example",
+        "type": "table"
+      },
+      "type": "join"
+    },
+    "type": "join"
+  },
+  "where": {
+    "operands": [
+      {
+        "column": "id",
+        "table": "s",
+        "type": "column"
+      },
+      "<scenario_id>"
+    ],
+    "operator": "=",
+    "type": "operator"
+  }
 }

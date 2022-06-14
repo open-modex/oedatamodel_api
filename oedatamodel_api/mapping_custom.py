@@ -2,17 +2,16 @@
 Custom mappings are loaded and applied to oedatamodel results
 """
 
-from parse import parse
-import json
 import datetime as dt
+import json
 from itertools import groupby, repeat
 
 import jmespath
-from jmespath import functions, exceptions
+from jmespath import exceptions, functions
+from parse import parse
 
 from oedatamodel_api.mapping_default import OedataMapping, map_data
 from oedatamodel_api.settings import MAPPINGS_DIR
-
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 RESOLUTION_REGEX = "P{days:1d}DT{hours:2d}H{minutes:2d}M{seconds:2d}S"
@@ -48,42 +47,46 @@ class CustomFunctions(functions.Functions):
         elements resolve to the same type as the first element.
     """
 
-    @functions.signature({'types': ['object', 'string']}, {'types': ['number']})
+    @functions.signature({"types": ["object", "string"]}, {"types": ["number"]})
     def _func_repeat(self, arg, times):
         return list(repeat(arg, times))
 
-    @functions.signature({'types': ['object']})
+    @functions.signature({"types": ["object"]})
     def _func_items(self, arg):
         return list(map(list, arg.items()))
 
-    @functions.signature({'types': ['array'], 'variadic': True})
+    @functions.signature({"types": ["array"], "variadic": True})
     def _func_zip(self, *arguments):
         return list(map(list, zip(*arguments)))
 
-    @functions.signature({'types': ['array'], 'variadic': True})
+    @functions.signature({"types": ["array"], "variadic": True})
     def _func_zip_multi(self, *arguments):
         return list(map(list, zip(*arguments)))
 
-    @functions.signature({'types': ['array']})
+    @functions.signature({"types": ["array"]})
     def _func_to_object(self, pairs):
         return dict(pairs)
 
-    @functions.signature({'types': ['array']})
+    @functions.signature({"types": ["array"]})
     def _func_merge_array(self, array):
         d = {}
         for a in array:
             d.update(a)
         return d
 
-    @functions.signature({'types': ['object']}, {'types': ['object', 'string', 'array', 'number']})
+    @functions.signature(
+        {"types": ["object"]}, {"types": ["object", "string", "array", "number"]}
+    )
     def _func_fill_na(self, d, value):
         return {k: value if v is None else v for k, v in d.items()}
 
-    @functions.signature({'types': ['number']}, {'types': ['number']})
+    @functions.signature({"types": ["number"]}, {"types": ["number"]})
     def _func_range(self, start, stop):
         return list(range(start, stop))
 
-    @functions.signature({'types': ['string']}, {'types': ['string']}, {'types': ['string']})
+    @functions.signature(
+        {"types": ["string"]}, {"types": ["string"]}, {"types": ["string"]}
+    )
     def _func_timerange(self, start, end, resolution):
         dt_start = dt.datetime.strptime(start, DATETIME_FORMAT)
         dt_end = dt.datetime.strptime(end, DATETIME_FORMAT)
@@ -92,7 +95,7 @@ class CustomFunctions(functions.Functions):
             days=res_parsed["days"],
             hours=res_parsed["hours"],
             minutes=res_parsed["minutes"],
-            seconds=res_parsed["seconds"]
+            seconds=res_parsed["seconds"],
         )
         timeindex = []
         current_index = dt_start
@@ -102,20 +105,27 @@ class CustomFunctions(functions.Functions):
         return timeindex
 
     @functions.signature(
-        {'types': ['object']}, {'types': ['string']}, {'types': ['object', 'string', 'array', 'number', 'null']})
+        {"types": ["object"]},
+        {"types": ["string"]},
+        {"types": ["object", "string", "array", "number", "null"]},
+    )
     def _func_set(self, d, key, value):
         d_new = d.copy()
         d_new[key] = value
         return d_new
 
     @functions.signature(
-        {'types': ['object']}, {'types': ['string']}, {'types': ['object', 'string', 'array', 'number']}, {'types': ['object', 'string', 'array', 'number']})
+        {"types": ["object"]},
+        {"types": ["string"]},
+        {"types": ["object", "string", "array", "number"]},
+        {"types": ["object", "string", "array", "number"]},
+    )
     def _func_set_combi(self, d, key, value1, value2):
         d_new = d.copy()
-        d_new[key] = value1 + '_' + value2
+        d_new[key] = value1 + "_" + value2
         return d_new
-        
-    @functions.signature({'types': ['object']})
+
+    @functions.signature({"types": ["object"]})
     def _func_unpack_dict_series(self, d):
         new_list = []
         series_length = len(list(d.values())[0])
@@ -123,22 +133,26 @@ class CustomFunctions(functions.Functions):
             new_list.append({k: d[k][i] for k in d.keys()})
         return new_list
 
-    @functions.signature({'types': ['array']})
+    @functions.signature({"types": ["array"]})
     def _func_unique(self, args):
         if len(args) > 0 and isinstance(args[0], dict):
             seen = set()
-            return [d for d in args if not (frozenset(d.items()) in seen or seen.add(frozenset(d.items())))]
+            return [
+                d
+                for d in args
+                if not (frozenset(d.items()) in seen or seen.add(frozenset(d.items())))
+            ]
         return list(dict.fromkeys(args))
 
-    @functions.signature({'types': ['object']}, {'types': ['array']})
+    @functions.signature({"types": ["object"]}, {"types": ["array"]})
     def _func_exclude(self, arg, excludes):
         return {k: v for k, v in arg.items() if k not in excludes}
 
-    @functions.signature({'types': ['object']}, {'types': ['array']})
+    @functions.signature({"types": ["object"]}, {"types": ["array"]})
     def _func_filter(self, arg, filter_items):
         return {k: v for k, v in arg.items() if k in filter_items}
 
-    @functions.signature({'types': ['array']}, {'types': ['expref']})
+    @functions.signature({"types": ["array"]}, {"types": ["expref"]})
     def _func_group_by(self, array_object, expref):
         if not array_object:
             return array_object
@@ -150,14 +164,19 @@ class CustomFunctions(functions.Functions):
         # elements resolve to the same type as the first element.
         lookup = array_object[0]
         required_type = self._convert_to_jmespath_type(
-            type(expref.visit(expref.expression, lookup)).__name__)
-        if required_type not in ['number', 'string']:
+            type(expref.visit(expref.expression, lookup)).__name__,
+        )
+        if required_type not in ["number", "string"]:
             raise exceptions.JMESPathTypeError(
-                'group_by', lookup, required_type, ['string', 'number'])
-        keyfunc = self._create_key_func(expref, [required_type], 'group_by')
+                "group_by",
+                lookup,
+                required_type,
+                ["string", "number"],
+            )
+        keyfunc = self._create_key_func(expref, [required_type], "group_by")
         return {k: list(g) for k, g in groupby(array_object, key=keyfunc)}
 
-    @functions.signature({'types': ['object']}, {'types': ['expref']})
+    @functions.signature({"types": ["object"]}, {"types": ["expref"]})
     def _func_group_dict_by(self, arg, expref):
         if not arg:
             return arg
@@ -169,11 +188,16 @@ class CustomFunctions(functions.Functions):
         # elements resolve to the same type as the first element.
         lookup = list(list(arg.items())[0])
         required_type = self._convert_to_jmespath_type(
-            type(expref.visit(expref.expression, lookup)).__name__)
-        if required_type not in ['number', 'string']:
+            type(expref.visit(expref.expression, lookup)).__name__,
+        )
+        if required_type not in ["number", "string"]:
             raise exceptions.JMESPathTypeError(
-                'group_by', lookup, required_type, ['string', 'number'])
-        keyfunc = self._create_key_func(expref, [required_type], 'group_by')
+                "group_by",
+                lookup,
+                required_type,
+                ["string", "number"],
+            )
+        keyfunc = self._create_key_func(expref, [required_type], "group_by")
         # Jmespath works only on lists, not tuples:
         unpacked_dict = [[k, v] for k, v in arg.items()]
         return {
@@ -208,11 +232,11 @@ def load_custom_mapping(name):
     dict
         Custom mapping json/dict.
     """
-    filename = f'{name}.json'
+    filename = f"{name}.json"
     try:
-        with open(MAPPINGS_DIR / filename, 'r') as json_file:
+        with open(MAPPINGS_DIR / filename, "r") as json_file:
             json_data = json.load(json_file)
-    except (FileNotFoundError, OSError):
+    except OSError:
         raise MappingNotFound(f'Unknown mapping "{name}".')  # noqa: W0707
     return json_data
 
@@ -245,12 +269,12 @@ def apply_custom_mapping(raw_json: dict, mapping: str):
     except MappingNotFound:
         mapping_json = json.loads(mapping)
     # Recursively apply base mappings if one exists:
-    if mapping_json['base_mapping'] == "":
+    if mapping_json["base_mapping"] == "":
         pre_json = raw_json
     else:
-        pre_json = apply_custom_mapping(raw_json, mapping_json['base_mapping'])
+        pre_json = apply_custom_mapping(raw_json, mapping_json["base_mapping"])
     # Recursively apply custom mapping on pre json:
-    return iterate_mapping(pre_json, mapping_json['mapping'])
+    return iterate_mapping(pre_json, mapping_json["mapping"])
 
 
 def iterate_mapping(raw_json, value):
@@ -272,5 +296,7 @@ def iterate_mapping(raw_json, value):
         applied to given json.
     """
     if isinstance(value, dict):
-        return {key: iterate_mapping(raw_json, mapping) for key, mapping in value.items()}
+        return {
+            key: iterate_mapping(raw_json, mapping) for key, mapping in value.items()
+        }
     return jmespath.search(value, raw_json, options=jmespath_options)

@@ -1,10 +1,10 @@
-
-import os
-import sys
 import csv
 import logging
+import os
+import sys
 import tempfile
-from frictionless import Package, validate_resource, Report, FrictionlessException
+
+from frictionless import FrictionlessException, Package, Report, validate_resource
 
 from oedatamodel_api.settings import UPLOAD_FILEPATH
 
@@ -23,7 +23,9 @@ def create_and_validate_datapackage(datapackage_files):
     # Save and load datapackage into temporary folder:
     with tempfile.TemporaryDirectory(dir=UPLOAD_FILEPATH) as tempdir:
         for upload_file in datapackage_files:
-            with open(os.path.join(tempdir, upload_file.filename), "wb+") as file_object:
+            with open(
+                os.path.join(tempdir, upload_file.filename), "wb+"
+            ) as file_object:
                 file_object.write(upload_file.file.read())
         logger.debug("Successfully extracted datapackage to temp folder")
         try:

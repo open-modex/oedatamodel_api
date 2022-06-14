@@ -29,7 +29,8 @@ def loadFromJsonFile(filepath, filename=None, encoding="utf-8"):
         with open(os.path.join(filepath, filename), "r", encoding=encoding) as f:
             return json.load(f)
     else:
-        print("The directory: {} or file: {} does not exist! If the directory is empty, try to run package_docs.py first.".format(filepath, filename))
+        raise FileNotFoundError(
+            f"The directory: {filepath} or file: {filename} does not exist! If the directory is empty, try to run package_docs.py first.")
 
 
 def getCurrentlyAvailableMappings(base_path, dir_name):

@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2022-06-14
+### Changed
+- introduced pre-commit and fixed multiple linter errors
+
 ## [0.6.0] - 2022-06-14
 ### Changed
-- datapackage is uploaded as multiple files (instead of zip) 
+- datapackage is uploaded as multiple files (instead of zip)
 
 ## [0.5.0] - 2022-06-09
 ### Changed
@@ -35,10 +39,6 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 - Upload of excel datapackage into OEP
 
 ## [0.1.0] - 2020-09-01
-### Added 
+### Added
 - Normalized, concrete and custom mapping of OEP request data
-- OEP oedatamodel request of scenario data 
-
-
-
-
+- OEP oedatamodel request of scenario data

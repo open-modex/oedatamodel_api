@@ -1,14 +1,12 @@
-
 import datetime as dt
 import json
-import requests
-import warnings
 import logging
-from frictionless import validate_resource, Resource
+import warnings
 
+import requests
+from frictionless import Resource, validate_resource
 
 from oedatamodel_api.settings import OEP_URL
-
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -19,7 +17,7 @@ OEP_TO_FRICTIONLESS_CONVERSION = {
     "json": "object",
     "decimal": "number",
     "interval": "any",
-    "timestamp": "datetime"
+    "timestamp": "datetime",
 }
 
 
@@ -37,25 +35,25 @@ def get_next_id(table, schema):
             "id",
         ],
         "from": {
-            'type': 'table',
-            'table': table,
-            'schema': schema
+            "type": "table",
+            "table": table,
+            "schema": schema,
         },
         "order_by": [
             {
                 "type": "column",
                 "column": "id",
-                "ordering": "desc"
-            }
+                "ordering": "desc",
+            },
         ],
-        "limit": 1
+        "limit": 1,
     }
     response = requests.post(f"{OEP_URL}/api/v0/advanced/search", json={"query": query})
-    return response.json()['data'][0][0] + 1
+    return response.json()["data"][0][0] + 1
 
 
 def adapt_foreign_keys(data, schema):
-    """This method is Modex-specific and a dirty hack"""
+    # FIXME: This method is Modex-specific and a dirty hack
     if "oed_scenario" in data:
         scenario_table = "oed_scenario"
         data_table = "oed_data"
@@ -69,16 +67,18 @@ def adapt_foreign_keys(data, schema):
     else:
         raise UploadError(
             "Foreign-key adaption is only available for oed_datamodel tables "
-            "(and its corresponding -output tables)"
+            "(and its corresponding -output tables)",
         )
     # Checks
-    if (
-            len(data) != 4 or
-            not all([table in data for table in (scenario_table, data_table, scalar_table, timeseries_table)])
+    if len(data) != 4 or not all(
+        [
+            table in data
+            for table in (scenario_table, data_table, scalar_table, timeseries_table)
+        ]
     ):
         raise UploadError(
             "Foreign-key adaption is only available for oed_datamodel tables "
-            "(and its corresponding -output tables)"
+            "(and its corresponding -output tables)",
         )
     if len(data[scenario_table]) > 1:
         raise UploadError("ForeignKey adaption only works for one scenario")
@@ -94,10 +94,10 @@ def adapt_foreign_keys(data, schema):
         data_row["id"] = new_id
         data_row["scenario_id"] = scenario_id
 
-    for id_, scalar_row in enumerate(data[scalar_table]):
+    for scalar_row in data[scalar_table]:
         scalar_row["id"] = data_id_mapping[scalar_row["id"]]
 
-    for id_, timeseries_row in enumerate(data[timeseries_table]):
+    for timeseries_row in data[timeseries_table]:
         timeseries_row["id"] = data_id_mapping[timeseries_row["id"]]
 
     return data, scenario_id
@@ -117,9 +117,9 @@ def upload_data_to_oep(data, schema, token):
             url=table_url,
             data=json.dumps({"query": table_data}, default=default_serialization),
             headers={
-                'Authorization': 'Token %s' % token,
-                'Content-type': 'application/json',
-            }
+                "Authorization": "Token %s" % token,
+                "Content-type": "application/json",
+            },
         )
         if response.status_code != 201:
             raise UploadError(response.text)
@@ -137,14 +137,17 @@ def validate_upload_data(data, schema):
         except (KeyError, IndexError):
             warnings.warn(
                 f"Metadata for OEP table '{schema}.{table}' not found or invalid. "
-                f"Thus, data could not be validated against table format"
+                f"Thus, data could not be validated against table format",
             )
             continue
 
-        # Rewrite datapackage format and validate json (instead of postgresql):
+        # Rewrite datapackage format and validate json, instead of postgresql:
         fl_table_schema = reformat_oep_to_frictionless_schema(oep_schema)
         resource = Resource(
-            name=table, profile="tabular-data-resource", data=data_dict, schema=fl_table_schema
+            name=table,
+            profile="tabular-data-resource",
+            data=data_dict,
+            schema=fl_table_schema,
         )
         report = validate_resource(resource)
         if report["stats"]["errors"] != 0:
@@ -165,6 +168,6 @@ def reformat_oep_to_frictionless_schema(schema):
         fields.append({"name": field["name"], "type": type_})
     fl_schema = {
         "fields": fields,
-        "primaryKey": schema["primaryKey"]
+        "primaryKey": schema["primaryKey"],
     }
     return fl_schema

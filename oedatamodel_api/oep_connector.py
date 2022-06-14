@@ -1,12 +1,13 @@
 import json
 import logging
+
 import requests
 from redis import Redis
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from oedatamodel_api.settings import SOURCES_DIR, REDIS_URL
+from oedatamodel_api.settings import REDIS_URL, SOURCES_DIR
 
-OEP_URL = 'https://openenergy-platform.org'
+OEP_URL = "https://openenergy-platform.org"
 
 redis = Redis.from_url(REDIS_URL)
 
@@ -20,7 +21,7 @@ class SourceNotFound(Exception):
 
 
 def get_data_from_oep(source, **params):
-    cache_key = source + '_'.join(f"({k},{v})" for k, v in params.items())
+    cache_key = source + "_".join(f"({k},{v})" for k, v in params.items())
     try:
         cached_data = redis.get(cache_key)
     except RedisConnectionError:
@@ -28,9 +29,9 @@ def get_data_from_oep(source, **params):
     if cached_data:
         return json.loads(cached_data)
     join = load_source(source, params)
-    data = {'query': join}
+    data = {"query": join}
     response = requests.post(
-        OEP_URL + '/api/v0/advanced/search',
+        OEP_URL + "/api/v0/advanced/search",
         json=data,
     )
     if response.status_code != 200:
@@ -56,11 +57,11 @@ def replace_json_placeholders(json_raw, values):
 
 def load_source(name, params):
     params = params or {}
-    filename = f'{name}.json'
+    filename = f"{name}.json"
     try:
-        with open(SOURCES_DIR / filename, 'r') as json_file:
+        with open(SOURCES_DIR / filename, "r") as json_file:
             json_str = json_file.read()
-    except (FileNotFoundError, OSError):
+    except OSError:
         raise SourceNotFound(f'Unknown source "{name}".')  # noqa: W0707
     json_with_params = replace_json_placeholders(json_str, params)
     return json.loads(json_with_params)

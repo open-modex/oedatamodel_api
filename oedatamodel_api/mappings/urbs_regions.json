@@ -1,10 +1,10 @@
 {
   "base_mapping": "concrete",
   "mapping": {
-    "scenario": "oed_scenario",
     "scalars": "map(&set(@[0], 'region', @[1]), zip(map(&repeat(@, length(@.region)), oed_scalars[])[], oed_scalars[].region[]))",
-    "timeseries": "map(&set(@[0], 'region', @[1]), zip(map(&repeat(@, length(@.region)), oed_timeseries[])[], oed_timeseries[].region[]))",
     "scalars_tra": "oed_scalars[?technology=='transmission'&&region!=['BB','BE','BW','BY','HB','HE','HH','MV','NI','NW','RP','SH','SL','SN','ST','TH']]",
-    "scalars_tra_general": "oed_scalars[?technology=='transmission'&&region==['BB','BE','BW','BY','HB','HE','HH','MV','NI','NW','RP','SH','SL','SN','ST','TH']]"
+    "scalars_tra_general": "oed_scalars[?technology=='transmission'&&region==['BB','BE','BW','BY','HB','HE','HH','MV','NI','NW','RP','SH','SL','SN','ST','TH']]",
+    "scenario": "oed_scenario",
+    "timeseries": "map(&set(@[0], 'region', @[1]), zip(map(&repeat(@, length(@.region)), oed_timeseries[])[], oed_timeseries[].region[]))"
   }
 }

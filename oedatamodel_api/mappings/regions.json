@@ -1,8 +1,8 @@
 {
   "base_mapping": "concrete",
   "mapping": {
-    "scenario": "oed_scenario",
     "scalars": "map(&set(@[0], 'region', @[1]), zip(map(&repeat(@, length(@.region)), oed_scalars[])[], oed_scalars[].region[]))",
+    "scenario": "oed_scenario",
     "timeseries": "map(&set(@[0], 'region', @[1]), zip(map(&repeat(@, length(@.region)), oed_timeseries[])[], oed_timeseries[].region[]))"
   }
 }
