@@ -70,11 +70,9 @@ def adapt_foreign_keys(data, schema):
             "(and its corresponding -output tables)",
         )
     # Checks
-    if len(data) != 4 or not all(
-        [
-            table in data
-            for table in (scenario_table, data_table, scalar_table, timeseries_table)
-        ]
+    if len(data) != 4 or any(
+        table not in data
+        for table in (scenario_table, data_table, scalar_table, timeseries_table)
     ):
         raise UploadError(
             "Foreign-key adaption is only available for oed_datamodel tables "
@@ -105,9 +103,7 @@ def adapt_foreign_keys(data, schema):
 
 def upload_data_to_oep(data, schema, token):
     def default_serialization(item):
-        if isinstance(item, (dt.date, dt.datetime)):
-            return item.isoformat()
-        return item
+        return item.isoformat() if isinstance(item, (dt.date, dt.datetime)) else item
 
     # TODO: Check for type "Decimal" and report error; solution in datapacke.json: "floatNumber": "True"
 
@@ -153,7 +149,7 @@ def validate_upload_data(data, schema):
         if report["stats"]["errors"] != 0:
             errors.append(report.to_dict())
 
-    if len(errors) > 0:
+    if errors:
         raise ValidationError(errors)
 
 
@@ -166,8 +162,7 @@ def reformat_oep_to_frictionless_schema(schema):
         else:
             type_ = OEP_TO_FRICTIONLESS_CONVERSION.get(field["type"], field["type"])
         fields.append({"name": field["name"], "type": type_})
-    fl_schema = {
+    return {
         "fields": fields,
         "primaryKey": schema["primaryKey"],
     }
-    return fl_schema
