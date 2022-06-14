@@ -8,7 +8,7 @@ APP_STATIC_DIR = ROOT_DIR / "oedatamodel_api" / 'static'
 SOURCES_DIR = APP_DIR / "sources"
 MAPPINGS_DIR = APP_DIR / "mappings"
 UPLOAD_DIR = ROOT_DIR / "upload_data"
-ZIP_UPLOAD_FILEPATH = ROOT_DIR / "files" / "datapackage.zip"
+UPLOAD_FILEPATH = ROOT_DIR / "files"
 
 # OEP
 # ---

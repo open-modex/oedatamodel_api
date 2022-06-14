@@ -2,6 +2,7 @@
 import uvicorn
 import warnings
 import logging
+from typing import List
 
 from fastapi import FastAPI, Request, Response, UploadFile, File, Form
 from fastapi.responses import StreamingResponse, HTMLResponse
@@ -95,7 +96,10 @@ async def upload_datapackage_view():
         <label for="token">OEP Token</label>
         <input name="token" type="text">
     </p>
-    <p><input name="zipped_datapackage" type="file"></p>
+    <p>
+        <label for="datapackage_files">Upload datapackage files (must include "datapackage.json")</label>
+        <input name="datapackage_files" type="file" multiple>
+    </p>
     <p>
         <label for="schema">Schema</label>
         <input name="schema" type="text" value="model_draft">
@@ -122,7 +126,7 @@ async def upload_datapackage_view():
 
 @app.post("/upload_datapackage/")
 async def upload_datapackage(
-        zipped_datapackage: UploadFile = File(...),
+        datapackage_files: List[UploadFile] = None,
         schema: str = Form(...),
         mapping: str = Form(None),
         show_json: bool = Form(False),
@@ -135,7 +139,7 @@ async def upload_datapackage(
     # Validate and extract data from uploaded datapackage
     logger.debug("Validating datapackage...")
     try:
-        package = create_and_validate_datapackage(zipped_datapackage)
+        package = create_and_validate_datapackage(datapackage_files)
     except DatapackageNotValid as de:
         return {"Datapackage is not valid": de.args[0]}
     logger.info(f"Successfully validated datapackage '{package.name}'")
