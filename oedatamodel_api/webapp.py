@@ -3,7 +3,7 @@ import warnings
 from typing import List
 
 import uvicorn
-from fastapi import FastAPI, Request, Response, UploadFile
+from fastapi import FastAPI, HTTPException, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -135,8 +135,46 @@ async def upload_datapackage_view():
     return HTMLResponse(content=content)
 
 
+def get_datapackage(datapackage_files):
+    logger.debug("Validating datapackage...")
+    try:
+        package = create_and_validate_datapackage(datapackage_files)
+    except DatapackageNotValid as de:
+        raise HTTPException(
+            status_code=404, detail={"Datapackage is not valid": de.args[0]}
+        ) from de
+    logger.info(f"Successfully validated datapackage '{package.name}'")
+    return package
+
+
+def apply_mapping(data_json, mapping):
+    if not mapping:
+        return data_json
+    try:
+        mapped_json = mapping_custom.apply_custom_mapping(data_json, mapping)
+        logger.debug("Successfully applied mapping")
+        return mapped_json
+    except Exception as e:
+        HTTPException(status_code=404, detail={"Mapping error": str(e)})
+
+
+def validate_upload(data_json, schema):
+    # Validate extracted (mapped) data against OEP table formats
+    upload_warnings = []
+    with warnings.catch_warnings(record=True) as w:
+        try:
+            upload.validate_upload_data(data_json, schema)
+        except upload.ValidationError as ve:
+            HTTPException(
+                status_code=404, detail={"OEP data validation error": ve.args[0]}
+            )
+        upload_warnings.extend(w)
+    logger.debug("Successfully validated upload data with OEP metadata")
+    return upload_warnings
+
+
 @app.post("/upload_datapackage/")
-async def upload_datapackage(  # noqa: C901
+async def upload_datapackage(
     datapackage_files: List[UploadFile] = None,
     schema: str = "",
     mapping: str = "",
@@ -144,44 +182,21 @@ async def upload_datapackage(  # noqa: C901
     adapt_foreign_keys: bool = False,
     token: str = None,
 ):
-    # TODO: Too Complex
     if not token:
         return HTMLResponse("Invalid token - you must provide a valid OEP Token")
 
-    # Validate and extract data from uploaded datapackage
-    logger.debug("Validating datapackage...")
-    try:
-        package = create_and_validate_datapackage(datapackage_files)
-    except DatapackageNotValid as de:
-        return {"Datapackage is not valid": de.args[0]}
-    logger.info(f"Successfully validated datapackage '{package.name}'")
+    package = get_datapackage(datapackage_files)
     data_json = {
         resource.name: [row.to_dict() for row in resource.read_rows()]
         for resource in package.resources
     }
-
-    # Apply mappings (optional)
-    if mapping:
-        try:
-            data_json = mapping_custom.apply_custom_mapping(data_json, mapping)
-        except Exception as e:
-            return {"Mapping error": str(e)}
-        logger.debug("Successfully applied mapping")
+    mapped_json = apply_mapping(data_json, mapping)
 
     # Return mapped data (optional)
     if show_json:
-        return data_json
+        return mapped_json
 
-    # Validate extracted (mapped) data against OEP table formats
-    upload_warnings = []
-    with warnings.catch_warnings(record=True) as w:
-        try:
-            upload.validate_upload_data(data_json, schema)
-        except upload.ValidationError as ve:
-            return {"OEP data validation error": ve.args[0]}
-        upload_warnings.extend(w)
-    logger.debug("Successfully validated upload data with OEP metadata")
-
+    upload_warnings = validate_upload(data_json, schema)
     # Prepare success response
     success_response = {
         "success": "Upload of datapackage successful!",
@@ -198,7 +213,10 @@ async def upload_datapackage(  # noqa: C901
     try:
         upload.upload_data_to_oep(data_json, schema, token)
     except upload.UploadError as ue:
-        return {"error on upload": str(ue)}
+        raise HTTPException(
+            status_code=404, detail={"error on upload": str(ue)}
+        ) from ue
+
     logger.info(f"Successfully uploaded datapackage '{package.name}' to OEP")
 
     return success_response
