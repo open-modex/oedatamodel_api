@@ -1,0 +1,3 @@
+{
+  "mapping": "map(&to_object(zip(@[0], @[1])), zip(repeat(description[*][0], length(data)), data[*]))"
+}
