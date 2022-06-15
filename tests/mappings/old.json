@@ -1,0 +1,6 @@
+{
+  "base_mapping": "select_old",
+  "mapping": {
+    "result": "result.b"
+  }
+}
