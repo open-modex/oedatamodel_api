@@ -1,6 +1,6 @@
 import logging
 import warnings
-from typing import List
+from typing import List, Union
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Response, UploadFile
@@ -9,7 +9,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from oedatamodel_api import formatting, mapping_custom, upload
-from oedatamodel_api.oep_connector import OEPDataNotFoundError, get_data_from_oep
+from oedatamodel_api.oep_connector import (
+    OEPDataNotFoundError,
+    SourceNotFound,
+    get_data_from_oep,
+)
 from oedatamodel_api.package_docs import loadFromJsonFile
 from oedatamodel_api.settings import APP_STATIC_DIR, ROOT_DIR, VERSION
 from oedatamodel_api.validation import (
@@ -52,9 +56,9 @@ def index(request: Request) -> Response:
     )
 
 
-def prepare_response(raw_json, mapping, output_format):
+def prepare_response(raw_json, project, mapping, output_format):
     try:
-        mapped_data = mapping_custom.apply_custom_mapping(raw_json, mapping)
+        mapped_data = mapping_custom.apply_custom_mapping(raw_json, project, mapping)
     except Exception as e:
         return HTMLResponse(str(e))
 
@@ -76,16 +80,19 @@ def query(
     source: str,
     mapping: str,
     request: Request,
+    project: Union[str, None] = None,
     output: formatting.OutputFormat = formatting.OutputFormat.json,
 ):
-    query_params = dict(request.query_params.items())
-    query_params.pop("source")
-    query_params.pop("mapping")
+    query_params = {
+        k: v
+        for k, v in request.query_params.items()
+        if k not in ("source", "mapping", "project")
+    }
     try:
-        raw_data = get_data_from_oep(source, **query_params)
-    except (ConnectionError, OEPDataNotFoundError) as e:
+        raw_data = get_data_from_oep(project, source, **query_params)
+    except (ConnectionError, OEPDataNotFoundError, SourceNotFound) as e:
         return {"error": e.args}
-    return prepare_response(raw_data, mapping, output)
+    return prepare_response(raw_data, project, mapping, output)
 
 
 @app.get("/scenario/id/{scenario_id}")
@@ -93,13 +100,14 @@ def scenario_by_id(
     scenario_id: int,
     source: str,
     mapping: str,
+    project: Union[str, None] = None,
     output: formatting.OutputFormat = formatting.OutputFormat.json,
 ):
     try:
-        raw_data = get_data_from_oep(source, scenario_id=scenario_id)
+        raw_data = get_data_from_oep(project, source, scenario_id=scenario_id)
     except (ConnectionError, OEPDataNotFoundError) as e:
         return {"error": e.args}
-    return prepare_response(raw_data, mapping, output)
+    return prepare_response(raw_data, project, mapping, output)
 
 
 @app.get("/scenario/name/{scenario_name}")
@@ -107,13 +115,14 @@ def scenario_by_name(
     scenario_name: str,
     source: str,
     mapping: str,
+    project: Union[str, None] = None,
     output: formatting.OutputFormat = formatting.OutputFormat.json,
 ):
     try:
-        raw_data = get_data_from_oep(source, scenario_name=scenario_name)
+        raw_data = get_data_from_oep(project, source, scenario_name=scenario_name)
     except (ConnectionError, OEPDataNotFoundError) as e:
         return {"error": e.args}
-    return prepare_response(raw_data, mapping, output)
+    return prepare_response(raw_data, project, mapping, output)
 
 
 @app.get("/upload_datapackage/")
@@ -165,11 +174,11 @@ def get_datapackage(datapackage_files):
     return package
 
 
-def apply_mapping(data_json, mapping):
+def apply_mapping(data_json, project, mapping):
     if not mapping:
         return data_json
     try:
-        mapped_json = mapping_custom.apply_custom_mapping(data_json, mapping)
+        mapped_json = mapping_custom.apply_custom_mapping(data_json, project, mapping)
         logger.debug("Successfully applied mapping")
         return mapped_json
     except Exception as e:
@@ -196,6 +205,7 @@ async def upload_datapackage(
     datapackage_files: List[UploadFile] = None,
     schema: str = "",
     mapping: str = "",
+    project: Union[str, None] = None,
     show_json: bool = False,
     adapt_foreign_keys: bool = False,
     token: str = None,
@@ -208,7 +218,7 @@ async def upload_datapackage(
         resource.name: [row.to_dict() for row in resource.read_rows()]
         for resource in package.resources
     }
-    mapped_json = apply_mapping(data_json, mapping)
+    mapped_json = apply_mapping(data_json, project, mapping)
 
     # Return mapped data (optional)
     if show_json:

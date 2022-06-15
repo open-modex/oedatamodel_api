@@ -5,6 +5,7 @@ Custom mappings are loaded and applied to oedatamodel results
 import datetime as dt
 import json
 from itertools import groupby, repeat
+from typing import Union
 
 import jmespath
 from jmespath import exceptions, functions
@@ -217,12 +218,14 @@ class MappingInvalid(Exception):
     """Exception is thrown, if custom mapping is not valid."""
 
 
-def load_custom_mapping(name):
+def load_custom_mapping(project, name):
     """
     Load custom mapping as json/dict from mappings folder.
 
     Parameters
     ----------
+    project: str
+        If set, project-specific mapping is applied
     name: str
         Mapping name (searches for "{name}.json" in mappings folder.
 
@@ -237,6 +240,14 @@ def load_custom_mapping(name):
         Custom mapping json/dict.
     """
     filename = f"{name}.json"
+    if project:
+        try:
+            with open(MAPPINGS_DIR / project / filename, "r") as json_file:
+                json_data = json.load(json_file)
+        except OSError:
+            pass
+        else:
+            return json_data
     try:
         with open(MAPPINGS_DIR / filename, "r") as json_file:
             json_data = json.load(json_file)
@@ -245,7 +256,7 @@ def load_custom_mapping(name):
     return json_data
 
 
-def apply_custom_mapping(raw_json: dict, mapping: str):
+def apply_custom_mapping(raw_json: dict, project: Union[str, None], mapping: str):
     """
     Custom mapping is (loaded and) applied to raw json/dict.
 
@@ -258,6 +269,8 @@ def apply_custom_mapping(raw_json: dict, mapping: str):
     ----------
     raw_json: dict
         Result from OEP to perform custom mapping on.
+    project: str
+        If set, project-specific mappings and sources are used
     mapping: str
         Custom mapping (either name of predefined mapping or mapping json) which shall be applied
 
@@ -273,7 +286,7 @@ def apply_custom_mapping(raw_json: dict, mapping: str):
     else:
         return map_data(raw_json, mapping)
     try:
-        mapping_json = load_custom_mapping(mapping)
+        mapping_json = load_custom_mapping(project, mapping)
     except MappingNotFound:
         mapping_json = json.loads(mapping)
 
@@ -281,13 +294,15 @@ def apply_custom_mapping(raw_json: dict, mapping: str):
         if mapping_json["base_mapping"] == "":
             pre_json = raw_json
         else:
-            pre_json = apply_custom_mapping(raw_json, mapping_json["base_mapping"])
+            pre_json = apply_custom_mapping(
+                raw_json, project, mapping_json["base_mapping"]
+            )
             # Recursively apply custom mapping on pre json:
         return iterate_mapping(pre_json, mapping_json["mapping"])
 
     if "mappings" in mapping_json:
         for mapping in mapping_json["mappings"]:
-            raw_json = apply_custom_mapping(raw_json, mapping)
+            raw_json = apply_custom_mapping(raw_json, project, mapping)
         return raw_json
 
     return iterate_mapping(raw_json, mapping_json["mapping"])

@@ -20,24 +20,32 @@ class SourceNotFound(Exception):
     """Exception is thrown, if source is not found in folder "sources"."""
 
 
-def get_data_from_oep(source, **params):
-    cache_key = source + "_".join(f"({k},{v})" for k, v in params.items())
+def get_data_from_oep(project, source, **params):
+    cache_key = f"{source}{f'_{project}' or ''}{'_'.join((f'({k},{v})' for k, v in params.items()))}"
     try:
         cached_data = redis.get(cache_key)
     except RedisConnectionError:
         cached_data = None
     if cached_data:
         return json.loads(cached_data)
-    join = load_source(source, params)
+
+    try:
+        join = load_source(project, source, params)
+    except SourceNotFound:
+        raise
     data = {"query": join}
     response = requests.post(f"{OEP_URL}/api/v0/advanced/search", json=data)
     if response.status_code != 200:
-        logging.error("Error in data request to OEP", source, params, response.text)
+        logging.error(
+            "Error in data request to OEP", project, source, params, response.text
+        )
         raise ConnectionError(response.text)
     response_json = response.json()
     if response_json["content"]["rowcount"] == 0:
-        logging.warning("Could not get data from OEP", source, params, response.text)
-        raise OEPDataNotFoundError("Data not found", source, params)
+        logging.warning(
+            "Could not get data from OEP", project, source, params, response.text
+        )
+        raise OEPDataNotFoundError("Data not found", project, source, params)
     try:
         redis.set(cache_key, response.text)
     except RedisConnectionError:
@@ -52,11 +60,14 @@ def replace_json_placeholders(json_raw, values):
     return json_raw
 
 
-def load_source(name, params):
+def load_source(project, name, params):
     params = params or {}
     filename = f"{name}.json"
+    source_path = (
+        SOURCES_DIR / project / filename if project else SOURCES_DIR / filename
+    )
     try:
-        with open(SOURCES_DIR / filename, "r") as json_file:
+        with open(source_path, "r") as json_file:
             json_str = json_file.read()
     except OSError as e:
         raise SourceNotFound(f'Unknown source "{name}".') from e

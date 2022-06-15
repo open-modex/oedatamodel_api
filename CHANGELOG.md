@@ -7,6 +7,7 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 ## [Unreleased]
 ### Added
 - query page with dynamic source parameters
+- project-specific mappings and sources
 
 ## [0.8.0] - 2022-06-15
 ### Added
