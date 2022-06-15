@@ -213,6 +213,10 @@ class MappingNotFound(Exception):
     """Exception is thrown, if custom mapping is not found in folder "mappings"."""
 
 
+class MappingInvalid(Exception):
+    """Exception is thrown, if custom mapping is not valid."""
+
+
 def load_custom_mapping(name):
     """
     Load custom mapping as json/dict from mappings folder.
@@ -236,8 +240,8 @@ def load_custom_mapping(name):
     try:
         with open(MAPPINGS_DIR / filename, "r") as json_file:
             json_data = json.load(json_file)
-    except OSError:
-        raise MappingNotFound(f'Unknown mapping "{name}".')  # noqa: W0707
+    except OSError as e:
+        raise MappingNotFound(f'Unknown mapping "{name}".') from e
     return json_data
 
 
@@ -262,19 +266,31 @@ def apply_custom_mapping(raw_json: dict, mapping: str):
     dict
         Resulting json/dict after applying all custom/default mappings.
     """
-    if mapping in (m for m in OedataMapping):
+    try:
+        mapping = OedataMapping(mapping)
+    except ValueError:
+        pass
+    else:
         return map_data(raw_json, mapping)
     try:
         mapping_json = load_custom_mapping(mapping)
     except MappingNotFound:
         mapping_json = json.loads(mapping)
-    # Recursively apply base mappings if one exists:
-    if mapping_json["base_mapping"] == "":
-        pre_json = raw_json
-    else:
-        pre_json = apply_custom_mapping(raw_json, mapping_json["base_mapping"])
-    # Recursively apply custom mapping on pre json:
-    return iterate_mapping(pre_json, mapping_json["mapping"])
+
+    if "base_mapping" in mapping_json:
+        if mapping_json["base_mapping"] == "":
+            pre_json = raw_json
+        else:
+            pre_json = apply_custom_mapping(raw_json, mapping_json["base_mapping"])
+            # Recursively apply custom mapping on pre json:
+        return iterate_mapping(pre_json, mapping_json["mapping"])
+
+    if "mappings" in mapping_json:
+        for mapping in mapping_json["mappings"]:
+            raw_json = apply_custom_mapping(raw_json, mapping)
+        return raw_json
+
+    return iterate_mapping(raw_json, mapping_json["mapping"])
 
 
 def iterate_mapping(raw_json, value):
