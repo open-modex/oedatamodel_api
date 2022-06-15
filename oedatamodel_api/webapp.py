@@ -4,7 +4,7 @@ from typing import List, Union
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Response, UploadFile
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -62,16 +62,13 @@ def prepare_response(raw_json, project, mapping, output_format):
     except Exception as e:
         return HTMLResponse(str(e))
 
-    if output_format != formatting.OutputFormat.csv:
-        return mapped_data
     try:
-        zipped_data = formatting.create_zip_csv(mapped_data)
+        response = formatting.format_data(mapped_data, output_format)
     except TypeError as te:
         return HTMLResponse(
-            f'Error while creating zip file from result json:<br>{"<br>".join(te.args)}<br>Maybe mapping is not supported for chosen output format?',
+            f'Error while creating zip file from result json:<br>{"<br>".join(te.args)}'
+            "<br>Maybe mapping is not supported for chosen output format?",
         )
-    response = StreamingResponse(zipped_data, media_type="application/x-zip-compressed")
-    response.headers["Content-Disposition"] = "attachment; filename=scenario.zip"
     return response
 
 
