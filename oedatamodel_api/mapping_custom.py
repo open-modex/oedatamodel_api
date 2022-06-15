@@ -48,7 +48,9 @@ class CustomFunctions(functions.Functions):
         elements resolve to the same type as the first element.
     """
 
-    @functions.signature({"types": ["object", "string"]}, {"types": ["number"]})
+    @functions.signature(
+        {"types": ["object", "string", "array"]}, {"types": ["number"]}
+    )
     def _func_repeat(self, arg, times):
         return list(repeat(arg, times))
 
