@@ -6,8 +6,7 @@ authors = ["Hendrik Huyskens <hendrik.huyskens@rl-institut.de>"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-fastapi = "^0.65.2"
-jinja2 = "^2.11.2"
+fastapi = "^0.78.0"
 uvicorn = "^0.12.0"
 aiofiles = "^0.5.0"
 requests = "^2.24.0"
@@ -20,6 +19,7 @@ parse = "^1.18.0"
 python-multipart = "^0.0.5"
 frictionless = "^4.0.0"
 redis = "^3.5.3"
+Jinja2 = "^3.1.2"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.19.0"
