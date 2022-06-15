@@ -11,7 +11,7 @@ from fastapi.templating import Jinja2Templates
 from oedatamodel_api import formatting, mapping_custom, upload
 from oedatamodel_api.oep_connector import OEPDataNotFoundError, get_data_from_oep
 from oedatamodel_api.package_docs import loadFromJsonFile
-from oedatamodel_api.settings import APP_STATIC_DIR, ROOT_DIR
+from oedatamodel_api.settings import APP_STATIC_DIR, ROOT_DIR, VERSION
 from oedatamodel_api.validation import (
     DatapackageNotValid,
     create_and_validate_datapackage,
@@ -44,6 +44,7 @@ def index(request: Request) -> Response:
     return templates.TemplateResponse(
         "index.html",
         {
+            "version": VERSION,
             "request": request,
             "module_docs": docs_coustom_mapping,
             "mappings_docs": docs_current_mappings,

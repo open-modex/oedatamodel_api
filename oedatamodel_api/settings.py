@@ -1,6 +1,8 @@
 import os
 import pathlib
 
+VERSION = "0.8.0"
+
 ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent
 APP_DIR = ROOT_DIR / "oedatamodel_api"
 APP_STATIC_DIR = ROOT_DIR / "oedatamodel_api" / "static"
