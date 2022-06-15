@@ -71,6 +71,23 @@ def prepare_response(raw_json, mapping, output_format):
     return response
 
 
+@app.get("/query")
+def query(
+    source: str,
+    mapping: str,
+    request: Request,
+    output: formatting.OutputFormat = formatting.OutputFormat.json,
+):
+    query_params = dict(request.query_params.items())
+    query_params.pop("source")
+    query_params.pop("mapping")
+    try:
+        raw_data = get_data_from_oep(source, **query_params)
+    except (ConnectionError, OEPDataNotFoundError) as e:
+        return {"error": e.args}
+    return prepare_response(raw_data, mapping, output)
+
+
 @app.get("/scenario/id/{scenario_id}")
 def scenario_by_id(
     scenario_id: int,

@@ -30,10 +30,7 @@ def get_data_from_oep(source, **params):
         return json.loads(cached_data)
     join = load_source(source, params)
     data = {"query": join}
-    response = requests.post(
-        OEP_URL + "/api/v0/advanced/search",
-        json=data,
-    )
+    response = requests.post(f"{OEP_URL}/api/v0/advanced/search", json=data)
     if response.status_code != 200:
         logging.error("Error in data request to OEP", source, params, response.text)
         raise ConnectionError(response.text)
@@ -50,7 +47,7 @@ def get_data_from_oep(source, **params):
 
 def replace_json_placeholders(json_raw, values):
     for k, v in values.items():
-        placeholder = "<%s>" % k
+        placeholder = f"<{k}>"
         json_raw = json_raw.replace(placeholder, str(v))
     return json_raw
 
@@ -61,7 +58,7 @@ def load_source(name, params):
     try:
         with open(SOURCES_DIR / filename, "r") as json_file:
             json_str = json_file.read()
-    except OSError:
-        raise SourceNotFound(f'Unknown source "{name}".')  # noqa: W0707
+    except OSError as e:
+        raise SourceNotFound(f'Unknown source "{name}".') from e
     json_with_params = replace_json_placeholders(json_str, params)
     return json.loads(json_with_params)
