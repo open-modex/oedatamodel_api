@@ -10,6 +10,7 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 - project-specific mappings and sources
 - "table" mapping for raw data tables from OEP
 - support for single csv output format
+- dynamic query filters
 
 ## [0.8.0] - 2022-06-15
 ### Added

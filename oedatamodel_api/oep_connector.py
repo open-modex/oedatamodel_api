@@ -53,11 +53,60 @@ def get_data_from_oep(project, source, **params):
     return response_json
 
 
-def replace_json_placeholders(json_raw, values):
-    for k, v in values.items():
+def set_predefined_parameters(data_str: str, parameters: dict):
+    """
+    Replaces parameters defined in source file by query parameters
+
+    Parameters
+    ----------
+    data_str: str
+        Source string
+    parameters: dict
+        Query parameters
+
+    Returns
+    -------
+    str:
+        Source string with placeholders replaced by parameters
+    """
+    for k in list(parameters.keys()):
         placeholder = f"<{k}>"
-        json_raw = json_raw.replace(placeholder, str(v))
-    return json_raw
+        if placeholder not in data_str:
+            continue
+        v = parameters.pop(k)
+        data_str = data_str.replace(placeholder, str(v))
+    return data_str
+
+
+def set_dynamic_parameters(source_query, parameters):
+    """
+    Adds where clause for each query parameter
+
+    Parameters
+    ----------
+    source_query: dict
+        Source as json/dictionary
+    parameters: dict
+        Query parameters
+
+    Returns
+    -------
+    str:
+        Source dictionary with additional where clauses for each parameter
+    """
+    if "where" not in source_query:
+        source_query["where"] = []
+    if isinstance(source_query["where"], dict):
+        source_query["where"] = [source_query["where"]]
+    for parameter, value in parameters.items():
+        source_query["where"].append(
+            {
+                "operands": [{"column": parameter, "type": "column"}, value],
+                "operator": "=",
+                "type": "operator",
+            }
+        )
+    return source_query
 
 
 def load_source(project, name, params):
@@ -71,5 +120,7 @@ def load_source(project, name, params):
             json_str = json_file.read()
     except OSError as e:
         raise SourceNotFound(f'Unknown source "{name}".') from e
-    json_with_params = replace_json_placeholders(json_str, params)
-    return json.loads(json_with_params)
+    json_with_params = set_predefined_parameters(json_str, params)
+    source_query = json.loads(json_with_params)
+    source_query = set_dynamic_parameters(source_query, params)
+    return source_query
