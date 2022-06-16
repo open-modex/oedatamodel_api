@@ -1,0 +1,8 @@
+{
+  "from": {
+    "alias": "s",
+    "schema": "<schema>",
+    "table": "<table>",
+    "type": "table"
+  }
+}
