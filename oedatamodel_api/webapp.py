@@ -83,7 +83,7 @@ def query(
     query_params = {
         k: v
         for k, v in request.query_params.items()
-        if k not in ("source", "mapping", "project")
+        if k not in ("source", "mapping", "project", "output")
     }
     try:
         raw_data = get_data_from_oep(project, source, **query_params)
