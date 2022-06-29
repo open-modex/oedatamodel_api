@@ -1,9 +1,11 @@
 import logging
+import os
+import tempfile
 import warnings
 from typing import List, Union
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Request, Response, UploadFile
+from fastapi import FastAPI, Form, HTTPException, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -15,7 +17,7 @@ from oedatamodel_api.oep_connector import (
     get_data_from_oep,
 )
 from oedatamodel_api.package_docs import loadFromJsonFile
-from oedatamodel_api.settings import APP_STATIC_DIR, ROOT_DIR, VERSION
+from oedatamodel_api.settings import APP_STATIC_DIR, ROOT_DIR, UPLOAD_FILEPATH, VERSION
 from oedatamodel_api.validation import (
     DatapackageNotValid,
     create_and_validate_datapackage,
@@ -159,15 +161,14 @@ async def upload_datapackage_view():
     return HTMLResponse(content=content)
 
 
-def get_datapackage(datapackage_files):
+def get_datapackage(datapackage_path):
     logger.debug("Validating datapackage...")
     try:
-        package = create_and_validate_datapackage(datapackage_files)
+        package = create_and_validate_datapackage(datapackage_path)
     except DatapackageNotValid as de:
         raise HTTPException(
             status_code=404, detail={"Datapackage is not valid": de.args[0]}
         ) from de
-    logger.info(f"Successfully validated datapackage '{package.name}'")
     return package
 
 
@@ -179,7 +180,7 @@ def apply_mapping(data_json, project, mapping):
         logger.debug("Successfully applied mapping")
         return mapped_json
     except Exception as e:
-        HTTPException(status_code=404, detail={"Mapping error": str(e)})
+        raise HTTPException(status_code=404, detail={"Mapping error": str(e)}) from e
 
 
 def validate_upload(data_json, schema):
@@ -188,10 +189,11 @@ def validate_upload(data_json, schema):
     with warnings.catch_warnings(record=True) as w:
         try:
             upload.validate_upload_data(data_json, schema)
-        except upload.ValidationError as ve:
-            HTTPException(
-                status_code=404, detail={"OEP data validation error": ve.args[0]}
-            )
+        except (upload.ValidationError, upload.UploadError) as e:
+            raise HTTPException(
+                status_code=404, detail={"OEP data validation error": e.args[0]}
+            ) from e
+
         upload_warnings.extend(w)
     logger.debug("Successfully validated upload data with OEP metadata")
     return upload_warnings
@@ -200,21 +202,31 @@ def validate_upload(data_json, schema):
 @app.post("/upload_datapackage/")
 async def upload_datapackage(
     datapackage_files: List[UploadFile] = None,
-    schema: str = "",
-    mapping: str = "",
-    project: Union[str, None] = None,
-    show_json: bool = False,
-    adapt_foreign_keys: bool = False,
-    token: str = None,
+    schema: str = Form(default=""),
+    mapping: str = Form(default=""),
+    project: Union[str, None] = Form(default=None),
+    show_json: bool = Form(default=False),
+    adapt_foreign_keys: bool = Form(default=False),
+    token: str = Form(default=None),
 ):
     if not token:
         return HTMLResponse("Invalid token - you must provide a valid OEP Token")
 
-    package = get_datapackage(datapackage_files)
-    data_json = {
-        resource.name: [row.to_dict() for row in resource.read_rows()]
-        for resource in package.resources
-    }
+    # Create temporary directory to store datapackage:
+    with tempfile.TemporaryDirectory(dir=UPLOAD_FILEPATH) as tempdir:
+        for upload_file in datapackage_files:
+            with open(
+                os.path.join(tempdir, upload_file.filename), "wb+"
+            ) as file_object:
+                file_object.write(upload_file.file.read())
+        logger.debug("Successfully extracted datapackage to temp folder")
+
+        package = get_datapackage(f"{tempdir}/datapackage.json")
+        data_json = {
+            resource.name: [row.to_dict() for row in resource.read_rows()]
+            for resource in package.resources
+        }
+
     mapped_json = apply_mapping(data_json, project, mapping)
 
     # Return mapped data (optional)
@@ -230,7 +242,12 @@ async def upload_datapackage(
 
     # Adapt foreign keys (Modex-specific)
     if adapt_foreign_keys:
-        data_json, scenario_id = upload.adapt_foreign_keys(data_json, schema)
+        try:
+            data_json, scenario_id = upload.adapt_foreign_keys(data_json, schema)
+        except upload.UploadError as ue:
+            raise HTTPException(
+                status_code=404, detail={"error on upload": str(ue)}
+            ) from ue
         success_response["scenario_id"] = scenario_id
         logger.debug("Successfully adapted foreign keys")
 

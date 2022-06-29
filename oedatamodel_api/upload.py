@@ -127,7 +127,10 @@ def validate_upload_data(data, schema):
     for table, data_dict in data.items():
         # Get datapackage format for each table in data
         meta_url = f"{OEP_URL}/api/v0/schema/{schema}/tables/{table}/meta/"
-        metadata = json.loads(requests.get(meta_url).content)
+        response = requests.get(meta_url)
+        if response.status_code != 200:
+            raise UploadError(f"Table '{schema}.{table}' unavailable on OEP platform.")
+        metadata = json.loads(response.content)
         try:
             oep_schema = metadata["resources"][0]["schema"]
         except (KeyError, IndexError):
