@@ -105,8 +105,6 @@ def upload_data_to_oep(data, schema, token):
     def default_serialization(item):
         return item.isoformat() if isinstance(item, (dt.date, dt.datetime)) else item
 
-    # TODO: Check for type "Decimal" and report error; solution in datapacke.json: "floatNumber": "True"
-
     for table, table_data in data.items():
         table_url = f"{OEP_URL}/api/v0/schema/{schema}/tables/{table}/rows/new"
         response = requests.post(

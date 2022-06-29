@@ -2,7 +2,14 @@ import csv
 import logging
 import sys
 
-from frictionless import FrictionlessException, Package, Report, validate_resource
+from frictionless import (
+    FrictionlessException,
+    Package,
+    Report,
+    check,
+    errors,
+    validate_resource,
+)
 
 # Increase max cell size (in order to successfully load timeseries.series)
 # avoid error: The data source has not supported or has inconsistent contents: field larger than field limit (131072)
@@ -13,6 +20,22 @@ logger = logging.getLogger("uvicorn.error")
 
 class DatapackageNotValid(Exception):
     """Exception is raised if datapackage is not valid"""
+
+
+class CheckDecimal(check.Check):
+    code = "field-type"
+    Errors = [errors.TableError]
+
+    def validate_start(self):
+        for field in self.resource.schema.fields:
+            if field.type == "number" and not field.float_number:
+                yield errors.TableError(
+                    note=(
+                        f"Table '{self.resource.name}' contains floats in column '{field.name}'. "
+                        'In order to handle those correctly, please set "type": "number" and '
+                        '"floatNumber": "True" in datapackage.json'
+                    )
+                )
 
 
 def create_and_validate_datapackage(datapackage_path):
@@ -33,7 +56,7 @@ def create_report(package):
     errors = []
     for resource in package.resources:
         logger.debug(f"Validating resource '{resource.name}'...")
-        report = validate_resource(resource)
+        report = validate_resource(resource, checks=[CheckDecimal()])
         logger.debug(f"Successfully validated resource '{resource.name}'")
         tasks.extend(report.tasks)
         errors.extend(report.errors)
