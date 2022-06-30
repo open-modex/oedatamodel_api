@@ -1,0 +1,30 @@
+{
+  "scenario": {
+    "fields": [
+      {
+        "as": "key",
+        "column": "id",
+        "type": "column"
+      }
+    ],
+    "from": {
+      "schema": "model_draft",
+      "table": "sedos_scenario",
+      "type": "table"
+    }
+  },
+  "scenario2": {
+    "fields": [
+      {
+        "as": "key",
+        "column": "id",
+        "type": "column"
+      }
+    ],
+    "from": {
+      "schema": "model_draft",
+      "table": "sedos_scenario",
+      "type": "table"
+    }
+  }
+}

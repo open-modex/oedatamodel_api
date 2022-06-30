@@ -1,0 +1,14 @@
+{
+  "fields": [
+    {
+      "as": "key",
+      "column": "id",
+      "type": "column"
+    }
+  ],
+  "from": {
+    "schema": "model_draft",
+    "table": "sedos_scenario",
+    "type": "table"
+  }
+}

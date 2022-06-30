@@ -21,7 +21,21 @@ class SourceNotFound(Exception):
 
 
 def get_data_from_oep(project, source, **params):
-    cache_key = f"{source}{f'_{project}' or ''}{'_'.join((f'({k},{v})' for k, v in params.items()))}"
+    try:
+        tables = load_source(project, source, params)
+    except SourceNotFound:
+        raise
+    if "from" in tables:  # This detects a single table
+        return query_oep(tables, project, source, **params)
+    else:
+        return {
+            key: query_oep(table, project, source, key, **params)
+            for key, table in tables.items()
+        }
+
+
+def query_oep(query, project, source, key=None, **params):
+    cache_key = f"{source}{f'_{project}' or ''}{f'_{key}' or ''}{'_'.join((f'({k},{v})' for k, v in params.items()))}"
     try:
         cached_data = redis.get(cache_key)
     except RedisConnectionError:
@@ -29,11 +43,7 @@ def get_data_from_oep(project, source, **params):
     if cached_data:
         return json.loads(cached_data)
 
-    try:
-        join = load_source(project, source, params)
-    except SourceNotFound:
-        raise
-    data = {"query": join}
+    data = {"query": query}
     response = requests.post(f"{OEP_URL}/api/v0/advanced/search", json=data)
     if response.status_code != 200:
         logging.error(
@@ -94,6 +104,8 @@ def set_dynamic_parameters(source_query, parameters):
     str:
         Source dictionary with additional where clauses for each parameter
     """
+    if "from" not in source_query:
+        return source_query
     if "where" not in source_query:
         source_query["where"] = []
     if isinstance(source_query["where"], dict):

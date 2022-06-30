@@ -18,7 +18,7 @@ OEP_URL = "https://openenergy-platform.org"
 
 # REDIS CACHE
 # -----------
-REDIS_URL = os.environ.get("REDIS_URL")
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
 
 
 # OEDATAMODEL
