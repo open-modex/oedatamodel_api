@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from oedatamodel_api import formatting, mapping_custom, upload
+from oedatamodel_api import databus, formatting, mapping_custom, upload
 from oedatamodel_api.oep_connector import (
     OEPDataNotFoundError,
     SourceNotFound,
@@ -262,6 +262,33 @@ async def upload_datapackage(
     logger.info(f"Successfully uploaded datapackage '{package.name}' to OEP")
 
     return success_response
+
+
+@app.get("/databus/")
+async def databus_view(request: Request) -> Response:
+    return templates.TemplateResponse("databus.html", context={"request": request})
+
+
+@app.post("/databus/")
+async def register_on_databus(
+    account: str = Form(),
+    api_key: str = Form(),
+    group: str = Form(),
+    schema: str = Form(),
+    table: str = Form(),
+):
+    try:
+        databus.register_oep_table(schema, table, group, account, api_key)
+    except databus.MetadataError as me:
+        raise HTTPException(
+            status_code=404, detail={"Error in Metadata": str(me)}
+        ) from me
+    except databus.DeployError as de:
+        raise HTTPException(
+            status_code=404, detail={"Error when deploying": str(de)}
+        ) from de
+
+    return {"message": f"Successfully registered table '{schema}.{table}' on databus."}
 
 
 if __name__ == "__main__":
