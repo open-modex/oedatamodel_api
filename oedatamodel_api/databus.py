@@ -1,13 +1,20 @@
 import datetime as dt
 import json
+import logging
 from urllib.parse import quote
 
 import databusclient
 import requests
 
-OEP_URL = "https://openenergy-platform.org"
-DATABUS_URI_BASE = "https://energy.databus.dbpedia.org"
-MOSS_URL = "http://moss.tools.dbpedia.org/annotation-api-demo/submit"
+from oedatamodel_api.settings import (
+    DATABUS_URI_BASE,
+    DEBUG,
+    MOSS_URL,
+    OEDATAMODEL_API,
+    OEP_URL,
+)
+
+logger = logging.getLogger("uvicorn")
 
 
 class MetadataError(Exception):
@@ -67,12 +74,23 @@ def get_table_meta(schema: str, table: str):
     return metadata
 
 
-def register_oep_table(schema_name, table_name, group, account_name, api_key):
+def register_oep_table(
+    root_url: str,
+    schema_name: str,
+    table_name: str,
+    group: str,
+    account_name: str,
+    api_key: str,
+    cvs_name: str,
+    cvs_value: str,
+):
     """
     Registers OEP table on DataBus and MOSS
 
     Parameters
     ----------
+    root_url: str
+        (Proxy-) URL of server this app is running on
     schema_name: str
         OEP schema where table is found
     table_name: str
@@ -83,21 +101,31 @@ def register_oep_table(schema_name, table_name, group, account_name, api_key):
         Databus account name
     api_key: str
         Databus API key
+    cvs_name: str
+        Column to filter data by
+    cvs_value: str
+        is used to filter column given by cvs_name by given value
 
     Returns
     -------
     databus_identifier: str
         Databus ID
     """
-
+    logger.info(
+        f"Registering table '{schema_name}.{table_name}' in group '{account_name}/{group}' "
+        f"with '{cvs_name}={cvs_value}'"
+    )
     metadata = get_table_meta(schema_name, table_name)
     abstract = metadata["context"]["documentation"]
     license_ = metadata["licenses"][0]["path"]
 
+    host = OEDATAMODEL_API if DEBUG else root_url
+    url = f"{host}query?source=simple&schema={schema_name}&table={table_name}&{cvs_name}={cvs_value}&mapping=table"
+
     distributions = [
         databusclient.create_distribution(
-            url=f"{OEP_URL}/api/v0/schema/{schema_name}/tables/{table_name}/rows/",
-            cvs={"csv": "default"},
+            url=url,
+            cvs={cvs_name: cvs_value},
             file_format="json",
         )
     ]
