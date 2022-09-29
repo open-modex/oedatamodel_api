@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import tempfile
@@ -5,12 +6,14 @@ import warnings
 from typing import List, Union
 
 import uvicorn
-from fastapi import FastAPI, Form, HTTPException, Request, Response, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from oedatamodel_api import formatting, mapping_custom, upload
+from oedatamodel_api import formatting, mapping_custom
+from oedatamodel_api import metadata as oem
+from oedatamodel_api import upload
 from oedatamodel_api.oep_connector import (
     OEPDataNotFoundError,
     SourceNotFound,
@@ -262,6 +265,35 @@ async def upload_datapackage(
     logger.info(f"Successfully uploaded datapackage '{package.name}' to OEP")
 
     return success_response
+
+
+@app.get("/create_table/")
+async def create_table_view(request: Request):
+    return templates.TemplateResponse("metadata.html", context={"request": request})
+
+
+@app.post("/create_table/")
+async def create_table(
+    metadata_file: UploadFile = File(...),
+    user: str = Form(default=None),
+    token: str = Form(default=None),
+):
+    if not token:
+        raise HTTPException(
+            status_code=404, detail="Invalid token - you must provide a valid OEP Token"
+        )
+    metadata = json.load(metadata_file.file)
+    try:
+        oem.check_parameter_model(metadata)
+    except oem.ParameterModelException as pme:
+        raise HTTPException(
+            status_code=404,
+            detail={"Error while creating OEP tables from OEM": str(pme)},
+        ) from pme
+    oem.create_tables_from_metadata(metadata, user, token)
+    schema, tablename = metadata["resources"][0]["name"].split(".")
+    table_url = f"https://openenergy-platform.org/dataedit/view/{schema}/{tablename}"
+    return f"Successfully created table '{schema}.{tablename}' on OEP. Table should now be available under: {table_url}"
 
 
 if __name__ == "__main__":

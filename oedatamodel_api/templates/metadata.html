@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OEDatamodel API</title>
+</head>
+<body>
+  <h1>Create OEP table using OEMetadata</h1>
+  <form action="/create_table/" enctype="multipart/form-data" method="post">
+    <p>
+      <label for="user">OEP User</label>
+      <input id="user" name="user" type="text">
+    </p>
+    <p>
+      <label for="token">OEP Token</label>
+      <input id="token" name="token" type="password">
+    </p>
+    <p>
+      <label for="metadata">Metadata (JSON file)</label>
+      <input id="metadata" name="metadata_file" type="file">
+    </p>
+    <p><input type="submit"></p>
+  </form>
+</body>

@@ -7,6 +7,7 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 ## [Unreleased]
 ### Added
 - multiple tables per source
+- view to create OEP tables from OEM
 
 ### Fixed
 - temp dir for datapackages
