@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OEDatamodel API</title>
+</head>
+<body>
+  <h1>Upload data to OEP</h1>
+  <form action="/upload/" enctype="multipart/form-data" method="post">
+    <p>
+      <label for="token">OEP Token</label>
+      <input id="token" name="token" type="password">
+    </p>
+    <p>
+      <label for="schema">Schema</label>
+      <input id="schema" name="schema" type="text">
+    </p>
+    <p>
+      <label for="table">Table</label>
+      <input id="table" name="table" type="text">
+    </p>
+    <p>
+      <label for="csv_file">Data (as CSV file)</label>
+      <input id="csv_file" name="csv_file" type="file">
+    </p>
+    <p><input type="submit"></p>
+  </form>
+</body>

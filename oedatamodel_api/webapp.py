@@ -5,6 +5,7 @@ import tempfile
 import warnings
 from typing import List, Union
 
+import frictionless
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse
@@ -265,6 +266,40 @@ async def upload_datapackage(
     logger.info(f"Successfully uploaded datapackage '{package.name}' to OEP")
 
     return success_response
+
+
+@app.get("/upload/")
+async def upload_single_table_view(request: Request):
+    return templates.TemplateResponse(
+        "single_upload.html", context={"request": request}
+    )
+
+
+@app.post("/upload/")
+async def upload_single_table(
+    csv_file: UploadFile = File(...),
+    schema: str = Form(default=None),
+    table: str = Form(default=None),
+    token: str = Form(default=None),
+):
+    if not token:
+        raise HTTPException(
+            status_code=404, detail="Invalid token - you must provide a valid OEP Token"
+        )
+    resource = frictionless.Resource(csv_file.file.read())
+    data = {table: [row.to_dict() for row in resource.read_rows()]}
+
+    validate_upload(data, schema)
+    try:
+        upload.upload_data_to_oep(data, schema, token)
+    except upload.UploadError as ue:
+        raise HTTPException(
+            status_code=404, detail={"error on upload": str(ue)}
+        ) from ue
+
+    success_msg = "Successfully uploaded data from CSV to OEP"
+    logger.info(success_msg)
+    return success_msg
 
 
 @app.get("/create_table/")
