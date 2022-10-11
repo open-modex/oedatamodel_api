@@ -271,26 +271,15 @@ async def databus_view(request: Request) -> Response:
 
 @app.post("/databus/")
 async def register_on_databus(
-    request: Request,
     account: str = Form(),
     api_key: str = Form(),
     group: str = Form(),
     schema: str = Form(),
     table: str = Form(),
-    cvs_name: str = Form(),
-    cvs_value: str = Form(),
+    version: str = Form(),
 ):
     try:
-        databus.register_oep_table(
-            str(request.base_url),
-            schema,
-            table,
-            group,
-            account,
-            api_key,
-            cvs_name,
-            cvs_value,
-        )
+        databus.register_oep_table(schema, table, group, account, api_key, version)
     except databus.MetadataError as me:
         raise HTTPException(
             status_code=404, detail={"Error in Metadata": str(me)}

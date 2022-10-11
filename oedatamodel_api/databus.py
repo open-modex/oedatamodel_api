@@ -6,13 +6,7 @@ from urllib.parse import quote
 import databusclient
 import requests
 
-from oedatamodel_api.settings import (
-    DATABUS_URI_BASE,
-    DEBUG,
-    MOSS_URL,
-    OEDATAMODEL_API,
-    OEP_URL,
-)
+from oedatamodel_api.settings import DATABUS_URI_BASE, MOSS_URL, OEP_URL
 
 logger = logging.getLogger("uvicorn")
 
@@ -75,22 +69,18 @@ def get_table_meta(schema: str, table: str):
 
 
 def register_oep_table(
-    root_url: str,
     schema_name: str,
     table_name: str,
     group: str,
     account_name: str,
     api_key: str,
-    cvs_name: str,
-    cvs_value: str,
+    version: str,
 ):
     """
     Registers OEP table on DataBus and MOSS
 
     Parameters
     ----------
-    root_url: str
-        (Proxy-) URL of server this app is running on
     schema_name: str
         OEP schema where table is found
     table_name: str
@@ -101,10 +91,8 @@ def register_oep_table(
         Databus account name
     api_key: str
         Databus API key
-    cvs_name: str
-        Column to filter data by
-    cvs_value: str
-        is used to filter column given by cvs_name by given value
+    version: str
+        defines for which version table is filtered and registered
 
     Returns
     -------
@@ -113,19 +101,18 @@ def register_oep_table(
     """
     logger.info(
         f"Registering table '{schema_name}.{table_name}' in group '{account_name}/{group}' "
-        f"with '{cvs_name}={cvs_value}'"
+        f"with {version=}"
     )
     metadata = get_table_meta(schema_name, table_name)
     abstract = metadata["context"]["documentation"]
     license_ = metadata["licenses"][0]["path"]
 
-    host = OEDATAMODEL_API if DEBUG else root_url
-    url = f"{host}query?source=simple&schema={schema_name}&table={table_name}&{cvs_name}={cvs_value}&mapping=table"
+    url = f"{OEP_URL}/api/v0/schema/{schema_name}/tables/{table_name}/rows?form=csv&where=version={version}"
 
     distributions = [
         databusclient.create_distribution(
             url=url,
-            cvs={cvs_name: cvs_value},
+            cvs={"version": version},
             file_format="json",
         )
     ]
@@ -143,7 +130,7 @@ def register_oep_table(
     deploy(dataset, api_key)
 
     # Get file identifier:
-    databus_identifier = f"{version_id}/{table_name}_.json"
+    databus_identifier = f"{version_id}/{table_name}_version={version}.json"
     submit_metadata_to_moss(databus_identifier, metadata)
     return databus_identifier
 
