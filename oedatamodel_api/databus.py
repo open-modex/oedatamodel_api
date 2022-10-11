@@ -172,7 +172,7 @@ def submit_metadata_to_moss(databus_identifier, metadata):
     if response.status_code != 200:
         raise MossError(
             f"Could not submit metadata for DI '{databus_identifier}' to MOSS. "
-            f"Reason: {response.reason}"
+            f"Reason: {response.text}"
         )
 
 

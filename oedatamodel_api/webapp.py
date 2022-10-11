@@ -297,8 +297,12 @@ async def register_on_databus(
         ) from me
     except databus.DeployError as de:
         raise HTTPException(
-            status_code=404, detail={"Error when deploying": str(de)}
+            status_code=404, detail={"Error when deploying to databus": str(de)}
         ) from de
+    except databus.MossError as me:
+        raise HTTPException(
+            status_code=404, detail={"Error when deploying metadata to MOSS": str(me)}
+        ) from me
 
     return {"message": f"Successfully registered table '{schema}.{table}' on databus."}
 
