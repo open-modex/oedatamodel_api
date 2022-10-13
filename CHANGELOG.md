@@ -6,6 +6,8 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 
 ## [Unreleased]
 ### Added
+- menu for SEDOS related views
+- view to register data on databus
 - view to upload CSV data to single table (incl. frictionless validation)
 - multiple tables per source
 - view to create OEP tables from OEM

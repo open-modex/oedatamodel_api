@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>OEDatamodel API</title>
-</head>
-<body>
-  <h1>Register OEP table on the DataBus and MOSS</h1>
+{% extends "sedos_base.html" %}
+
+{% block content %}
+  <h2>Register OEP table on the DataBus and MOSS</h2>
   <form action="/databus/" method="post">
     <p>
       <label for="account">Databus Account Name</label>
@@ -34,4 +30,4 @@
     </p>
     <p><input type="submit"></p>
   </form>
-</body>
+{% endblock %}

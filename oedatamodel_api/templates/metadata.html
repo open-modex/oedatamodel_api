@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>OEDatamodel API</title>
-</head>
-<body>
-  <h1>Create OEP table using OEMetadata</h1>
+{% extends "sedos_base.html" %}
+
+{% block content %}
+  <h2>Create OEP table using OEMetadata</h2>
   <form action="/create_table/" enctype="multipart/form-data" method="post">
     <p>
       <label for="user">OEP User</label>
@@ -21,4 +17,4 @@
     </p>
     <p><input type="submit"></p>
   </form>
-</body>
+{% endblock %}}

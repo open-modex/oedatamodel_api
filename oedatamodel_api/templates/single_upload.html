@@ -1,11 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>OEDatamodel API</title>
-</head>
-<body>
-  <h1>Upload data to OEP</h1>
+{% extends "sedos_base.html" %}
+
+{% block content %}
+  <h2>Upload data to OEP</h2>
   <form action="/upload/" enctype="multipart/form-data" method="post">
     <p>
       <label for="token">OEP Token</label>
@@ -25,4 +21,4 @@
     </p>
     <p><input type="submit"></p>
   </form>
-</body>
+{% endblock %}}
