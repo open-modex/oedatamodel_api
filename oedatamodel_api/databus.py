@@ -113,7 +113,7 @@ def register_oep_table(
         databusclient.create_distribution(
             url=url,
             cvs={"version": version},
-            file_format="json",
+            file_format="csv",
         )
     ]
 
