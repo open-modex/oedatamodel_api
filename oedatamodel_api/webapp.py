@@ -11,7 +11,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from oedatamodel_api import formatting, mapping_custom
+from oedatamodel_api import databus, formatting, mapping_custom
 from oedatamodel_api import metadata as oem
 from oedatamodel_api import upload
 from oedatamodel_api.oep_connector import (
@@ -254,7 +254,7 @@ async def upload_datapackage(
         success_response["scenario_id"] = scenario_id
         logger.debug("Successfully adapted foreign keys")
 
-    # Finally, upload data to OEP
+    # Finally, upload data to OEPi
     try:
         upload.upload_data_to_oep(data_json, schema, token)
     except upload.UploadError as ue:
@@ -294,6 +294,38 @@ async def create_table(
     schema, tablename = metadata["resources"][0]["name"].split(".")
     table_url = f"https://openenergy-platform.org/dataedit/view/{schema}/{tablename}"
     return f"Successfully created table '{schema}.{tablename}' on OEP. Table should now be available under: {table_url}"
+
+
+@app.get("/databus/")
+async def databus_view(request: Request) -> Response:
+    return templates.TemplateResponse("databus.html", context={"request": request})
+
+
+@app.post("/databus/")
+async def register_on_databus(
+    account: str = Form(),
+    api_key: str = Form(),
+    group: str = Form(),
+    schema: str = Form(),
+    table: str = Form(),
+    version: str = Form(),
+):
+    try:
+        databus.register_oep_table(schema, table, group, account, api_key, version)
+    except databus.MetadataError as me:
+        raise HTTPException(
+            status_code=404, detail={"Error in Metadata": str(me)}
+        ) from me
+    except databus.DeployError as de:
+        raise HTTPException(
+            status_code=404, detail={"Error when deploying to databus": str(de)}
+        ) from de
+    except databus.MossError as me:
+        raise HTTPException(
+            status_code=404, detail={"Error when deploying metadata to MOSS": str(me)}
+        ) from me
+
+    return {"message": f"Successfully registered table '{schema}.{table}' on databus."}
 
 
 if __name__ == "__main__":

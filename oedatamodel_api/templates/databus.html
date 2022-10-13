@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OEDatamodel API</title>
+</head>
+<body>
+  <h1>Register OEP table on the DataBus and MOSS</h1>
+  <form action="/databus/" method="post">
+    <p>
+      <label for="account">Databus Account Name</label>
+      <input id="account" name="account" type="text">
+    </p>
+    <p>
+      <label for="api_key">Databus API Key</label>
+      <input id="api_key" name="api_key" type="password">
+    </p>
+    <p>
+      <label for="group">Databus Group</label>
+      <input id="group" name="group" type="text">
+    </p>
+    <p>
+      <label for="schema">Schema</label>
+      <input id="schema" name="schema" type="text" value="model_draft">
+    </p>
+    <p>
+      <label for="table">Table</label>
+      <input id="table" name="table" type="text">
+    </p>
+    <p>
+      <label for="version">Version</label>
+      <input id="version" name="version" type="text">
+      Version column must at least contain one row with given value.
+    </p>
+    <p><input type="submit"></p>
+  </form>
+</body>

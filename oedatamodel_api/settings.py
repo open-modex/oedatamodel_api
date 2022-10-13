@@ -2,6 +2,7 @@ import os
 import pathlib
 
 VERSION = "0.9.0"
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent
 APP_DIR = ROOT_DIR / "oedatamodel_api"
@@ -14,6 +15,9 @@ UPLOAD_FILEPATH = ROOT_DIR / "files"
 # OEP
 # ---
 OEP_URL = "https://openenergy-platform.org"
+DATABUS_URI_BASE = "https://energy.databus.dbpedia.org"
+MOSS_URL = "http://moss.tools.dbpedia.org/annotation-api-demo/submit"
+OEDATAMODEL_API = "https://modex.rl-institut.de/"  # Only used in debug mode
 
 
 # REDIS CACHE
