@@ -6,6 +6,7 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 
 ## [Unreleased]
 ### Added
+- view to upload CSV data to single table (incl. frictionless validation)
 - multiple tables per source
 - view to create OEP tables from OEM
 

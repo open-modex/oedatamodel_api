@@ -11,6 +11,25 @@ logger = logging.getLogger("uvicorn.access")
 
 OEP_CONNECTION = "postgresql+oedialect://{user}:{token}@openenergy-platform.org"
 
+DEFAULT_FRICTIONLESS_RESOURCE = {
+    "profile": "tabular-data-resource",
+    "scheme": "file",
+    "format": "csv",
+    "encoding": "utf-8",
+    "schema": {
+        "fields": [],
+    },
+    "dialect": {"delimiter": ";"},
+}
+
+FRICTIONLESS_TYPES = {
+    "bigint": "integer",
+    "float": "number",
+    "json": "object",
+    "text": "string",
+}
+DEFAULT_FRICTIONLESS_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
 
 class ParameterModelException(Exception):
     """Raised if OEM is invalid with parameter model schema"""
