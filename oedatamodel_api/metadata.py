@@ -3,6 +3,7 @@ import logging
 import sqlalchemy as sa
 from oem2orm.oep_oedialect_oem2orm import (
     DB,
+    api_updateMdOnTable,
     create_tables,
     create_tables_from_metadata_file,
 )
@@ -55,4 +56,7 @@ def create_tables_from_metadata(metadata: dict, user: str, token: str):
     db = create_db_connection(user, token)
     tables = create_tables_from_metadata_file(db, metadata)
     create_tables(db, tables)
+    if len(tables) == 1:
+        # Upload metadata for single table
+        api_updateMdOnTable(metadata)
     logging.info("Successfully created tables from OEM on OEP.")

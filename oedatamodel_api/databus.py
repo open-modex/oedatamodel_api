@@ -130,7 +130,7 @@ def register_oep_table(
     deploy(dataset, api_key)
 
     # Get file identifier:
-    databus_identifier = f"{version_id}/{table_name}_version={version}.json"
+    databus_identifier = f"{version_id}/{table_name}_version={version}.csv"
     submit_metadata_to_moss(databus_identifier, metadata)
     return databus_identifier
 
