@@ -321,12 +321,12 @@ async def create_table(
     metadata = json.load(metadata_file.file)
     try:
         oem.check_parameter_model(metadata)
+        oem.create_tables_from_metadata(metadata, user, token)
     except oem.ParameterModelException as pme:
         raise HTTPException(
             status_code=404,
             detail={"Error while creating OEP tables from OEM": str(pme)},
         ) from pme
-    oem.create_tables_from_metadata(metadata, user, token)
     schema, tablename = metadata["resources"][0]["name"].split(".")
     table_url = f"https://openenergy-platform.org/dataedit/view/{schema}/{tablename}"
     return f"Successfully created table '{schema}.{tablename}' on OEP. Table should now be available under: {table_url}"
