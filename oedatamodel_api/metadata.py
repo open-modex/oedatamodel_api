@@ -62,5 +62,5 @@ def create_tables_from_metadata(metadata: dict, user: str, token: str):
         raise ParameterModelException(str(de))
     if len(tables) == 1:
         # Upload metadata for single table
-        api_updateMdOnTable(metadata)
+        api_updateMdOnTable(metadata, token)
     logging.info("Successfully created tables from OEM on OEP.")
