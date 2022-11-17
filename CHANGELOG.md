@@ -12,6 +12,9 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 - multiple tables per source
 - view to create OEP tables from OEM
 
+### Changed
+- error is raised, if no metadata found when uploading to table
+
 ### Fixed
 - temp dir for datapackages
 - query parameters in upload_datapackage

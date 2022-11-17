@@ -1,7 +1,6 @@
 import datetime as dt
 import json
 import logging
-import warnings
 
 import requests
 from frictionless import Resource, validate_resource
@@ -143,11 +142,7 @@ def get_resources_from_data(data, schema):
         try:
             oep_schema = metadata["resources"][0]["schema"]
         except (KeyError, IndexError):
-            warnings.warn(
-                f"Metadata for OEP table '{schema}.{table}' not found or invalid. "
-                f"Thus, data could not be validated against table format",
-            )
-            continue
+            raise UploadError(f"Table '{schema}.{table}' has no valid metadata.")
 
         # Rewrite datapackage format and validate json, instead of postgresql:
         fl_table_schema = reformat_oep_to_frictionless_schema(oep_schema)

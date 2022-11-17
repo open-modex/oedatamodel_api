@@ -192,10 +192,10 @@ def validate_upload(resources):
     with warnings.catch_warnings(record=True) as w:
         try:
             upload.validate_resources(resources)
-        except (upload.ValidationError, upload.UploadError) as e:
+        except upload.ValidationError as ve:
             raise HTTPException(
-                status_code=404, detail={"OEP data validation error": e.args[0]}
-            ) from e
+                status_code=404, detail={"OEP data validation error": ve.args[0]}
+            ) from ve
 
         upload_warnings.extend(w)
     logger.debug("Successfully validated upload data with OEP metadata")
