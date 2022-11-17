@@ -15,6 +15,7 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 ### Fixed
 - temp dir for datapackages
 - query parameters in upload_datapackage
+- token for metadata creation via oem2orm
 
 ## [0.9.0] - 2022-06-15
 ### Added
