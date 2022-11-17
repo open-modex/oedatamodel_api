@@ -670,8 +670,8 @@ sqlalchemy = ">=1.2.0"
 
 [[package]]
 name = "oem2orm"
-version = "0.2.10"
-description = "SQLAlchemy module to generate ORM, read from data model (oedatamodel) in open-energy-metadata(oem-v1.4.0) JSON format"
+version = "0.3.2"
+description = "SQLAlchemy module to generate ORM, read from data model (oedatamodel) in open-energy-metadata JSON format"
 category = "main"
 optional = false
 python-versions = ">=3.6"
@@ -688,8 +688,8 @@ sqlalchemy = "1.3.14"
 [package.source]
 type = "git"
 url = "https://github.com/OpenEnergyPlatform/oem2orm.git"
-reference = "develop"
-resolved_reference = "8c4d1f92b809c998b61034c6927134d1fda2361f"
+reference = "feature/upload_metadata_for_single_table"
+resolved_reference = "7db75578162a9e228d06522b790ca2d38637066d"
 
 [[package]]
 name = "omi"
@@ -1386,7 +1386,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "6909a9606eb9c6b84bc55e017b61244303a0d6a13536edd84f9205c0b10fe323"
+content-hash = "61c248ad1aba224a4ca7c4562b66a8ed8ff92c39ecba2498553050fd82a2d441"
 
 [metadata.files]
 add-trailing-comma = [

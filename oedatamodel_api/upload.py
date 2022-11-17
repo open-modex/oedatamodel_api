@@ -18,6 +18,7 @@ OEP_TO_FRICTIONLESS_CONVERSION = {
     "decimal": "number",
     "interval": "any",
     "timestamp": "datetime",
+    "float": "number",
 }
 
 
@@ -120,9 +121,19 @@ def upload_data_to_oep(data, schema, token):
         logger.debug(f"Successfully uploaded table '{table}'")
 
 
-def validate_upload_data(data, schema):
+def validate_resources(resources):
     errors = []
-    for table, data_dict in data.items():
+    for resource in resources:
+        report = validate_resource(resource)
+        if report["stats"]["errors"] != 0:
+            errors.append(report.to_dict())
+    if errors:
+        raise ValidationError(errors)
+
+
+def get_resources_from_data(data, schema):
+    resources = []
+    for table, data_source in data.items():
         # Get datapackage format for each table in data
         meta_url = f"{OEP_URL}/api/v0/schema/{schema}/tables/{table}/meta/"
         response = requests.get(meta_url)
@@ -140,18 +151,26 @@ def validate_upload_data(data, schema):
 
         # Rewrite datapackage format and validate json, instead of postgresql:
         fl_table_schema = reformat_oep_to_frictionless_schema(oep_schema)
-        resource = Resource(
-            name=table,
-            profile="tabular-data-resource",
-            data=data_dict,
-            schema=fl_table_schema,
-        )
-        report = validate_resource(resource)
-        if report["stats"]["errors"] != 0:
-            errors.append(report.to_dict())
-
-    if errors:
-        raise ValidationError(errors)
+        if isinstance(data_source, dict):
+            resources.append(
+                Resource(
+                    name=table,
+                    profile="tabular-data-resource",
+                    data=data_source,
+                    schema=fl_table_schema,
+                )
+            )
+        else:
+            resources.append(
+                Resource(
+                    name=table,
+                    profile="tabular-data-resource",
+                    source=data_source,
+                    schema=fl_table_schema,
+                    format="csv",
+                )
+            )
+    return resources
 
 
 def reformat_oep_to_frictionless_schema(schema):
@@ -162,7 +181,10 @@ def reformat_oep_to_frictionless_schema(schema):
             type_ = "array"
         else:
             type_ = OEP_TO_FRICTIONLESS_CONVERSION.get(field["type"], field["type"])
-        fields.append({"name": field["name"], "type": type_})
+        field_data = {"name": field["name"], "type": type_}
+        if field["type"] == "float":
+            field_data["floatNumber"] = "True"
+        fields.append(field_data)
     return {
         "fields": fields,
         "primaryKey": schema["primaryKey"],

@@ -5,7 +5,6 @@ import tempfile
 import warnings
 from typing import List, Union
 
-import frictionless
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse
@@ -187,12 +186,12 @@ def apply_mapping(data_json, project, mapping):
         raise HTTPException(status_code=404, detail={"Mapping error": str(e)}) from e
 
 
-def validate_upload(data_json, schema):
+def validate_upload(resources):
     # Validate extracted (mapped) data against OEP table formats
     upload_warnings = []
     with warnings.catch_warnings(record=True) as w:
         try:
-            upload.validate_upload_data(data_json, schema)
+            upload.validate_resources(resources)
         except (upload.ValidationError, upload.UploadError) as e:
             raise HTTPException(
                 status_code=404, detail={"OEP data validation error": e.args[0]}
@@ -237,7 +236,8 @@ async def upload_datapackage(
     if show_json:
         return mapped_json
 
-    upload_warnings = validate_upload(data_json, schema)
+    resources = upload.get_resources_from_data(data_json, schema)
+    upload_warnings = validate_upload(resources)
     # Prepare success response
     success_response = {
         "success": "Upload of datapackage successful!",
@@ -286,10 +286,11 @@ async def upload_single_table(
         raise HTTPException(
             status_code=404, detail="Invalid token - you must provide a valid OEP Token"
         )
-    resource = frictionless.Resource(csv_file.file.read())
-    data = {table: [row.to_dict() for row in resource.read_rows()]}
 
-    validate_upload(data, schema)
+    data = {table: csv_file.file.read()}
+    resources = upload.get_resources_from_data(data, schema)
+    validate_upload(resources)
+    data = {resource.name: resource.read_rows() for resource in resources}
     try:
         upload.upload_data_to_oep(data, schema, token)
     except upload.UploadError as ue:
@@ -320,12 +321,12 @@ async def create_table(
     metadata = json.load(metadata_file.file)
     try:
         oem.check_parameter_model(metadata)
+        oem.create_tables_from_metadata(metadata, user, token)
     except oem.ParameterModelException as pme:
         raise HTTPException(
             status_code=404,
             detail={"Error while creating OEP tables from OEM": str(pme)},
         ) from pme
-    oem.create_tables_from_metadata(metadata, user, token)
     schema, tablename = metadata["resources"][0]["name"].split(".")
     table_url = f"https://openenergy-platform.org/dataedit/view/{schema}/{tablename}"
     return f"Successfully created table '{schema}.{tablename}' on OEP. Table should now be available under: {table_url}"
