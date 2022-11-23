@@ -11,6 +11,7 @@ logger = logging.getLogger("uvicorn.error")
 
 
 OEP_TO_FRICTIONLESS_CONVERSION = {
+    "int": "integer",
     "bigint": "integer",
     "text": "string",
     "json": "object",

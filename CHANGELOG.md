@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2022-11-23
+### Fixed
+- OEP to frictionless conversion for "int"
+
 ## [0.10.0] - 2022-11-17
 ### Added
 - menu for SEDOS related views
