@@ -1,4 +1,3 @@
-import datetime as dt
 import json
 import logging
 from urllib.parse import quote
@@ -107,17 +106,23 @@ def register_oep_table(
     abstract = metadata["context"]["documentation"]
     license_ = metadata["licenses"][0]["path"]
 
-    url = f"{OEP_URL}/api/v0/schema/{schema_name}/tables/{table_name}/rows?form=csv&where=version={version}"
+    data_url = f"{OEP_URL}/api/v0/schema/{schema_name}/tables/{table_name}/rows?form=csv&where=version={version}"
+    metadata_url = f"{OEP_URL}/api/v0/schema/{schema_name}/tables/{table_name}/meta/"
 
     distributions = [
         databusclient.create_distribution(
-            url=url,
-            cvs={"version": version},
+            url=data_url,
+            cvs={"type": "data"},
             file_format="csv",
-        )
+        ),
+        databusclient.create_distribution(
+            url=metadata_url,
+            cvs={"type": "metadata"},
+            file_format="json",
+        ),
     ]
 
-    version_id = f"{DATABUS_URI_BASE}/{account_name}/{group}/{table_name}/{dt.date.today().isoformat()}"
+    version_id = f"{DATABUS_URI_BASE}/{account_name}/{group}/{table_name}/{version}"
     dataset = databusclient.createDataset(
         version_id,
         title=metadata["title"],
