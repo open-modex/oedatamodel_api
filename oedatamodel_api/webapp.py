@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from oedatamodel_api import databus, formatting, mapping_custom
-from oedatamodel_api import metadata as oem
+from oedatamodel_api import oep_metadata as oem
 from oedatamodel_api import upload
 from oedatamodel_api.oep_connector import (
     OEPDataNotFoundError,
