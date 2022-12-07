@@ -346,8 +346,12 @@ async def register_on_databus(
     table: str = Form(),
     version: str = Form(),
 ):
+    artifact_url = databus.get_databus_identifier(account, group, table)
+    artifact_exists = databus.check_if_artifact_exists(artifact_url)
     try:
-        databus.register_oep_table(schema, table, group, account, api_key, version)
+        databus_url = databus.register_oep_table(
+            schema, table, group, account, api_key, version
+        )
     except databus.MetadataError as me:
         raise HTTPException(
             status_code=404, detail={"Error in Metadata": str(me)}
@@ -356,12 +360,33 @@ async def register_on_databus(
         raise HTTPException(
             status_code=404, detail={"Error when deploying to databus": str(de)}
         ) from de
-    except databus.MossError as me:
-        raise HTTPException(
-            status_code=404, detail={"Error when deploying metadata to MOSS": str(me)}
-        ) from me
 
-    return {"message": f"Successfully registered table '{schema}.{table}' on databus."}
+    response_message = {
+        "Databus registration": f"Successfully registered table '{schema}.{table}' on databus (visit {databus_url})."
+    }
+
+    # Register artifact (without version) once at MOSS:
+    if not artifact_exists:
+        try:
+            metadata = databus.get_table_meta(schema, table)
+            databus.submit_metadata_to_moss(artifact_url, metadata)
+        except databus.MossError as me:
+            response_message["Error when deploying metadata to MOSS"] = str(me)
+            raise HTTPException(
+                status_code=404,
+                detail=response_message,
+            ) from me
+
+        response_message["MOSS registration"] = (
+            "Successfully registered metadata to MOSS "
+            "(visit https://moss.tools.dbpedia.org/search to search for metadata)."
+        )
+    else:
+        response_message["MOSS registration"] = (
+            "Metadata is already registered on MOSS "
+            "(visit https://moss.tools.dbpedia.org/search to search for metadata)."
+        )
+    return response_message
 
 
 if __name__ == "__main__":

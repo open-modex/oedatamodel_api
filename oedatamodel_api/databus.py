@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Optional
 from urllib.parse import quote
 
 import databusclient
@@ -122,7 +123,7 @@ def register_oep_table(
         ),
     ]
 
-    version_id = f"{DATABUS_URI_BASE}/{account_name}/{group}/{table_name}/{version}"
+    version_id = get_databus_identifier(account_name, group, table_name, version)
     dataset = databusclient.createDataset(
         version_id,
         title=metadata["title"],
@@ -133,11 +134,7 @@ def register_oep_table(
     )
 
     deploy(dataset, api_key)
-
-    # Get file identifier:
-    databus_identifier = f"{version_id}/{table_name}_version={version}.csv"
-    submit_metadata_to_moss(databus_identifier, metadata)
-    return databus_identifier
+    return version_id
 
 
 def submit_metadata_to_moss(databus_identifier, metadata):
@@ -166,6 +163,22 @@ def submit_metadata_to_moss(databus_identifier, metadata):
             f"Could not submit metadata for DI '{databus_identifier}' to MOSS. "
             f"Reason: {response.text}"
         )
+
+
+def get_databus_identifier(
+    account_name: str, group: str, artifact_name: str, version: Optional[str] = None
+):
+    identifier = f"{DATABUS_URI_BASE}/{account_name}/{group}/{artifact_name}"
+    if version:
+        identifier += f"/{version}"
+    return identifier
+
+
+def check_if_artifact_exists(identifier: str):
+    response = requests.get(identifier)
+    if response.status_code == 200:
+        return True
+    return False
 
 
 # TODO: Import function from databusclient, once PR https://github.com/dbpedia/databus-client/pull/25 is accepted
