@@ -175,5 +175,8 @@ def deploy(dataid, api_key):
     base = "/".join(dataid["@graph"][0]["@id"].split("/")[:3]) + "/api/publish"
     resp = requests.post(base, data=data, headers=headers)
 
-    if resp.status_code != 202:
-        raise DeployError(f"Could not deploy dataset to databus. Reason: '{resp.text}'")
+    if resp.status_code == 202:
+        return
+    if resp.status_code == 401:
+        raise DeployError("Could not deploy dataset to databus. Reason: 'Unauthorized'")
+    raise DeployError(f"Could not deploy dataset to databus. Reason: '{resp.text}'")
