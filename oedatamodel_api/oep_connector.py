@@ -41,6 +41,7 @@ def query_oep(query, project, source, key=None, **params):
     except RedisConnectionError:
         cached_data = None
     if cached_data:
+        logging.info(f"Using cached data with {cache_key=}")
         return json.loads(cached_data)
 
     data = {"query": query}
