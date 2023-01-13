@@ -1,11 +1,10 @@
 import json
-import logging
 
 import requests
 from redis import Redis
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from oedatamodel_api.settings import REDIS_URL, SOURCES_DIR
+from oedatamodel_api.settings import REDIS_URL, SOURCES_DIR, logger
 
 OEP_URL = "https://openenergy-platform.org"
 
@@ -41,19 +40,19 @@ def query_oep(query, project, source, key=None, **params):
     except RedisConnectionError:
         cached_data = None
     if cached_data:
-        logging.info(f"Using cached data with {cache_key=}")
+        logger.info(f"Using cached data with {cache_key=}")
         return json.loads(cached_data)
 
     data = {"query": query}
     response = requests.post(f"{OEP_URL}/api/v0/advanced/search", json=data)
     if response.status_code != 200:
-        logging.error(
+        logger.error(
             "Error in data request to OEP", project, source, params, response.text
         )
         raise ConnectionError(response.text)
     response_json = response.json()
     if response_json["content"]["rowcount"] == 0:
-        logging.warning(
+        logger.warning(
             "Could not get data from OEP", project, source, params, response.text
         )
         raise OEPDataNotFoundError("Data not found", project, source, params)

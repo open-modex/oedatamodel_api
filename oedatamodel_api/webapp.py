@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import tempfile
 import warnings
@@ -20,7 +19,13 @@ from oedatamodel_api.oep_connector import (
     get_data_from_oep,
 )
 from oedatamodel_api.package_docs import loadFromJsonFile
-from oedatamodel_api.settings import APP_STATIC_DIR, ROOT_DIR, UPLOAD_FILEPATH, VERSION
+from oedatamodel_api.settings import (
+    APP_STATIC_DIR,
+    ROOT_DIR,
+    UPLOAD_FILEPATH,
+    VERSION,
+    logger,
+)
 from oedatamodel_api.validation import (
     DatapackageNotValid,
     create_and_validate_datapackage,
@@ -33,8 +38,6 @@ app.mount(
     name="static",
 )
 templates = Jinja2Templates(directory=ROOT_DIR / "oedatamodel_api" / "templates")
-
-logger = logging.getLogger("uvicorn.error")
 
 
 @app.get("/")
