@@ -79,11 +79,12 @@ def set_predefined_parameters(data_str: str, parameters: dict):
     str:
         Source string with placeholders replaced by parameters
     """
-    for k in list(parameters.keys()):
+    params = {k: v for k, v in parameters.items()}
+    for k in list(params.keys()):
         placeholder = f"<{k}>"
         if placeholder not in data_str:
             continue
-        v = parameters.pop(k)
+        v = params.pop(k)
         data_str = data_str.replace(placeholder, str(v))
     return data_str
 
