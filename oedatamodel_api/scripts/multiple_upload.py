@@ -20,6 +20,9 @@ for file in CSVS:
     response = requests.post(
         MODEX_URL,
         data={"schema": "model_draft", "token": TOKEN, "table":pathlib.Path(file).name.split(".")[0]},
-        files=[open(file, "rb")]
+        files=[
+            ("csv_file", (pathlib.Path(file).name, open(file, "rb")))
+            for file in CSVS
+        ]
     )
     print(response)
