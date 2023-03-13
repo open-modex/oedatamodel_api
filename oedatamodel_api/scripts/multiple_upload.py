@@ -1,25 +1,25 @@
 import os
 import pathlib
 
+import environ_setup
+
 import requests
 
+MODEX_URL = "https://modex.rl-institut.de/upload/"
 
-MODEX_URL = "https://modex.rl-institut.de/upload_datapackage/"
+path = pathlib.Path("/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests"
+                    "/_files/tabular_datapackage_mininmal_example_collection/csvs")
 
-CSVS = [
-    "/home/local/RL-INSTITUT/hendrik.huyskens/Dokumente/RLI/oedatamodel_api/upload_data/ID19/oed_scalar.csv",
-    "/home/local/RL-INSTITUT/hendrik.huyskens/Dokumente/RLI/oedatamodel_api/upload_data/ID19/datapackage.json"
-]
+CSVS = list(path.iterdir())
 
 TOKEN = os.environ["TOKEN"]
 
 
-response = requests.post(
-    MODEX_URL,
-    data={"schema": "model_draft", "token": TOKEN},
-    files=[
-        ("datapackage_files", (pathlib.Path(file).name, open(file, "rb")))
-        for file in CSVS
-    ]
-)
-print(response)
+
+for file in CSVS:
+    response = requests.post(
+        MODEX_URL,
+        data={"schema": "model_draft", "token": TOKEN, "table":pathlib.Path(file).name.split(".")[0]},
+        files=[open(file, "rb")]
+    )
+    print(response)
