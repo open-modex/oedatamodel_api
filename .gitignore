@@ -3,4 +3,3 @@
 /oedatamodel_api.egg-info/
 /upload_data/
 /.envs/.production/
-*environ_setup.py
