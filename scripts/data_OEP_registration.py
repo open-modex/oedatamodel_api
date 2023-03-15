@@ -2,8 +2,9 @@ import os
 import pathlib
 
 import environ_setup
-
 import requests
+
+environ_setup.setup()
 
 MODEX_URL = "https://modex.rl-institut.de/create_table/"
 

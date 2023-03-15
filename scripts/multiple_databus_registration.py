@@ -2,13 +2,15 @@ import os
 import pathlib
 
 import environ_setup
-
 import requests
+
+environ_setup.setup()
 
 MODEX_URL = "https://modex.rl-institut.de/databus/"
 
 path = pathlib.Path(
-    "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/_files/tabular_datapackage_mininmal_example_collection/csvs"
+    "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/"
+    "tests/_files/tabular_datapackage_mininmal_example_collection/csvs"
 )
 
 CSVS = list(path.iterdir())
