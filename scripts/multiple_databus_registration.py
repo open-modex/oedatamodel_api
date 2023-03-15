@@ -1,7 +1,6 @@
 import os
 import pathlib
 
-import environ_setup
 
 import requests
 
