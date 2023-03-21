@@ -2,20 +2,35 @@
 Medati helps to format input data files and edits metadata.
 """
 
-import sys
-import csv
-import glob
 import json
-from datetime import datetime
 
 from difflib import SequenceMatcher
 
 from omi.oem_structures.oem_v15 import OEPMetadata
 from omi.dialects.oep.dialect import OEP_V_1_5_Dialect
 
-from tqdm import tqdm
 
-import pandas as pd
+OEDATAMODEL_COL_LIST = [
+    "id",
+    "region",
+    "year",
+    "timeindex_resolution",
+    "timeindex_start",
+    "timeindex_stop",
+    "bandwidth_type",
+    "version",
+    "method",
+    "source",
+    "comment",
+]
+
+JSON_COL_LIST = [
+    "bandwidth_type",
+    "method",
+    "source",
+    "comment",
+]
+
 
 class Medati:
     """
@@ -54,7 +69,6 @@ class Medati:
         else:
             raise TypeError("'metadata' has to be type: dict")
 
-        self.now = datetime.now()
 
     def _return_user_defined_columns(self) -> dict:
         """
