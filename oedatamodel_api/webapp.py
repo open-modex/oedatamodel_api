@@ -4,13 +4,14 @@ import tempfile
 import warnings
 from typing import List, Union
 
+import pandas
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Request, Response, UploadFile
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from oedatamodel_api import databus, formatting, mapping_custom
+from oedatamodel_api import databus, fix_oedatamodel, formatting, mapping_custom
 from oedatamodel_api import oep_metadata as oem
 from oedatamodel_api import upload
 from oedatamodel_api.oep_connector import (
@@ -390,6 +391,29 @@ async def register_on_databus(
             "(visit https://moss.tools.dbpedia.org/search to search for metadata)."
         )
     return response_message
+
+
+@app.get("/oedatamodel/")
+async def oedatamodel_view(request: Request):
+    return templates.TemplateResponse("oedatamodel.html", context={"request": request})
+
+
+@app.post("/oedatamodel/")
+async def oedatamodel(
+    oedatamodel_fct: str = Form(),
+    metadata_file: UploadFile = File(...),
+    csv_file: UploadFile = File(...),
+):
+    metadata = json.load(metadata_file.file)
+    df = pandas.read_csv(csv_file.file, delimiter=";")
+    medati = fix_oedatamodel.Medati(df, metadata)
+    if oedatamodel_fct == "postgresql_conform":
+        medati.update_oemetadata_schema_fields_name_from_csv_using_similarity()
+    else:
+        medati.insert_user_column_dict_in_csv_based_on_oedatamodel_parameter()
+    return fix_oedatamodel.zip_metadata_and_csv(
+        medati.metadata, medati.dataframe, metadata_file.filename, csv_file.filename
+    )
 
 
 if __name__ == "__main__":

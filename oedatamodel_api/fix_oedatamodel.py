@@ -3,9 +3,12 @@ Medati helps to format input data files and edits metadata.
 """
 
 import json
+import zipfile
 from difflib import SequenceMatcher
+from io import BytesIO, StringIO
 
 import pandas
+from fastapi.responses import StreamingResponse
 from omi.dialects.oep.dialect import OEP_V_1_5_Dialect
 from omi.oem_structures.oem_v15 import OEPMetadata
 
@@ -249,3 +252,47 @@ class Medati:
             f"match, please check manually if the column is present in your metadata.\n"
             f"Similarity below {similarity_criteria}: {sim_dict}"
         )
+
+
+def zip_metadata_and_csv(
+    metadata: dict,
+    dataframe: pandas.DataFrame,
+    metadata_filename: str,
+    csv_filename: str,
+) -> StreamingResponse:
+    """
+    Create zip file from metadata and dataframe and return streaming response
+
+    Parameters
+    ----------
+    metadata : dict
+        Metadata of oedatamodel
+    dataframe : pandas.DataFrame
+        CSV data from oedatamodel
+    metadata_filename : str
+        Original filename of metadata
+    csv_filename : str
+        Original name of CSV file
+
+    Returns
+    -------
+    StreamingResponse
+        holding zipped metadata and CSV
+    """
+    zipped_file = BytesIO()
+    with zipfile.ZipFile(zipped_file, "a", zipfile.ZIP_DEFLATED) as zipped:
+        csv_file = StringIO()
+        dataframe.to_csv(csv_file)
+        csv_file.seek(0)
+        csv_buffer = csv_file.read()
+        zipped.writestr(csv_filename, csv_buffer)
+        metadata_file = StringIO()
+        json.dump(metadata, metadata_file)
+        metadata_file.seek(0)
+        metadata_buffer = metadata_file.read()
+        zipped.writestr(metadata_filename, metadata_buffer)
+
+    zipped_file.seek(0)
+    response = StreamingResponse(zipped_file, media_type="application/x-zip-compressed")
+    response.headers["Content-Disposition"] = "attachment; filename=oedatamodel.zip"
+    return response

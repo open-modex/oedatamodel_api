@@ -1,0 +1,17 @@
+{% extends "sedos_base.html" %}
+
+{% block content %}
+  <h2>Upload data to OEP</h2>
+  <form action="/oedatamodel/" enctype="multipart/form-data" method="post">
+    <p>
+      <label for="metadata_file">Metadata (as JSON file)</label>
+      <input id="metadata_file" name="metadata_file" type="file">
+    </p>
+    <p>
+      <label for="csv_file">Data (as CSV file)</label>
+      <input id="csv_file" name="csv_file" type="file">
+    </p>
+    <p><button type="submit" name="oedatamodel_fct" value="postgresql_conform">Make headers postgresql conform</button></p>
+    <p><button type="submit" name="oedatamodel_fct" value="column_dicts">Insert column-based JSONs based on oedatamodel parameters</button></p>
+  </form>
+{% endblock %}}
