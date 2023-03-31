@@ -3,12 +3,11 @@ Medati helps to format input data files and edits metadata.
 """
 
 import json
-
 from difflib import SequenceMatcher
 
-from omi.oem_structures.oem_v15 import OEPMetadata
+import pandas
 from omi.dialects.oep.dialect import OEP_V_1_5_Dialect
-
+from omi.oem_structures.oem_v15 import OEPMetadata
 
 OEDATAMODEL_COL_LIST = [
     "id",
@@ -41,7 +40,7 @@ class Medati:
     -------
 
     _return_user_defined_columns(self) -> dict
-        return user defined columns that are neither columns of oedatamodel-parameter scalar or timeseries
+        return user defined columns that are neither columns of oedatamodel-parameter scalar nor timeseries
     create_json_dict_from_user_defined_columns(self) -> dict
         read columns and return dict with column names as keys and empty value
     insert_user_column_dict_in_csv_based_on_oedatamodel_parameter(self) -> None
@@ -49,18 +48,29 @@ class Medati:
     make_csv_columns_postgresql_conform(self) -> dict
         correct columns from csv files to be postgresql-conform and save in csv
     update_oemetadata_schema_fields_name_from_csv_using_similarity(self) -> None
-        update metadata information with actual csv column-header information and write into repective metadata json
+        update metadata information with actual csv column-header information and write into respective metadata json
 
     """
 
-    def __init__(self, dataframe: pd.DataFrame = None, metadata: dict = None):
+    def __init__(self, dataframe: pandas.DataFrame = None, metadata: dict = None):
         """
-        :param dataframe: Specify csv file
-        :param metadata: Specify metadata json
+        Init medati class
+
+        Parameters
+        ----------
+        dataframe : pandas.DataFrame
+            Specify csv file
+        metadata : dict
+            Specify metadata json
+
+        Raises
+        ------
+        TypeError
+            if dataframe or metadata has wrong type
         """
 
         # define paths for csv and oeo_annotation folder
-        if isinstance(dataframe, pd.DataFrame):
+        if isinstance(dataframe, pandas.DataFrame):
             self.dataframe = dataframe
         else:
             raise TypeError("'dataframe' has to be type: pd.DataFrame")
@@ -69,11 +79,14 @@ class Medati:
         else:
             raise TypeError("'metadata' has to be type: dict")
 
-
     def _return_user_defined_columns(self) -> dict:
         """
-        Return user-defined columns that are neither columns of oedatamodel-parameter scalar or timeseries.
-        :return: dict: Key -> filename: str ; Value -> set of user_defined_columns
+        Return user-defined columns that are neither columns of oedatamodel-parameter scalar nor timeseries.
+
+        Returns
+        -------
+        dict
+            Key -> filename: str ; Value -> set of user_defined_columns
         """
 
         return {
@@ -85,7 +98,11 @@ class Medati:
     def create_json_dict_from_user_defined_columns(self) -> dict:
         """
         Read columns and return dict with column names as keys and empty value.
-        :return: dict: Key -> filename; Value -> dict of user_defined_columns
+
+        Returns
+        -------
+        dict
+            Key -> filename; Value -> dict of user_defined_columns
         """
         user_defined_cols_dict = self._return_user_defined_columns()
 
@@ -99,19 +116,15 @@ class Medati:
     def insert_user_column_dict_in_csv_based_on_oedatamodel_parameter(self) -> None:
         """
         Insert each csv-specific column dicts in respective csv.
-        :type columns: object
-        :param columns: Specify one of: version, other, all
-        :return:
         """
         json_dict_user_col = self.create_json_dict_from_user_defined_columns()
 
         for column in JSON_COL_LIST:
             self.dataframe[f"{column}"] = f"{json_dict_user_col['custom_columns']}"
 
-    def make_csv_columns_postgresql_conform(self) -> dict:
+    def make_csv_columns_postgresql_conform(self):
         """
         Correct columns from csv files to be postgresql conform and save in csv.
-        :return: df_dict: Key -> df name; Value -> pd.DataFrame
         """
 
         # column header lowercase
@@ -147,10 +160,19 @@ class Medati:
                 col.replace(key, value) for col in self.dataframe.columns
             ]
 
-    def update_oemetadata_schema_fields_name_from_csv_using_similarity(self) -> None:
+    def update_oemetadata_schema_fields_name_from_csv_using_similarity(self) -> dict:
         """
         Update metadata information with actual csv column-header information and write into respective metadata json.
-        :return: None
+
+        Returns
+        -------
+        dict
+            Adapted metadata
+
+        Raises
+        ------
+        Exception
+            if something is wrong in metadata
         """
 
         # make column header postgresql conform
@@ -186,13 +208,28 @@ class Medati:
 
         return metadata
 
-    def _similar(self, csv_column_header: list, metadata_key: str) -> str:
+    @staticmethod
+    def _similar(csv_column_header: list, metadata_key: str) -> str:
         """
         Check the similarity of metadata and new postgresql-conform column headers and match them. Return the
         postgresql-conform column name.
-        :param csv_column_header: list of csv column headers, after postgresql-conform correction
-        :param metadata_key: metadata column key from metadata file
-        :return: postgresql-conform column name
+
+        Parameters
+        ----------
+        csv_column_header: list
+            CSV column headers, after postgresql-conform correction
+        metadata_key: str
+            metadata column key from metadata file
+
+        Returns
+        -------
+        str
+            postgresql-conform column name
+
+        Raises
+        ------
+        ValueError
+            if metadata key has no similarity with dataframe columns
         """
         similarity_criteria = 0.8
         sim_dict = {}
