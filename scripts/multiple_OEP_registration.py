@@ -9,8 +9,7 @@ environ_setup.setup()
 MODEX_URL = "https://modex.rl-institut.de/create_table/"
 
 path = pathlib.Path(
-    "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/"
-    "_files/tabular_datapackage_mininmal_example_collection/json"
+    "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/_files/tabular_datapackage_mininmal_example_collection/json"
 )
 
 JSONS = list(path.iterdir())
