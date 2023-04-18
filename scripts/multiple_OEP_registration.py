@@ -1,27 +1,24 @@
 import os
 import pathlib
 
-import environ_setup
 import requests
+from dotenv import load_dotenv
+
 
 environ_setup.setup()
 
-MODEX_URL = "https://modex.rl-institut.de/create_table/"
 
 path = pathlib.Path(
-    "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/_files/tabular_datapackage_mininmal_example_collection/json"
+    "Path to folder with metadata"
 )
+
+create_table_url = os.getenv("create_table_url")
 
 JSONS = list(path.iterdir())
 
-account = os.environ["account_name"]
-api_key = os.environ["API_KEY"]
-group = os.environ["group"]
-version = os.environ["version"]
-
 for file in JSONS:
     response = requests.post(
-        MODEX_URL,
+        create_table_url,
         data={
             "user": os.environ["OEP_USER"],
             "token": os.environ["TOKEN"],

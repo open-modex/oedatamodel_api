@@ -9,4 +9,13 @@ They can be especially handy if multiple Datasets are to be handled.
 
 ###  [OEP](https://openenergy-platform.org/) Dataset Registration
 - Skript: multiple_databus_registration.py
-- Purpose: Registers multiple .json Metadatafiles on the [OEP](https://openenergy-platform.org/)
+- Purpose: Registers multiple .json Metadata-files on the [OEP](https://openenergy-platform.org/)
+
+To use the script, you must have an API key and user account at OEP. You can either add them to your environment
+variables or enter them directly into the script where they are read.
+``
+
+``
+
+### OEP Data upload
+

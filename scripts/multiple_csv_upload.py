@@ -1,25 +1,23 @@
 import os
 import pathlib
 
-import environ_setup
 import requests
 
-environ_setup.setup()
+from dotenv import load_dotenv
 
-MODEX_URL = "https://modex.rl-institut.de/upload/"
 
 path = pathlib.Path(
-    "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/_files/tabular_datapackage_mininmal_example_collection/csvs"
+    "Path to csvs to upload"
 )
 
 CSVS = list(path.iterdir())
 
-TOKEN = os.environ["TOKEN"]
-
+TOKEN = os.getenv("TOKEN")
+upload_csv_url = os.getenv("upload_csv_url")
 
 for file in CSVS:
     response = requests.post(
-        MODEX_URL,
+        upload_csv_url,
         data={
             "schema": "model_draft",
             "token": TOKEN,
