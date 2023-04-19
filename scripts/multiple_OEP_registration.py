@@ -5,12 +5,10 @@ import requests
 from dotenv import load_dotenv
 
 
-environ_setup.setup()
+load_dotenv()
 
 
-path = pathlib.Path(
-    "Path to folder with metadata"
-)
+path = pathlib.Path("Path to metadata")
 
 create_table_url = os.getenv("create_table_url")
 
@@ -20,8 +18,8 @@ for file in JSONS:
     response = requests.post(
         create_table_url,
         data={
-            "user": os.environ["OEP_USER"],
-            "token": os.environ["TOKEN"],
+            "user": os.getenv("OEP_USER"),
+            "token": os.getenv("TOKEN"),
         },
         files=[("metadata_file", (pathlib.Path(file).name, open(file, "rb")))],
     )

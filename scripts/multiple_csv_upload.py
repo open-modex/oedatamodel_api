@@ -5,10 +5,9 @@ import requests
 
 from dotenv import load_dotenv
 
+load_dotenv()
 
-path = pathlib.Path(
-    "Path to csvs to upload"
-)
+path = pathlib.Path("Path to csvs")
 
 CSVS = list(path.iterdir())
 

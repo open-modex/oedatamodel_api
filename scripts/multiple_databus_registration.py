@@ -3,11 +3,9 @@ import pathlib
 from dotenv import load_dotenv
 import requests
 
+load_dotenv()
 
-
-path = pathlib.Path(
-    "/home/local/RL-INSTITUT/felix.maurer/rli/Felix.Maurer/SEDOS/Python/data_adapter_oemof/tests/_files/tabular_datapackage_mininmal_example_collection"
-)
+path = pathlib.Path("Path to CSVs")
 
 CSVS = list(path.iterdir())
 
