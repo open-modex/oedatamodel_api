@@ -18,7 +18,6 @@ def multiple_csv_upload(
     CSVS = list(path.iterdir())
     if not TOKEN:
         TOKEN = os.getenv("TOKEN")
-    upload_csv_url = os.getenv("upload_csv_url")
 
     for file in CSVS:
         response = requests.post(

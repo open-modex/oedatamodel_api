@@ -15,7 +15,6 @@ def multiple_OEP_registration(
     USER: str = None,
 ):
     path = pathlib.Path("Path to metadata")
-    create_table_url = os.getenv("create_table_url")
     JSONS = list(path.iterdir())
 
     if not TOKEN:

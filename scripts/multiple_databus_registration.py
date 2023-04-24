@@ -26,7 +26,6 @@ def multiple_databus_registration(
     if not version:
         version = os.getenv("version")
 
-    databus_url = os.getenv("databus_url")
     for file in CSVS:
         response = requests.post(
             databus_url,
