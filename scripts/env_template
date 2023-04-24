@@ -1,6 +1,6 @@
 databus_url = "https://modex.rl-institut.de/databus/"
 create_table_url = "https://modex.rl-institut.de/create_table/"
-create_table_url = "https://modex.rl-institut.de/create_table/"
+upload_csv_url = "https://modex.rl-institut.de/upload/"
 
 TOKEN = "OEP Token"
 OEP_USER = "OEP User Name"
