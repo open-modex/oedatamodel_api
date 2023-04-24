@@ -1,30 +1,30 @@
 ## Skripts to work with OEP and Databus API
 
 ### Purpose
-The Scripts found in this folder can be used to Upload or Register Data to the [OEP](https://openenergy-platform.org/)
+The scripts found in this folder can be used to "Upload" or "Register Data" to the [OEP](https://openenergy-platform.org/)
 or Register Data on the [Databus](https://energy.databus.dbpedia.org/)
-They can be especially handy if multiple Datasets are to be handled.
+They can be especially handy if multiple datasets are handled.
 
 ### Getting startet
-- Clone Repository to your Machine
+- Clone repository to your machine
 - Create environment (or use existing) with necessary packages:
   - `python-dotenv`
   - `requests`
 - Rename `env_template` to `.env`
 - Write your credentials and settings to `.env` file
-- For each skript enter the folder where the files that shall be processed are located
+- For each script enter the folder where the files that shall be processed are located
 write own filestream
 
 ###  [OEP](https://openenergy-platform.org/) Dataset Registration
-- Skript: multiple_databus_registration.py
+- Script: multiple_databus_registration.py
 - Purpose: Registers multiple .json Metadata-files on the [OEP](https://openenergy-platform.org/)
 
 To use the script, you must have an API key and user account at OEP.
-The Skript has been working correctly if your console is printing out `Response 200`
+The script has been working correctly if your console is printing out `Response 200`
 
-Please not that the same or different Metadata can be registered multiple times and the API may return `Response 200` even though there are issues on the Data. This may happen if existing Metadata with already uploaded Data is overwritten with new Metadata information such as a changed Datatype. To change the Datatype of a column the Dataset should be deleted first.
+Please not that the same or different OEMetadata can be registered multiple times and the API may return `Response 200` even though there are issues with the data. This may happen if existing OEMetadata with already uploaded data is overwritten with new OEMetadata information such as a changed datatype. To change the datatype of a column the dataset should be deleted first.
 
-For Further understanding of what the skipt does you may reffer to the [API](https://modex.rl-institut.de/create_table/) with your Browser
+For further understanding of what the skipt does, you may refer to the [API](https://modex.rl-institut.de/create_table/) with your Browser
 
 ###  [OEP](https://openenergy-platform.org/) Dataset Upload
 - Skript: multiple_csv_upload.py
