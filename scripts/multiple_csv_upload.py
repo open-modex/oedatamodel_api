@@ -13,7 +13,7 @@ def multiple_csv_upload(
     TOKEN: str = None,
     upload_csv_url: str = "https://modex.rl-institut.de/upload/",
 ):
-    path = pathlib.Path("Path to csvs")
+    path = pathlib.Path(path)
 
     CSVS = list(path.iterdir())
     if not TOKEN:

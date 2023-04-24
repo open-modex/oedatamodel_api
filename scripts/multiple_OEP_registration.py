@@ -14,7 +14,7 @@ def multiple_OEP_registration(
     TOKEN: str = None,
     USER: str = None,
 ):
-    path = pathlib.Path("Path to metadata")
+    path = pathlib.Path(path)
     JSONS = list(path.iterdir())
 
     if not TOKEN:

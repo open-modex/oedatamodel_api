@@ -14,7 +14,7 @@ def multiple_databus_registration(
     version: str = None,
     databus_url: str = "https://modex.rl-institut.de/databus/",
 ):
-    path = pathlib.Path("Path to CSVs")
+    path = pathlib.Path(path)
     CSVS = list(path.iterdir())
 
     if not account:
