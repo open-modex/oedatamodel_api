@@ -1,0 +1,17 @@
+{% extends "sedos_base.html" %}
+
+{% block js_header %}
+  <script src="/static/echarts.min.js "></script>
+{% endblock js_header %}
+
+{% block content %}
+  <div id="structureChart" style="width: 600px;height:400px;"></div>
+{% endblock content %}
+
+{% block js_body %}
+  <script type="text/javascript">
+      var options = {{structure_options|tojson}};
+      var structureChart = echarts.init(document.getElementById('structureChart'));
+      structureChart.setOption(options);
+  </script>
+{% endblock js_body %}

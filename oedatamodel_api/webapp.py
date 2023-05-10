@@ -21,6 +21,7 @@ from oedatamodel_api.oep_connector import (
 )
 from oedatamodel_api.package_docs import loadFromJsonFile
 from oedatamodel_api.settings import (
+    APP_DIR,
     APP_STATIC_DIR,
     ROOT_DIR,
     UPLOAD_FILEPATH,
@@ -414,6 +415,17 @@ async def oedatamodel(
     return fix_oedatamodel.zip_metadata_and_csv(
         medati.metadata, medati.dataframe, metadata_file.filename, csv_file.filename
     )
+
+
+@app.get("/structure/")
+async def structure_view(request: Request):
+    base_structure_options_filename = APP_DIR / "structure" / "structure.json"
+    with base_structure_options_filename.open(
+        "r", encoding="utf-8"
+    ) as base_structure_options_file:
+        structure_options = json.load(base_structure_options_file)
+    context = {"request": request, "structure_options": structure_options}
+    return templates.TemplateResponse("structure.html", context=context)
 
 
 if __name__ == "__main__":

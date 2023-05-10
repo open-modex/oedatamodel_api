@@ -8,6 +8,7 @@
       display:inline;
     }
   </style>
+  {% block js_header %}{% endblock js_header %}
 </head>
 <body>
 <h1>SEDOS Project</h1>
@@ -17,8 +18,7 @@
   <li><a href="/upload/">Upload Data</a></li>
   <li><a href="/databus/">Register on databus</a></li>
 </ul>
-{% block content %}
-
-{% endblock %}
+{% block content %}{% endblock %}
+{% block js_body %}{% endblock js_body %}
 </body>
 </html>
