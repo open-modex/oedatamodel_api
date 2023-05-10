@@ -15,6 +15,10 @@ repos:
             "--autofix", # Autofix JSONs
           ]
       - id: check-added-large-files
+        args:
+          [
+            "--maxkb=1000"
+          ]
 
   - repo: local
     hooks:
