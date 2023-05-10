@@ -13,7 +13,7 @@ from fastapi.templating import Jinja2Templates
 
 from oedatamodel_api import databus, fix_oedatamodel, formatting, mapping_custom
 from oedatamodel_api import oep_metadata as oem
-from oedatamodel_api import upload
+from oedatamodel_api import sedos_structure, upload
 from oedatamodel_api.oep_connector import (
     OEPDataNotFoundError,
     SourceNotFound,
@@ -21,7 +21,6 @@ from oedatamodel_api.oep_connector import (
 )
 from oedatamodel_api.package_docs import loadFromJsonFile
 from oedatamodel_api.settings import (
-    APP_DIR,
     APP_STATIC_DIR,
     ROOT_DIR,
     UPLOAD_FILEPATH,
@@ -419,11 +418,8 @@ async def oedatamodel(
 
 @app.get("/structure/")
 async def structure_view(request: Request):
-    base_structure_options_filename = APP_DIR / "structure" / "structure.json"
-    with base_structure_options_filename.open(
-        "r", encoding="utf-8"
-    ) as base_structure_options_file:
-        structure_options = json.load(base_structure_options_file)
+    energy_structure = sedos_structure.get_energy_structure()
+    structure_options = sedos_structure.create_structure_chart_options(energy_structure)
     context = {"request": request, "structure_options": structure_options}
     return templates.TemplateResponse("structure.html", context=context)
 

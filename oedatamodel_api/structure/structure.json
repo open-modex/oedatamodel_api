@@ -26,6 +26,7 @@
           "y": 500
         }
       ],
+      "draggable": true,
       "edgeLabel": {
         "fontSize": 20
       },
@@ -37,10 +38,14 @@
         4,
         10
       ],
+      "force": {
+        "gravity": 0.1,
+        "repulsion": 1000
+      },
       "label": {
         "show": true
       },
-      "layout": "circular",
+      "layout": "force",
       "lineStyle": {
         "curveness": 0,
         "opacity": 0.9,
