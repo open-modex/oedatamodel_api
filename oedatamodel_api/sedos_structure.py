@@ -58,7 +58,26 @@ def get_energy_structure():
     return es_structure
 
 
-def create_structure_chart_options(structure: dict) -> dict:
+def create_structure_chart_options(
+    structure: dict, sector: str = None, bus: str = None
+) -> dict:
+    """
+    Create chart options from structure. Filtering by sector or bus is possible
+
+    Parameters
+    ----------
+    structure: dict
+        ES structure (used in SEDOS data_adapter)
+    sector: str
+        Filter for processes used in given sector
+    bus: str
+        Filter energy structure by given bus
+
+    Returns
+    -------
+    dict
+        Options dict used by echarts
+    """
     base_structure_options_filename = APP_DIR / "structure" / "structure.json"
     with base_structure_options_filename.open(
         "r", encoding="utf-8"
@@ -70,33 +89,46 @@ def create_structure_chart_options(structure: dict) -> dict:
     busses = []
     links = []
     for process, parameters in structure.items():
+        show_process = bus is None  # If bus is None, processes are not filtered
+        if sector and process[:3] != sector:
+            continue
         for parameter, in_out in parameters.items():
-            links += [
-                {
-                    "label": {
-                        "formatter": "{c}" if parameter != "default" else "",
-                        "show": True,
-                    },
-                    "source": input_,
-                    "target": process,
-                    "value": parameter,
-                }
-                for input_ in in_out["inputs"]
-            ]
-            links += [
-                {
-                    "label": {
-                        "formatter": "{c}" if parameter != "default" else "",
-                        "show": True,
-                    },
-                    "source": process,
-                    "target": input_,
-                    "value": parameter,
-                }
-                for input_ in in_out["outputs"]
-            ]
-            busses += in_out["inputs"]
-            busses += in_out["outputs"]
+            for input_ in in_out["inputs"]:
+                if bus and input_ != bus:
+                    continue
+                links.append(
+                    {
+                        "label": {
+                            "formatter": "{c}" if parameter != "default" else "",
+                            "show": True,
+                        },
+                        "source": input_,
+                        "target": process,
+                        "value": parameter,
+                    }
+                )
+                busses.append(input_)
+                show_process = True  # Show process if at least one bus (input or output) is connected
+            for output in in_out["outputs"]:
+                if bus and output != bus:
+                    continue
+                links.append(
+                    {
+                        "label": {
+                            "formatter": "{c}" if parameter != "default" else "",
+                            "show": True,
+                        },
+                        "source": process,
+                        "target": output,
+                        "value": parameter,
+                    }
+                )
+                busses.append(output)
+                show_process = True  # Show process if at least one bus (input or output) is connected
+
+        if not show_process:
+            processes.remove(process)
+
     busses = list(set(busses))
     structure_options["series"][0]["data"] = [
         {"name": process, "itemStyle": {"color": get_process_color(process)}}
