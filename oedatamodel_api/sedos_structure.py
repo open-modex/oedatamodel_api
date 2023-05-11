@@ -85,7 +85,7 @@ def create_structure_chart_options(
         structure_options = json.load(base_structure_options_file)
 
     # Create processes and busses:
-    processes = list(structure)
+    processes = []
     busses = []
     links = []
     for process, parameters in structure.items():
@@ -126,8 +126,8 @@ def create_structure_chart_options(
                 busses.append(output)
                 show_process = True  # Show process if at least one bus (input or output) is connected
 
-        if not show_process:
-            processes.remove(process)
+        if show_process:
+            processes.append(process)
 
     busses = list(set(busses))
     structure_options["series"][0]["data"] = [

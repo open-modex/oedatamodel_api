@@ -5,6 +5,24 @@
 {% endblock js_header %}
 
 {% block content %}
+  <form method="get" id="filter">
+    <p>Filter structure</p>
+    Sector:
+    <select name="sector" form="filter">
+      <option value="">None</option>
+      {% for value, name in sectors %}
+        <option value="{{value}}">{{name}}</option>
+      {% endfor %}
+    </select>
+    Bus:
+    <select name="bus" form="filter">
+      <option value="">None</option>
+      {% for bus in busses %}
+        <option value="{{bus}}">{{bus}}</option>
+      {% endfor %}
+    </select>
+    <input value="Filter!" type="submit">
+  </form>
   <div id="structureChart" style="width: 100%;height: 800px;"></div>
 {% endblock content %}
 

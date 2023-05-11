@@ -417,10 +417,23 @@ async def oedatamodel(
 
 
 @app.get("/structure/")
-async def structure_view(request: Request):
+async def structure_view(request: Request, sector: str = None, bus: str = None):
     energy_structure = sedos_structure.get_energy_structure()
-    structure_options = sedos_structure.create_structure_chart_options(energy_structure)
-    context = {"request": request, "structure_options": structure_options}
+    structure_options = sedos_structure.create_structure_chart_options(
+        energy_structure, sector, bus
+    )
+    sectors = [(name, sector.name) for name, sector in sedos_structure.SECTORS.items()]
+    busses = []
+    for parameters in energy_structure.values():
+        for parameter in parameters.values():
+            busses += parameter["inputs"]
+            busses += parameter["outputs"]
+    context = {
+        "request": request,
+        "structure_options": structure_options,
+        "sectors": sectors,
+        "busses": busses,
+    }
     return templates.TemplateResponse("structure.html", context=context)
 
 
