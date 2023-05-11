@@ -10,6 +10,16 @@ Link = namedtuple("Link", ("source", "target", "value"))
 
 STRUCTURE_FILE = APP_DIR / "structure" / "structure.csv"
 
+Sector = namedtuple("Sector", ("name", "color"))
+
+SECTORS = {
+    "pow": Sector("Electricity", "#FFFF00"),
+    "ind": Sector("Industry", "#ED7D31"),
+    "hea": Sector("Heat", "#EE0056"),
+    "x2x": Sector("X2X", "#ED7DD7"),
+    "mob": Sector("Mobility", "#9CD4C3"),
+}
+
 
 def get_energy_structure():
     process_parameter_in_out = pd.read_csv(
@@ -88,13 +98,17 @@ def create_structure_chart_options(structure: dict) -> dict:
             busses += in_out["inputs"]
             busses += in_out["outputs"]
     busses = list(set(busses))
-    structure_options["series"][0]["data"] = [{"name": item} for item in processes]
-    structure_options["series"][0]["data"] += [
-        {
-            "name": item,
-            "itemStyle": {"color": "red"},
-        }
-        for item in busses
+    structure_options["series"][0]["data"] = [
+        {"name": process, "itemStyle": {"color": get_process_color(process)}}
+        for process in processes
     ]
+    structure_options["series"][0]["data"] += [{"name": item} for item in busses]
     structure_options["series"][0]["links"] = links
     return structure_options
+
+
+def get_process_color(process: str) -> str:
+    sector_name = process[:3]
+    if sector_name not in SECTORS:
+        return "grey"
+    return SECTORS[sector_name].color
