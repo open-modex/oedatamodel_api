@@ -2,14 +2,7 @@ import csv
 import logging
 import sys
 
-from frictionless import (
-    FrictionlessException,
-    Package,
-    Report,
-    check,
-    errors,
-    validate_resource,
-)
+from frictionless import Check, FrictionlessException, Package, Report, errors
 
 # Increase max cell size (in order to successfully load timeseries.series)
 # avoid error: The data source has not supported or has inconsistent contents: field larger than field limit (131072)
@@ -22,7 +15,7 @@ class DatapackageNotValid(Exception):
     """Exception is raised if datapackage is not valid"""
 
 
-class CheckDecimal(check.Check):
+class CheckDecimal(Check):
     code = "field-type"
     Errors = [errors.TableError]
 
@@ -56,7 +49,7 @@ def create_report(package):
     errors = []
     for resource in package.resources:
         logger.debug(f"Validating resource '{resource.name}'...")
-        report = validate_resource(resource, checks=[CheckDecimal()])
+        report = resource.validate(checks=[CheckDecimal()])
         logger.debug(f"Successfully validated resource '{resource.name}'")
         tasks.extend(report.tasks)
         errors.extend(report.errors)

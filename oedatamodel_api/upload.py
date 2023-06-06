@@ -3,12 +3,17 @@ import json
 import logging
 
 import requests
-from frictionless import Resource, validate_resource
+from frictionless import Dialect, Resource, Schema
+from frictionless.formats import CsvControl
 
 from oedatamodel_api.settings import OEP_URL
 
 logger = logging.getLogger("uvicorn.error")
 
+DEFAULT_CSV_DELIMITER = ";"
+DEFAULT_HEADER_ROWS = [
+    1
+]  # Otherwise frictionless sometimes "detects" multiple row header and validation crashes
 
 OEP_TO_FRICTIONLESS_CONVERSION = {
     "int": "integer",
@@ -124,8 +129,8 @@ def upload_data_to_oep(data, schema, token):
 def validate_resources(resources):
     errors = []
     for resource in resources:
-        report = validate_resource(resource)
-        if report["stats"]["errors"] != 0:
+        report = resource.validate()
+        if report.stats["errors"] != 0:
             errors.append(report.to_dict())
     if errors:
         raise ValidationError(errors)
@@ -147,23 +152,31 @@ def get_resources_from_data(data, schema):
 
         # Rewrite datapackage format and validate json, instead of postgresql:
         fl_table_schema = reformat_oep_to_frictionless_schema(oep_schema)
+        schema = Schema.from_descriptor(fl_table_schema)
         if isinstance(data_source, dict):
             resources.append(
                 Resource(
                     name=table,
                     profile="tabular-data-resource",
                     data=data_source,
-                    schema=fl_table_schema,
+                    schema=schema,
                 )
             )
         else:
+            try:
+                delimiter = metadata["resources"][0]["dialect"]["delimiter"]
+            except KeyError:
+                delimiter = DEFAULT_CSV_DELIMITER
+            csv_control = CsvControl(delimiter=delimiter)
+            dialect = Dialect(header_rows=DEFAULT_HEADER_ROWS, controls=[csv_control])
             resources.append(
                 Resource(
                     name=table,
                     profile="tabular-data-resource",
                     source=data_source,
-                    schema=fl_table_schema,
+                    schema=schema,
                     format="csv",
+                    dialect=dialect,
                 )
             )
     return resources
@@ -179,7 +192,7 @@ def reformat_oep_to_frictionless_schema(schema):
             type_ = OEP_TO_FRICTIONLESS_CONVERSION.get(field["type"], field["type"])
         field_data = {"name": field["name"], "type": type_}
         if field["type"] == "float":
-            field_data["floatNumber"] = "True"
+            field_data["floatNumber"] = True
         fields.append(field_data)
     return {
         "fields": fields,
