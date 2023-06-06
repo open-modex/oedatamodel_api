@@ -61,6 +61,12 @@ def create_tables_from_metadata(metadata: dict, user: str, token: str):
     except DatabaseError as de:
         raise ParameterModelException(str(de))
     if len(tables) == 1:
+        # Check if schema is set:
+        if len(metadata["resources"][0]["name"].split(".")) != 2:
+            raise ParameterModelException(
+                "Resource name must include OEP schema, "
+                "otherwise metadata upload fails. (Example: 'model_draft.tablename')."
+            )
         # Upload metadata for single table
         api_updateMdOnTable(metadata, token)
     logging.info("Successfully created tables from OEM on OEP.")
