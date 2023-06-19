@@ -1,6 +1,7 @@
 import datetime as dt
 import json
 import logging
+import re
 
 import requests
 from frictionless import Dialect, Resource, Schema
@@ -136,19 +137,11 @@ def validate_resources(resources):
         raise ValidationError(errors)
 
 
-def get_resources_from_data(data, schema):
+def get_resources_from_data(data, metadata):
     resources = []
     for table, data_source in data.items():
-        # Get datapackage format for each table in data
-        meta_url = f"{OEP_URL}/api/v0/schema/{schema}/tables/{table}/meta/"
-        response = requests.get(meta_url)
-        if response.status_code != 200:
-            raise UploadError(f"Table '{schema}.{table}' unavailable on OEP platform.")
-        metadata = json.loads(response.content)
-        try:
-            oep_schema = metadata["resources"][0]["schema"]
-        except (KeyError, IndexError):
-            raise UploadError(f"Table '{schema}.{table}' has no valid metadata.")
+        table_metadata = metadata[table]
+        oep_schema = table_metadata["resources"][0]["schema"]
 
         # Rewrite datapackage format and validate json, instead of postgresql:
         fl_table_schema = reformat_oep_to_frictionless_schema(oep_schema)
@@ -163,8 +156,9 @@ def get_resources_from_data(data, schema):
                 )
             )
         else:
+            fixed_data = fix_json_encoding(data_source)
             try:
-                delimiter = metadata["resources"][0]["dialect"]["delimiter"]
+                delimiter = table_metadata["resources"][0]["dialect"]["delimiter"]
             except KeyError:
                 delimiter = DEFAULT_CSV_DELIMITER
             csv_control = CsvControl(delimiter=delimiter)
@@ -173,13 +167,37 @@ def get_resources_from_data(data, schema):
                 Resource(
                     name=table,
                     profile="tabular-data-resource",
-                    source=data_source,
+                    source=fixed_data,
                     schema=schema,
                     format="csv",
                     dialect=dialect,
                 )
             )
     return resources
+
+
+def fix_json_encoding(data: bytes) -> bytes:
+    """
+    Fixes JSON cells in CSv data
+
+    Replaces single quotes with two double quotes and quotes whole JSON.
+    Afterwards, JSON can be read in by frictionless.
+
+    Parameters
+    ----------
+    data: bytes
+        Raw input data from CSV
+
+    Returns
+    -------
+    bytes
+        Data with fixed JSONs
+    """
+    data_str = data.decode("utf-8")
+    data_str = data_str.replace("\'", '\"\"')
+    data_str = re.sub('(?<!"){', '"{', data_str)
+    data_str = re.sub('}(?!")', '}"', data_str)
+    return data_str.encode()
 
 
 def reformat_oep_to_frictionless_schema(schema):

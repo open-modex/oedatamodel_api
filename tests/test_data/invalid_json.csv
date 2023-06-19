@@ -1,0 +1,2 @@
+id; region; year;operational_temperature;investment_cost;fixed_cost;electricity_demand;process_efficiency;operational_life_time;minimal_load;bandwidth_type;version;method;source;comment
+1;global;2020;[60,80];[850];[2,3];[3.8,8.2];[65];[30];[20,30];;v1;;{'operational_temperature':'akbar_review_2020','investment_cost':'sterner_power--gas_2021','fixed_cost':'rego_de_vasconcelos_recent_2019','electricity_demand':'rego_de_vasconcelos_recent_2019','process_efficiency':'akbar_review_2020','operational_lifetime':'gotz_renewable_2016','minimal_load':'akbar_review_2020'};

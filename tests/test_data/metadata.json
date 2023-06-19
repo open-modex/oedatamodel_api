@@ -1,0 +1,283 @@
+{
+   "name": "model_draft.x2x_p2gas_aec",
+   "title": "Techno-economic parameter alkaline H2-electrolyzer",
+   "id": null,
+   "description": "Techno-economic parameter for alkaline hydrogen electrolyzers.",
+   "language": [
+      "en-GB"
+   ],
+   "subject": [
+      {
+         "name": "water electrolyser",
+         "path": "http://openenergy-platform.org/ontology/oeo/OEO_00010021"
+      }
+   ],
+   "keywords": [
+      "SEDOS",
+      "oedatamodel-parameter"
+   ],
+   "publicationDate": "2023-03-24",
+   "context": {
+      "homepage": "https://sedos-project.github.io/.github/",
+      "documentation": "https://sedos-project.github.io/.github/",
+      "sourceCode": "https://github.com/sedos-project",
+      "contact": "g.mueller@fz-juelich.de",
+      "grantNo": "03EI1040D",
+      "fundingAgency": "Bundesministerium für Wirtschaft und Klimaschutz (BMWK)",
+      "fundingAgencyLogo": "https://en.wikipedia.org/wiki/Federal_Ministry_for_Economic_Affairs_and_Climate_Action#/media/File:BMWi_Logo_2021.svg"
+   },
+   "spatial": {
+      "location": "Global"
+   },
+   "temporal": {
+      "timeseries": [
+         {}
+      ]
+   },
+   "sources": [
+      {
+         "title": "Review of electrofuel feasibility-cost and environmental impact",
+         "description": null,
+         "path": "https://doi.org/10.1088/2516-1083/ac7937",
+         "licenses": [
+            {
+               "attribution": "© 2022 The Author(s). Published by IOP Publishing Ltd",
+               "instruction": "Original content from this work may be used under the terms of the Creative Commons Attribution 4.0 licence."
+            }
+         ]
+      },
+      {
+         "title": "A Review of the Main Technologies and Application Potentials of P2G System for Renewable Integration",
+         "description": null,
+         "path": "https://doi.org/10.1109/ICATMRI51801.2020.9398459",
+         "licenses": [
+            {
+               "attribution": "©2020 IEEE"
+            }
+         ]
+      },
+      {
+         "title": "Power-to-Gas and Power-to-X—The History and Results of Developing a New Storage Concept",
+         "description": null,
+         "path": "https://doi.org/10.3390/en14206594",
+         "licenses": [
+            {
+               "attribution": "© 2021 by the authors. Licensee MDPI, Basel, Switzerland.",
+               "instruction": "This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution (CC BY) license (https:// creativecommons.org/licenses/by/ 4.0/)."
+            }
+         ]
+      },
+      {
+         "title": "Recent Advances in Power-to-X Technology for the Production of Fuels and Chemicals",
+         "description": null,
+         "path": "https://doi.org/10.3389/fchem.2019.00392",
+         "licenses": [
+            {
+               "attribution": "Copyright © 2019 Rego de Vasconcelos and Lavoie.",
+               "instruction": "This is an open-access article distributed under the terms of the Creative Commons Attribution License (CC BY). The use, distribution or reproduction in other forums is permitted, provided the original author(s) and the copyright owner(s) are credited and that the original publication in this journal is cited, in accordance with accepted academic practice. No use, distribution or reproduction is permitted which does not comply with these terms."
+            }
+         ]
+      },
+      {
+         "title": "Renewable Power-to-Gas: A technological and economic review",
+         "description": null,
+         "path": "https://doi.org/10.1016/j.renene.2015.07.066",
+         "licenses": [
+            {
+               "attribution": "© 2015 The Authors. Published by Elsevier Ltd.",
+               "instruction": "This is an open access article under the CC BY-NC-ND license (http://creativecommons.org/licenses/by-nc-nd/4.0/)."
+            }
+         ]
+      },
+      {
+         "title": "Power to gas: Technological overview, systems analysis and economic assessment for a case study in Germany",
+         "description": null,
+         "path": "https://doi.org/10.1016/j.ijhydene.2015.01.123",
+         "licenses": [
+            {
+               "attribution": "Copyright © 2015, Hydrogen Energy Publications, LLC. Published by Elsevier Ltd. All rights reserved."
+            }
+         ]
+      },
+      {
+         "title": "A Review of The Methanol Economy: The Fuel Cell Route",
+         "description": null,
+         "path": "https://doi.org/10.3390/en13030596",
+         "licenses": [
+            {
+               "attribution": "© 2020 by the authors. Licensee MDPI, Basel, Switzerland.",
+               "instruction": "This article is an open access article distributed under the terms and conditions of the Creative Commons Attribution (CC BY) license (http://creativecommons.org/licenses/by/4.0/)."
+            }
+         ]
+      }
+   ],
+   "licenses": [
+      {
+         "name": "CC0-1.0",
+         "title": "Creative Commons Zero v1.0 Universal",
+         "path": "https://creativecommons.org/publicdomain/zero/1.0/legalcode",
+         "instruction": "You are free: To Share, To Create, To Adapt"
+      }
+   ],
+   "contributors": [
+      {
+         "title": "Gian Müller, FZJ",
+         "email": "g.mueller@fz-juelich.de",
+         "date": "2023-03-24",
+         "object": "data and metadata",
+         "comment": "Test data for alkaline electrolyser process."
+      }
+   ],
+   "resources": [
+      {
+         "profile": "tabular-data-resource",
+         "name": "model_draft.x2x_p2gas_aec",
+         "format": "csv",
+         "encoding": "UTF-8",
+         "schema": {
+            "fields": [
+               {
+                  "name": "id",
+                  "description": "Unique identifier",
+                  "type": "bigint",
+                  "isAbout": [],
+                  "valueReference": []
+               },
+               {
+                  "name": "region",
+                  "description": "Country or region",
+                  "type": "text",
+                  "isAbout": [],
+                  "valueReference": []
+               },
+               {
+                  "name": "year",
+                  "description": "Year",
+                  "type": "integer",
+                  "isAbout": [],
+                  "valueReference": [],
+                  "unit": "a"
+               },
+               {
+                  "name": "operational_temperature",
+                  "description": "Operational Temperature",
+                  "type": "float array",
+                  "isAbout": [],
+                  "valueReference": [],
+                  "unit": "°C"
+               },
+               {
+                  "name": "investment_cost",
+                  "description": "Electrolyzer investment cost",
+                  "type": "float array",
+                  "isAbout": [],
+                  "valueReference": [],
+                  "unit": "EUR/kW"
+               },
+               {
+                  "name": "fixed_cost",
+                  "description": "Fixed operation and maintenance costs.",
+                  "type": "float array",
+                  "isAbout": [],
+                  "valueReference": [],
+                  "unit": "% of investment_cost"
+               },
+               {
+                  "name": "electricity_demand",
+                  "description": "Electricity demand of electrolyzer",
+                  "type": "float array",
+                  "isAbout": [],
+                  "valueReference": [],
+                  "unit": "kWh/m3"
+               },
+               {
+                  "name": "process_efficiency",
+                  "description": "Efficiency of the entire electrolysis process based on the LHV.",
+                  "type": "float array",
+                  "isAbout": [],
+                  "valueReference": [],
+                  "unit": "%"
+               },
+               {
+                  "name": "operational_life_time",
+                  "description": "Lifetime of electrolyzer in operation.",
+                  "type": "float array",
+                  "isAbout": [],
+                  "valueReference": [],
+                  "unit": "a"
+               },
+               {
+                  "name": "minimal_load",
+                  "description": "Minimal load of electrolyzer beneath which no steady operation can be guaranteed.",
+                  "type": "float array",
+                  "isAbout": [],
+                  "valueReference": [],
+                  "unit": "%"
+               },
+               {
+                  "name": "bandwidth_type",
+                  "description": "Bandwidth Type",
+                  "type": "json",
+                  "isAbout": [],
+                  "valueReference": []
+               },
+               {
+                  "name": "version",
+                  "description": "Version",
+                  "type": "text",
+                  "isAbout": [],
+                  "valueReference": []
+               },
+               {
+                  "name": "method",
+                  "description": "Method",
+                  "type": "json",
+                  "isAbout": [],
+                  "valueReference": []
+               },
+               {
+                  "name": "source",
+                  "description": "Source",
+                  "type": "json",
+                  "isAbout": [],
+                  "valueReference": []
+               },
+               {
+                  "name": "comment",
+                  "description": "Comment",
+                  "type": "text",
+                  "isAbout": [],
+                  "valueReference": []
+               }
+            ],
+            "primaryKey": [
+               "id"
+            ],
+            "foreignKeys": []
+         },
+         "dialect": {
+            "delimiter": ";",
+            "decimalSeparator": "."
+         }
+      }
+   ],
+   "@context": "https://raw.githubusercontent.com/OpenEnergyPlatform/oemetadata/develop/metadata/latest/context.json",
+   "metaMetadata": {
+      "metadataVersion": "oemetadata_v1.5.1",
+      "metadataLicense": {
+         "name": "CC0-1.0",
+         "title": "Creative Commons Zero v1.0 Universal",
+         "path": "https://creativecommons.org/publicdomain/zero/1.0/"
+      }
+   },
+   "_comment": {
+      "metadata": "Metadata documentation and explanation (https://github.com/OpenEnergyPlatform/oemetadata)",
+      "dates": "Dates and time must follow the ISO8601 including time zone (YYYY-MM-DD or YYYY-MM-DDThh:mm:ss±hh)",
+      "units": "Use a space between numbers and units (100 m)",
+      "languages": "Languages must follow the IETF (BCP47) format (en-GB, en-US, de-DE)",
+      "licenses": "License name must follow the SPDX License List (https://spdx.org/licenses/)",
+      "review": "Following the OEP Data Review (https://github.com/OpenEnergyPlatform/data-preprocessing/blob/master/data-review/manual/review_manual.md)",
+      "null": "If not applicable use: null",
+      "todo": "If a value is not yet available, use: todo"
+   }
+}

@@ -1,4 +1,6 @@
 import logging
+import json
+import requests
 
 import sqlalchemy as sa
 from oem2orm.oep_oedialect_oem2orm import (
@@ -9,6 +11,8 @@ from oem2orm.oep_oedialect_oem2orm import (
     create_tables,
     create_tables_from_metadata_file,
 )
+
+from oedatamodel_api.settings import OEP_URL
 
 logger = logging.getLogger("uvicorn.access")
 
@@ -43,6 +47,20 @@ def create_db_connection(user: str, token: str):
     engine = sa.create_engine(conn_str)
     metadata = sa.MetaData(bind=engine)
     return DB(engine, metadata)
+
+
+def get_metadata_from_oep(table: str, schema: str) -> dict:
+    # Get datapackage format for each table in data
+    meta_url = f"{OEP_URL}/api/v0/schema/{schema}/tables/{table}/meta/"
+    response = requests.get(meta_url)
+    if response.status_code != 200:
+        raise MetadataError(f"Table '{schema}.{table}' unavailable on OEP platform.")
+    metadata = json.loads(response.content)
+    try:
+        _ = metadata["resources"][0]["schema"]
+    except (KeyError, IndexError):
+        raise MetadataError(f"Table '{schema}.{table}' has no valid metadata.")
+    return metadata
 
 
 def check_parameter_model(metadata):

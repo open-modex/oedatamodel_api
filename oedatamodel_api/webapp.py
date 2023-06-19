@@ -240,7 +240,8 @@ async def upload_datapackage(
     if show_json:
         return mapped_json
 
-    resources = upload.get_resources_from_data(data_json, schema)
+    metadata = {table: oem.get_metadata_from_oep(table, schema) for table in data_json}
+    resources = upload.get_resources_from_data(data_json, metadata)
     upload_warnings = validate_upload(resources)
     # Prepare success response
     success_response = {
@@ -292,7 +293,8 @@ async def upload_single_table(
         )
 
     data = {table: csv_file.file.read()}
-    resources = upload.get_resources_from_data(data, schema)
+    metadata = {table: oem.get_metadata_from_oep(table, schema)}
+    resources = upload.get_resources_from_data(data, metadata)
     validate_upload(resources)
     data = {resource.name: resource.read_rows() for resource in resources}
     try:
