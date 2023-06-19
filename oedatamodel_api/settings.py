@@ -2,7 +2,7 @@ import logging
 import os
 import pathlib
 
-VERSION = "0.14.0"
+VERSION = "0.16.0"
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
 ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent
