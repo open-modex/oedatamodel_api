@@ -69,6 +69,17 @@ def check_parameter_model(metadata):
             "More than one table defined in metadata resources. "
             "Parameter model consists of a single table."
         )
+    resource_name = metadata["resources"][0]["name"].split(".")
+    if len(resource_name) == 1:
+        raise ParameterModelException(
+            'Resource name must contain schema and table name. (Example: "name": "model_draft.tablename").'
+        )
+    if resource_name[0] != "model_draft":
+        raise ParameterModelException(
+            'Resource name contains wrong schema. When creating a table via APi, '
+            'only schema "model_draft" is allowed in resource name. '
+            '(Example: "name": "model_draft.tablename").'
+        )
     logging.info("Successfully checked OEM parameter model schema.")
 
 

@@ -9,6 +9,9 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 - JSONs are fixed during upload process
 - primary keys can be incremented automatically
 
+### Changed
+- Upload checks whether "model_draft" is set as schema in resource name
+
 ## [0.15.0]
 ### Changed
 - updated frictionless (from 4.40.11 to 5.13.1)
