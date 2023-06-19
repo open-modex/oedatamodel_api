@@ -11,6 +11,16 @@ METADATA_FILENAME = TEST_DATA_FOLDER / "metadata.json"
 with METADATA_FILENAME.open("r", encoding="utf-8") as metadatafile:
     METADATA = json.load(metadatafile)
 
+
+def test_adapt_pks():
+    filename = TEST_DATA_FOLDER / "valid_json.csv"
+    with filename.open("rb") as csvfile:
+        data = {"table": csvfile.read()}
+    resource = upload.get_resources_from_data(data, {"table": METADATA})[0]
+    upload.get_next_id = lambda x, y: 55
+    adapted_resource = upload.adapt_primary_keys(resource, "table", "schema")
+    assert adapted_resource.to_pandas().index[0] == 55
+
 def test_fix_json():
     valid_json = b'1;global;2020;[60,80];[850];[2,3];[3.8,8.2];[65];[30];[20,30];;v1;;"{""operational_temperature"":""akbar_review_2020"",""investment_cost"":""sterner_power--gas_2021"",""fixed_cost"":""rego_de_vasconcelos_recent_2019"",""electricity_demand"":""rego_de_vasconcelos_recent_2019"",""process_efficiency"":""akbar_review_2020"",""operational_lifetime"":""gotz_renewable_2016"",""minimal_load"":""akbar_review_2020""}";'
     invalid_json = b"1;global;2020;[60,80];[850];[2,3];[3.8,8.2];[65];[30];[20,30];;v1;;{'operational_temperature':'akbar_review_2020','investment_cost':'sterner_power--gas_2021','fixed_cost':'rego_de_vasconcelos_recent_2019','electricity_demand':'rego_de_vasconcelos_recent_2019','process_efficiency':'akbar_review_2020','operational_lifetime':'gotz_renewable_2016','minimal_load':'akbar_review_2020'};"

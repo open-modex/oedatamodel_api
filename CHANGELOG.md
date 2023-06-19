@@ -7,6 +7,7 @@ and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v
 ## [Unreleased]
 ### Added
 - JSONs are fixed during upload process
+- primary keys can be incremented automatically
 
 ## [0.15.0]
 ### Changed

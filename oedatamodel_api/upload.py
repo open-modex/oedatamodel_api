@@ -3,8 +3,9 @@ import json
 import logging
 import re
 
+import frictionless
 import requests
-from frictionless import Dialect, Resource, Schema
+from frictionless import Dialect, Resource, Schema, transform, steps
 from frictionless.formats import CsvControl
 
 from oedatamodel_api.settings import OEP_URL
@@ -174,6 +175,25 @@ def get_resources_from_data(data, metadata):
                 )
             )
     return resources
+
+
+def adapt_primary_keys(resource: frictionless.Resource, table: str, schema: str) -> frictionless.Resource:
+    """
+    Adapts primary keys in column "id" to next free number in OEP table
+    """
+    def inc_pk(current_pk):
+        # Conversion to int is necessary, otherwise frictionless transformation gets None due to wrong type.
+        return int(next_id + current_pk - min_id)
+
+    next_id = get_next_id(table, schema)
+    min_id = resource.to_pandas().index.min()
+    return transform(
+        resource,
+        steps=[
+            steps.table_normalize(),
+            steps.cell_convert(field_name='id', function=inc_pk),
+        ],
+    )
 
 
 def fix_json_encoding(data: bytes) -> bytes:

@@ -286,6 +286,7 @@ async def upload_single_table(
     schema: str = Form(default=None),
     table: str = Form(default=None),
     token: str = Form(default=None),
+    adapt_primary_keys: bool = Form(default=True),
 ):
     if not token:
         raise HTTPException(
@@ -296,6 +297,9 @@ async def upload_single_table(
     metadata = {table: oem.get_metadata_from_oep(table, schema)}
     resources = upload.get_resources_from_data(data, metadata)
     validate_upload(resources)
+
+    if adapt_primary_keys:
+        resources = [upload.adapt_primary_keys(resource, table, schema) for table, resource in zip(data, resources)]
     data = {resource.name: resource.read_rows() for resource in resources}
     try:
         upload.upload_data_to_oep(data, schema, token)
