@@ -16,7 +16,7 @@ UPLOAD_FILEPATH = ROOT_DIR / "files"
 # OEP
 # ---
 OEP_URL = "https://openenergy-platform.org"
-DATABUS_URI_BASE = "https://energy.databus.dbpedia.org"
+DATABUS_URI_BASE = "https://databus.openenergyplatform.org"
 MOSS_URL = "http://moss.tools.dbpedia.org/annotation-api-demo/submit"
 OEDATAMODEL_API = "https://modex.rl-institut.de/"  # Only used in debug mode
 

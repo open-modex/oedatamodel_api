@@ -1,4 +1,3 @@
-import json
 import logging
 from typing import Optional
 from urllib.parse import quote
@@ -124,16 +123,16 @@ def register_oep_table(
     ]
 
     version_id = get_databus_identifier(account_name, group, table_name, version)
-    dataset = databusclient.createDataset(
+    dataset = databusclient.create_dataset(
         version_id,
         title=metadata["title"],
         abstract=abstract,
         description=metadata.get("description", ""),
-        license=license_,
+        license_url=license_,
         distributions=distributions,
     )
 
-    deploy(dataset, api_key)
+    databusclient.deploy(dataset, api_key)
     return version_id
 
 
@@ -179,17 +178,3 @@ def check_if_artifact_exists(identifier: str):
     if response.status_code == 200:
         return True
     return False
-
-
-# TODO: Import function from databusclient, once PR https://github.com/dbpedia/databus-client/pull/25 is accepted
-def deploy(dataid, api_key):
-    headers = {"X-API-KEY": f"{api_key}", "Content-Type": "application/json"}
-    data = json.dumps(dataid)
-    base = "/".join(dataid["@graph"][0]["@id"].split("/")[:3]) + "/api/publish"
-    resp = requests.post(base, data=data, headers=headers)
-
-    if resp.status_code == 202:
-        return
-    if resp.status_code == 401:
-        raise DeployError("Could not deploy dataset to databus. Reason: 'Unauthorized'")
-    raise DeployError(f"Could not deploy dataset to databus. Reason: '{resp.text}'")
