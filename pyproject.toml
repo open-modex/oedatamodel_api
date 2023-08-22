@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "oedatamodel_api"
-version = "0.16.0"
+version = "0.17.0"
 description = "API to connect OEP with MODEX frameworks"
 authors = ["Hendrik Huyskens <hendrik.huyskens@rl-institut.de>"]
 
@@ -20,7 +20,7 @@ python-multipart = "^0.0.5"
 frictionless = "^5.0.0"
 redis = "^3.5.3"
 Jinja2 = "^3.1.2"
-databusclient = "^0.8"
+databusclient = "0.12"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.19.0"
