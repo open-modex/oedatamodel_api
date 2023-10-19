@@ -3,3 +3,4 @@
 /oedatamodel_api.egg-info/
 /upload_data/
 /.envs/.production/
+scripts/.env
