@@ -57,6 +57,9 @@ def get_next_id(table, schema):
         "limit": 1,
     }
     response = requests.post(f"{OEP_URL}/api/v0/advanced/search", json={"query": query})
+    data = response.json()
+    if "data" not in data:
+        return 1  # Table is empty, so we can start with ID #1
     return response.json()["data"][0][0] + 1
 
 
