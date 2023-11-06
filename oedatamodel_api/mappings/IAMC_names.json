@@ -1,0 +1,10 @@
+{
+    "base_mapping": "IAMC_minimize",
+    "mapping": {
+      "scenario": "scenario",
+      "timeseries_properties": "@.timeseries[*].{id:id, scenario:scenario_id, region:region, variable: join('|', [@.region, @.technology, @.technology_type, @.parameter_name]), unit: unit, year: getTsYear(@.timeindex_start, @.timeindex_stop), source: source, timeindex_start: timeindex_start, timeindex_stop: timeindex_stop, timeindex_resolution: timeindex_resolution, series: series}",
+      "timeseries": "timeseries"
+    }
+}
+
+
