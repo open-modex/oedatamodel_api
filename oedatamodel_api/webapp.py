@@ -292,7 +292,10 @@ async def upload_single_table(
         raise HTTPException(
             status_code=404, detail="Invalid token - you must provide a valid OEP Token"
         )
-
+    if csv_file.filename.split(".")[-1] != "csv":
+        raise HTTPException(
+            status_code=404, detail="Invalid file type. You must upload a CSV instead."
+        )
     data = {table: csv_file.file.read()}
     metadata = {table: oem.get_metadata_from_oep(table, schema)}
     resources = upload.get_resources_from_data(data, metadata)
