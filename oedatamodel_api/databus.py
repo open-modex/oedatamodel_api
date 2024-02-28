@@ -132,7 +132,11 @@ def register_oep_table(
         distributions=distributions,
     )
 
-    databusclient.deploy(dataset, api_key)
+    try:
+        databusclient.deploy(dataset, api_key)
+    except databusclient.client.DeployError as de:
+        raise DeployError(str(de))
+
     return version_id
 
 
