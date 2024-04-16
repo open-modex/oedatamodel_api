@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "oedatamodel_api"
-version = "0.17.2"
+version = "0.17.3"
 description = "API to connect OEP with MODEX frameworks"
 authors = ["Hendrik Huyskens <hendrik.huyskens@rl-institut.de>"]
 
