@@ -16,7 +16,7 @@ from oedatamodel_api.settings import OEP_URL
 
 logger = logging.getLogger("uvicorn.access")
 
-OEP_CONNECTION = "postgresql+oedialect://{user}:{token}@openenergy-platform.org"
+OEP_CONNECTION = "postgresql+oedialect://{user}:{token}@openenergyplatform.org"
 
 DEFAULT_FRICTIONLESS_RESOURCE = {
     "profile": "tabular-data-resource",

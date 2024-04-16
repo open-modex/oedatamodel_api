@@ -4,9 +4,7 @@ import requests
 from redis import Redis
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from oedatamodel_api.settings import REDIS_URL, SOURCES_DIR, logger
-
-OEP_URL = "https://openenergy-platform.org"
+from oedatamodel_api.settings import OEP_URL, REDIS_URL, SOURCES_DIR, logger
 
 redis = Redis.from_url(REDIS_URL)
 
