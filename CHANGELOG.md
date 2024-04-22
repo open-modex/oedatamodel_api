@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is inspired from [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and the versioning aim to respect [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.17.4] - 2024-04-22
+### Fixed
+- OEP URL for data upload
+
 ## [0.17.3] - 2024-04-16
 ### Fixed
 - support new OEP release by updating oem2orm and oedialect
