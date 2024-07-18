@@ -74,6 +74,7 @@ def register_oep_table(
     account_name: str,
     api_key: str,
     version: str,
+    version_column: str = "version",
 ):
     """
     Registers OEP table on DataBus and MOSS
@@ -92,6 +93,8 @@ def register_oep_table(
         Databus API key
     version: str
         defines for which version table is filtered and registered
+    version_column: str
+        defines which column shall represent version
 
     Returns
     -------
@@ -106,7 +109,10 @@ def register_oep_table(
     abstract = metadata["context"]["documentation"]
     license_ = metadata["licenses"][0]["path"]
 
-    data_url = f"{OEP_URL}/api/v0/schema/{schema_name}/tables/{table_name}/rows?form=csv&where=version={version}"
+    data_url = (
+        f"{OEP_URL}/api/v0/schema/{schema_name}/tables/{table_name}/rows?"
+        f"form=csv&where={version_column}={version}"
+    )
     metadata_url = f"{OEP_URL}/api/v0/schema/{schema_name}/tables/{table_name}/meta/"
 
     distributions = [
