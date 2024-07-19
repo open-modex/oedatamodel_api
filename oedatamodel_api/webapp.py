@@ -358,13 +358,14 @@ async def register_on_databus(
     schema: str = Form(),
     table: str = Form(),
     version: str = Form(),
+    artifact_name: str = Form(None),
     version_column: str = Form("version"),
 ):
     artifact_url = databus.get_databus_identifier(account, group, table)
     artifact_exists = databus.check_if_artifact_exists(artifact_url)
     try:
         databus_url = databus.register_oep_table(
-            schema, table, group, account, api_key, version, version_column
+            schema, table, group, account, api_key, version, artifact_name, version_column
         )
     except databus.MetadataError as me:
         raise HTTPException(

@@ -74,6 +74,7 @@ def register_oep_table(
     account_name: str,
     api_key: str,
     version: str,
+    artifact_name: Optional[str] = None,
     version_column: str = "version",
 ):
     """
@@ -93,6 +94,8 @@ def register_oep_table(
         Databus API key
     version: str
         defines for which version table is filtered and registered
+    artifact_name: Optional[str]
+        set artifact name, if not set table_name is used
     version_column: str
         defines which column shall represent version
 
@@ -127,8 +130,8 @@ def register_oep_table(
             file_format="json",
         ),
     ]
-
-    version_id = get_databus_identifier(account_name, group, table_name, version)
+    artifact_name = artifact_name if artifact_name else table_name
+    version_id = get_databus_identifier(account_name, group, artifact_name, version)
     dataset = databusclient.create_dataset(
         version_id,
         title=metadata["title"],
