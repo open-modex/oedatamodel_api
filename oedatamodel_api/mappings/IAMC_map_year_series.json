@@ -1,0 +1,9 @@
+{
+    "base_mapping": "IAMC_aggregated_series",
+    "mapping": {
+      "scenario": "scenario",
+      "IAMC_timeseries": "map(&set(@, to_string(@.year), @.series), IAMC_timeseries) | map(&exclude(@, ['year', 'series']), @)"
+    }
+}
+
+
