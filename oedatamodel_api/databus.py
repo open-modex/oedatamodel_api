@@ -53,12 +53,15 @@ def get_table_meta(schema: str, table: str):
     if len(metadata) == 0:
         raise MetadataError(f"Metadata for table '{schema}.{table}' is empty.")
 
-    abstract = metadata.get("context", {}).get("documentation", "")
+    if "resources" not in metadata or len(metadata["resources"]) == 0:
+        raise MetadataError(f"Resources in metadata not found for table '{schema}.{table}'.")
+
+    abstract = metadata["resources"][0].get("context", {}).get("documentation", "")
     if not abstract:
         raise MetadataError(f"Abstract for table '{schema}.{table}' is empty.")
 
     try:
-        license_ = metadata["licenses"][0]["path"]
+        license_ = metadata["resources"][0]["licenses"][0]["path"]
     except (IndexError, KeyError):
         license_ = None
     if not license_:
@@ -109,8 +112,8 @@ def register_oep_table(
         f"with {version=}"
     )
     metadata = get_table_meta(schema_name, table_name)
-    abstract = metadata["context"]["documentation"]
-    license_ = metadata["licenses"][0]["path"]
+    abstract = metadata["resources"][0]["context"]["documentation"]
+    license_ = metadata["resources"][0]["licenses"][0]["path"]
 
     data_url = (
         f"{OEP_URL}/api/v0/schema/{schema_name}/tables/{table_name}/rows?"
@@ -134,9 +137,9 @@ def register_oep_table(
     version_id = get_databus_identifier(account_name, group, artifact_name, version)
     dataset = databusclient.create_dataset(
         version_id,
-        title=metadata["title"],
+        title=metadata["resources"][0]["title"],
         abstract=abstract,
-        description=metadata.get("description", ""),
+        description=metadata["resources"][0].get("description", ""),
         license_url=license_,
         distributions=distributions,
     )
