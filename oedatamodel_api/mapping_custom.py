@@ -208,6 +208,22 @@ class CustomFunctions(functions.Functions):
             for grouper, grouping in groupby(unpacked_dict, key=keyfunc)
         }
 
+    @functions.signature({'types': ['string']}, {'types': ['string']})
+    def _func_getTsYear(self, start, end):
+        if not start:
+            return start
+        
+        dt_start = dt.datetime.strptime(start, DATETIME_FORMAT).year
+        dt_end = dt.datetime.strptime(end, DATETIME_FORMAT).year
+
+        if dt_start == dt_end:
+            return dt_start
+        else:
+            return "{}, {}".format(dt_start, dt_end)
+
+        
+
+        
 
 jmespath_options = jmespath.Options(custom_functions=CustomFunctions())
 
